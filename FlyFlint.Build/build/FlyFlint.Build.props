@@ -1,0 +1,26 @@
+﻿<!--
+////////////////////////////////////////////////////////////////////////////
+//
+// Lightweight static O/R mapping builder at compile time.
+// Copyright (c) Kouji Matsui (@kozy_kekyo, @kekyo2)
+//
+// Licensed under Apache-v2: https://opensource.org/licenses/Apache-2.0
+//
+////////////////////////////////////////////////////////////////////////////
+-->
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <PropertyGroup Condition="'$(MSBuildRuntimeType)' == 'Core'">
+    <_FF_RuntimeName>dotnet </_FF_RuntimeName>
+    <_FF_ExecutableName>ff.dll</_FF_ExecutableName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(MSBuildRuntimeType)' == 'Full'">
+    <_FF_RuntimeName></_FF_RuntimeName>
+    <_FF_ExecutableName>ff.exe</_FF_ExecutableName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(MSBuildRuntimeType)' == 'Mono'">
+    <_FF_RuntimeName>mono </_FF_RuntimeName>
+    <_FF_ExecutableName>ff.exe</_FF_ExecutableName>
+  </PropertyGroup>
+
+</Project>

@@ -1,0 +1,69 @@
+﻿<!--
+////////////////////////////////////////////////////////////////////////////
+//
+// Lightweight static O/R mapping builder at compile time.
+// Copyright (c) Kouji Matsui (@kozy_kekyo, @kekyo2)
+//
+// Licensed under Apache-v2: https://opensource.org/licenses/Apache-2.0
+//
+////////////////////////////////////////////////////////////////////////////
+-->
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    
+  <PropertyGroup>
+    <FlyFlintBuildEnable Condition="'$(FlyFlintBuildEnable)' == ''">True</FlyFlintBuildEnable>
+    <FlyFlintBuildTrace Condition="'$(FlyFlintBuildTrace)' == ''">False</FlyFlintBuildTrace>
+  </PropertyGroup>
+
+  <UsingTask
+    TaskName="GetCombinedReferencesBasePath"
+    TaskFactory="RoslynCodeTaskFactory"
+    AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll" >
+    <ParameterGroup>
+      <References ParameterType="Microsoft.Build.Framework.ITaskItem[]" Required="true" />
+      <CombinedReferencesBasePath Output="true" />
+    </ParameterGroup>
+    <Task>
+      <Using Namespace="System"/>
+      <Using Namespace="System.IO"/>
+      <Using Namespace="System.Linq"/>
+      <Using Namespace="Microsoft.Build.Framework"/>
+      <Code Type="Fragment" Language="cs">
+<![CDATA[
+        CombinedReferencesBasePath = string.Join(";", References.
+            Where(item => !string.IsNullOrWhiteSpace(item.ItemSpec)).
+            GroupBy(item => Path.GetDirectoryName(Path.GetFullPath(item.ItemSpec))).
+            Select(g => g.Key).
+            Distinct());
+]]>
+      </Code>
+    </Task>
+  </UsingTask>
+    
+  <Target Name="FlyFlintBuild" AfterTargets="AfterCompile"
+    Condition="'$(FlyFlintBuildEnable)' == 'True'">
+      
+    <PropertyGroup Condition="'$(MSBuildRuntimeType)' == 'Core'">
+      <_FF_PlatformName Condition="('$(MicrosoftNETBuildTasksTFM)' == '') AND ('$(BundledNETCoreAppTargetFrameworkVersion)' == '')">netcoreapp2.0</_FF_PlatformName>
+      <_FF_PlatformName Condition="'$(MicrosoftNETBuildTasksTFM)' == ''">netcoreapp$(BundledNETCoreAppTargetFrameworkVersion)</_FF_PlatformName>
+      <_FF_PlatformName Condition="'$(MicrosoftNETBuildTasksTFM)' != ''">$(MicrosoftNETBuildTasksTFM)</_FF_PlatformName>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(MSBuildRuntimeType)' != 'Core'">
+      <_FF_PlatformName>net461</_FF_PlatformName>
+    </PropertyGroup>
+
+    <PropertyGroup>
+      <FlyFlintBuildToolingRuntimeName Condition="'$(FlyFlintBuildToolingRuntimeName)' == ''">$(_FF_RuntimeName)</FlyFlintBuildToolingRuntimeName>
+      <_EB_ToolingDir>$([System.IO.Path]::Combine('$(MSBuildThisFileDirectory)','..','tools','$(_FF_PlatformName)'))</_EB_ToolingDir>
+      <FlyFlintBuildToolingDir Condition="'$(FlyFlintBuildToolingDir)' == ''">$([System.IO.Path]::GetFullPath('$(_EB_ToolingDir)'))</FlyFlintBuildToolingDir>
+      <FlyFlintBuildToolingPath Condition="'$(FlyFlintBuildToolingPath)' == ''">$([System.IO.Path]::Combine('$(FlyFlintBuildToolingDir)','$(_FF_ExecutableName)'))</FlyFlintBuildToolingPath>
+    </PropertyGroup>
+
+    <GetCombinedReferencesBasePath References="@(ReferencePath)">
+      <Output TaskParameter="CombinedReferencesBasePath" PropertyName="CombinedReferencesBasePath" />
+    </GetCombinedReferencesBasePath>
+        
+    <Exec WorkingDirectory="$(FlyFlintBuildToolingDir)"
+        Command="$(FlyFlintBuildToolingRuntimeName)&quot;$(FlyFlintBuildToolingPath)&quot; &quot;$(CombinedReferencesBasePath)&quot; &quot;$(ProjectDir)$(IntermediateOutputPath)$(TargetFileName)&quot; $(FlyFlintBuildTrace)" />
+  </Target>
+</Project>
