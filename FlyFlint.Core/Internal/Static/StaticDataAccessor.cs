@@ -97,7 +97,7 @@ namespace FlyFlint.Internal.Static
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static Guid GetGuid(IFormatProvider fp, DbDataReader reader, DataInjectionMetadata metadata) =>
             metadata.StoreDirect ? reader.GetGuid(metadata.Index) :
-                new Guid(reader.GetValue(metadata.Index).ToString());
+                new Guid(reader.GetValue(metadata.Index).ToString()!);
 
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -123,7 +123,7 @@ namespace FlyFlint.Internal.Static
         public static string GetString(IFormatProvider fp, DbDataReader reader, DataInjectionMetadata metadata) =>
             reader.IsDBNull(metadata.Index) ? throw new InvalidCastException("Couldn't assign null string.") :
                 metadata.StoreDirect ? reader.GetString(metadata.Index) :
-                    Convert.ToString(reader.GetValue(metadata.Index), fp);
+                    Convert.ToString(reader.GetValue(metadata.Index), fp)!;
 
         /////////////////////////////////////////////////////////////////////////////
 
@@ -215,7 +215,7 @@ namespace FlyFlint.Internal.Static
         public static Guid? GetNullableGuid(IFormatProvider fp, DbDataReader reader, DataInjectionMetadata metadata) =>
             reader.IsDBNull(metadata.Index) ? null :
                 metadata.StoreDirect ? reader.GetGuid(metadata.Index) :
-                    new Guid(reader.GetValue(metadata.Index).ToString());
+                    new Guid(reader.GetValue(metadata.Index).ToString()!);
 
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -298,7 +298,7 @@ namespace FlyFlint.Internal.Static
             }
             else
             {
-                return Encoding.UTF8.GetBytes(value.ToString());
+                return Encoding.UTF8.GetBytes(value.ToString()!);
             }
         }
 

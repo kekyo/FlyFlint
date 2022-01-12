@@ -7,7 +7,13 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
-using System.Runtime.CompilerServices;
+using FlyFlint.Internal.Dynamic;
 
-[assembly: InternalsVisibleTo("FlyFlint.Dynamic.Core")]
-[assembly: InternalsVisibleTo("FlyFlint.Core.Tests")]
+namespace FlyFlint
+{
+    public static class DynamicQuery
+    {
+        public static void Enable() =>
+            DynamicQueryExecutorFacade.SetDynamicQueryExecutor(new DynamicQueryExecutor());
+    }
+}

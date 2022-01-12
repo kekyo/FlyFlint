@@ -9,5 +9,4 @@
 
 using System.Runtime.CompilerServices;
 
-[assembly: InternalsVisibleTo("FlyFlint.Dynamic.Core")]
 [assembly: InternalsVisibleTo("FlyFlint.Core.Tests")]

@@ -20,6 +20,7 @@ namespace FlyFlint.Internal.Static
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public static QueryContext<T> Query<T, TParameters>(
             DbConnection connection,
             PreparedQueryContext<T> prepared, TParameters parameters)
@@ -37,6 +38,7 @@ namespace FlyFlint.Internal.Static
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public static QueryContext<T> Query<T, TParameters>(
             DbConnection connection, DbTransaction transaction,
             PreparedQueryContext<T> prepared, TParameters parameters)
@@ -56,6 +58,7 @@ namespace FlyFlint.Internal.Static
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public static PreparedQueryContext<T> Parameter<T, TParameters>(
             PreparedQueryContext<T> query, TParameters parameters)
             where T : new()
@@ -70,6 +73,7 @@ namespace FlyFlint.Internal.Static
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public static QueryContext<T> Parameter<T, TParameters>(
             QueryContext<T> query, TParameters parameters)
             where T : new()

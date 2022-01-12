@@ -17,7 +17,7 @@ namespace FlyFlint.Internal.Dynamic
     {
         public static DynamicMethod CreateDirectGetter(FieldInfo fi)
         {
-            var fullName = $"MemberAccessor.{fi.DeclaringType.Namespace}.{fi.DeclaringType.Name}.get_{fi.Name}";
+            var fullName = $"MemberAccessor.{fi.DeclaringType!.Namespace}.{fi.DeclaringType!.Name}.get_{fi.Name}";
             var dm = new DynamicMethod(
                 fullName,
                 typeof(object),
@@ -40,7 +40,7 @@ namespace FlyFlint.Internal.Dynamic
 
         public static DynamicMethod CreateDirectSetter(FieldInfo fi)
         {
-            var fullName = $"MemberAccessor.{fi.DeclaringType.Namespace}.{fi.DeclaringType.Name}.set_{fi.Name}";
+            var fullName = $"MemberAccessor.{fi.DeclaringType!.Namespace}.{fi.DeclaringType!.Name}.set_{fi.Name}";
             var dm = new DynamicMethod(
                 fullName,
                 typeof(void),
@@ -68,14 +68,14 @@ namespace FlyFlint.Internal.Dynamic
 
         public static DynamicMethod CreateDirectGetter(PropertyInfo pi)
         {
-            var fullName = $"MemberAccessor.{pi.DeclaringType.Namespace}.{pi.DeclaringType.Name}.get_{pi.Name}";
+            var fullName = $"MemberAccessor.{pi.DeclaringType!.Namespace}.{pi.DeclaringType!.Name}.get_{pi.Name}";
             var dm = new DynamicMethod(
                 fullName,
                 typeof(object),
                 new[] { pi.DeclaringType.MakeByRefType() },
                 true);
             var ig = dm.GetILGenerator();
-            var getter = pi.GetGetMethod(true);
+            var getter = pi.GetGetMethod(true)!;
             ig.Emit(OpCodes.Ldarg_0);
             if (!pi.DeclaringType.IsValueType)
             {
@@ -92,14 +92,14 @@ namespace FlyFlint.Internal.Dynamic
 
         public static DynamicMethod CreateDirectSetter(PropertyInfo pi)
         {
-            var fullName = $"MemberAccessor.{pi.DeclaringType.Namespace}.{pi.DeclaringType.Name}.set_{pi.Name}";
+            var fullName = $"MemberAccessor.{pi.DeclaringType!.Namespace}.{pi.DeclaringType!.Name}.set_{pi.Name}";
             var dm = new DynamicMethod(
                 fullName,
                 typeof(void),
                 new[] { pi.DeclaringType.MakeByRefType(), typeof(object) },
                 true);
             var ig = dm.GetILGenerator();
-            var setter = pi.GetSetMethod(true);
+            var setter = pi.GetSetMethod(true)!;
             ig.Emit(OpCodes.Ldarg_0);
             if (!pi.DeclaringType.IsValueType)
             {

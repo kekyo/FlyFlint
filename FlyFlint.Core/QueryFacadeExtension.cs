@@ -29,7 +29,7 @@ namespace FlyFlint
                 prepared.fp,
                 prepared.encoding,
                 prepared.sql,
-                DynamicQueryExecutor.GetParameters(ref parameters, prepared.parameterPrefix),
+                DynamicQueryExecutorFacade.GetParameters(ref parameters, prepared.parameterPrefix),
                 prepared.parameterPrefix);
 
 #if !NET40
@@ -45,7 +45,7 @@ namespace FlyFlint
                 prepared.fp,
                 prepared.encoding,
                 prepared.sql,
-                DynamicQueryExecutor.GetParameters(ref parameters, prepared.parameterPrefix),
+                DynamicQueryExecutorFacade.GetParameters(ref parameters, prepared.parameterPrefix),
                 prepared.parameterPrefix);
 
         /////////////////////////////////////////////////////////////////////////////
@@ -60,7 +60,7 @@ namespace FlyFlint
                 query.fp,
                 query.encoding,
                 query.sql,
-                DynamicQueryExecutor.GetParameters(ref parameters, query.parameterPrefix),
+                DynamicQueryExecutorFacade.GetParameters(ref parameters, query.parameterPrefix),
                 query.parameterPrefix);
 
 #if !NET40
@@ -75,7 +75,7 @@ namespace FlyFlint
                 query.fp,
                 query.encoding,
                 query.sql,
-                DynamicQueryExecutor.GetParameters(ref parameters, query.parameterPrefix),
+                DynamicQueryExecutorFacade.GetParameters(ref parameters, query.parameterPrefix),
                 query.parameterPrefix);
 
         /////////////////////////////////////////////////////////////////////////////
@@ -85,6 +85,13 @@ namespace FlyFlint
 #endif
         public static IEnumerable<T> Execute<T>(this QueryContext<T> query)
             where T : new() =>
-            DynamicQueryExecutor.Execute(query);
+            DynamicQueryExecutorFacade.Execute(query);
+
+#if !NET40 && !NET45
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IAsyncEnumerable<T> ExecuteAsync<T>(this QueryContext<T> query)
+            where T : new() =>
+            DynamicQueryExecutorFacade.ExecuteAsync(query);
+#endif
     }
 }

@@ -8,12 +8,15 @@
 ////////////////////////////////////////////////////////////////////////////
 
 using System.Collections.Generic;
+using System.ComponentModel;
 
 namespace FlyFlint.Internal.Dynamic
 {
-    internal static class DynamicQueryExecutor
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public sealed class DynamicQueryExecutor : IDynamicQueryExecutor
     {
-        public static (string name, object? value)[] GetParameters<TParameters>(
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public (string name, object? value)[] GetParameters<TParameters>(
             ref TParameters parameters, string parameterPrefix)
         {
             var members = DynamicHelper.GetGetterMetadataList<TParameters>();
@@ -28,7 +31,8 @@ namespace FlyFlint.Internal.Dynamic
 
         /////////////////////////////////////////////////////////////////////
 
-        public static IEnumerable<T> Execute<T>(QueryContext<T> query)
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public IEnumerable<T> Execute<T>(QueryContext<T> query)
             where T : new()
         {
             using (var command = QueryHelper.CreateCommand(
@@ -52,7 +56,8 @@ namespace FlyFlint.Internal.Dynamic
         }
 
 #if !NET40 && !NET45
-        public static async IAsyncEnumerable<T> ExecuteAsync<T>(QueryContext<T> query)
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public async IAsyncEnumerable<T> ExecuteAsync<T>(QueryContext<T> query)
             where T : new()
         {
             using (var command = QueryHelper.CreateCommand(
