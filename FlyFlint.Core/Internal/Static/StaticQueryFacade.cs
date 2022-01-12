@@ -21,6 +21,74 @@ namespace FlyFlint.Internal.Static
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         [EditorBrowsable(EditorBrowsableState.Never)]
+        public static QueryContext Query<TParameters>(
+            DbConnection connection,
+            string sql, TParameters parameters)
+            where TParameters : IParameterExtractable =>
+            new QueryContext(
+                connection,
+                null,
+                FlyFlint.Query.fp,
+                FlyFlint.Query.encoding,
+                sql,
+                StaticQueryExecutor.GetParameters(ref parameters, FlyFlint.Query.parameterPrefix),
+                FlyFlint.Query.parameterPrefix);
+
+#if !NET40
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static QueryContext Query<TParameters>(
+            DbConnection connection, DbTransaction transaction,
+            string sql, TParameters parameters)
+            where TParameters : IParameterExtractable =>
+            new QueryContext(
+                connection,
+                transaction,
+                FlyFlint.Query.fp,
+                FlyFlint.Query.encoding,
+                sql,
+                StaticQueryExecutor.GetParameters(ref parameters, FlyFlint.Query.parameterPrefix),
+                FlyFlint.Query.parameterPrefix);
+
+#if !NET40
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static QueryContext Query<TParameters>(
+            DbConnection connection,
+            PreparedQueryContext prepared, TParameters parameters)
+            where TParameters : IParameterExtractable =>
+            new QueryContext(
+                connection,
+                null,
+                prepared.fp,
+                prepared.encoding,
+                prepared.sql,
+                StaticQueryExecutor.GetParameters(ref parameters, prepared.parameterPrefix),
+                prepared.parameterPrefix);
+
+#if !NET40
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static QueryContext Query<TParameters>(
+            DbConnection connection, DbTransaction transaction,
+            PreparedQueryContext prepared, TParameters parameters)
+            where TParameters : IParameterExtractable =>
+            new QueryContext(
+                connection,
+                transaction,
+                prepared.fp,
+                prepared.encoding,
+                prepared.sql,
+                StaticQueryExecutor.GetParameters(ref parameters, prepared.parameterPrefix),
+                prepared.parameterPrefix);
+
+#if !NET40
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public static QueryContext<T> Query<T, TParameters>(
             DbConnection connection,
             PreparedQueryContext<T> prepared, TParameters parameters)
@@ -54,6 +122,36 @@ namespace FlyFlint.Internal.Static
                 prepared.parameterPrefix);
 
         /////////////////////////////////////////////////////////////////////////////
+
+#if !NET40
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static PreparedQueryContext Parameter<TParameters>(
+            PreparedQueryContext query, TParameters parameters)
+            where TParameters : IParameterExtractable =>
+            new PreparedQueryContext(
+                query.fp,
+                query.encoding,
+                query.sql,
+                StaticQueryExecutor.GetParameters(ref parameters, query.parameterPrefix),
+                query.parameterPrefix);
+
+#if !NET40
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static QueryContext Parameter<TParameters>(
+            QueryContext query, TParameters parameters)
+            where TParameters : IParameterExtractable =>
+            new QueryContext(
+                query.connection,
+                query.transaction,
+                query.fp,
+                query.encoding,
+                query.sql,
+                StaticQueryExecutor.GetParameters(ref parameters, query.parameterPrefix),
+                query.parameterPrefix);
 
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -96,5 +194,13 @@ namespace FlyFlint.Internal.Static
         public static IEnumerable<T> Execute<T>(QueryContext<T> query)
             where T : IDataInjectable, new() =>
             StaticQueryExecutor.Execute(query);
+
+#if !NET40 && !NET45
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static IAsyncEnumerable<T> ExecuteAsync<T>(QueryContext<T> query)
+            where T : IDataInjectable, new() =>
+            StaticQueryExecutor.ExecuteAsync(query);
+#endif
     }
 }

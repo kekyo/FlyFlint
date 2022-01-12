@@ -20,6 +20,98 @@ namespace FlyFlint
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+        public static QueryContext Query(
+            this DbConnection connection, string sql) =>
+            new QueryContext(
+                connection,
+                null,
+                FlyFlint.Query.fp,
+                FlyFlint.Query.encoding,
+                sql,
+                FlyFlint.Query.parameters,
+                FlyFlint.Query.parameterPrefix);
+
+#if !NET40
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public static QueryContext Query(
+            this DbConnection connection,
+            DbTransaction transaction,
+            string sql) =>
+            new QueryContext(
+                connection,
+                transaction,
+                FlyFlint.Query.fp,
+                FlyFlint.Query.encoding,
+                sql,
+                FlyFlint.Query.parameters,
+                FlyFlint.Query.parameterPrefix);
+
+#if !NET40
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public static QueryContext<T> Query<T>(
+            this DbConnection connection, string sql)
+            where T : new() =>
+            new QueryContext<T>(
+                connection,
+                null,
+                FlyFlint.Query.fp,
+                FlyFlint.Query.encoding,
+                sql,
+                FlyFlint.Query.parameters,
+                FlyFlint.Query.parameterPrefix);
+
+#if !NET40
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public static QueryContext<T> Query<T>(
+            this DbConnection connection,
+            DbTransaction transaction,
+            string sql)
+            where T : new() =>
+            new QueryContext<T>(
+                connection,
+                transaction,
+                FlyFlint.Query.fp,
+                FlyFlint.Query.encoding,
+                sql,
+                FlyFlint.Query.parameters,
+                FlyFlint.Query.parameterPrefix);
+
+#if !NET40
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public static QueryContext Query(
+            this DbConnection connection,
+            PreparedQueryContext prepared) =>
+            new QueryContext(
+                connection,
+                null,
+                prepared.fp,
+                prepared.encoding,
+                prepared.sql,
+                prepared.parameters,
+                prepared.parameterPrefix);
+
+#if !NET40
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public static QueryContext Query(
+            this DbConnection connection, DbTransaction transaction,
+            PreparedQueryContext prepared) =>
+            new QueryContext(
+                connection,
+                transaction,
+                prepared.fp,
+                prepared.encoding,
+                prepared.sql,
+                prepared.parameters,
+                prepared.parameterPrefix);
+
+#if !NET40
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
         public static QueryContext<T> Query<T>(
             this DbConnection connection,
             PreparedQueryContext<T> prepared)
@@ -48,37 +140,5 @@ namespace FlyFlint
                 prepared.sql,
                 prepared.parameters,
                 prepared.parameterPrefix);
-
-#if !NET40
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-        public static QueryContext<T> Query<T>(
-            this DbConnection connection, string sql)
-            where T : new() =>
-            new QueryContext<T>(
-                connection,
-                null,
-                CultureInfo.InvariantCulture,
-                Encoding.UTF8,
-                sql,
-                QueryHelper.Empty,
-                "@");
-
-#if !NET40
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-        public static QueryContext<T> Query<T>(
-            this DbConnection connection,
-            DbTransaction transaction,
-            string sql)
-            where T : new() =>
-            new QueryContext<T>(
-                connection,
-                transaction,
-                CultureInfo.InvariantCulture,
-                Encoding.UTF8,
-                sql,
-                QueryHelper.Empty,
-                "@");
     }
 }

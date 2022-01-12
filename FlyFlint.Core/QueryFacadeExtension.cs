@@ -19,6 +19,66 @@ namespace FlyFlint
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+        public static QueryContext Query<TParameters>(
+            this DbConnection connection,
+            string sql, TParameters parameters) =>
+            new QueryContext(
+                connection,
+                null,
+                FlyFlint.Query.fp,
+                FlyFlint.Query.encoding,
+                sql,
+                DynamicQueryExecutorFacade.GetParameters(ref parameters, FlyFlint.Query.parameterPrefix),
+                FlyFlint.Query.parameterPrefix);
+
+#if !NET40
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public static QueryContext Query<TParameters>(
+            this DbConnection connection, DbTransaction transaction,
+            string sql, TParameters parameters) =>
+            new QueryContext(
+                connection,
+                transaction,
+                FlyFlint.Query.fp,
+                FlyFlint.Query.encoding,
+                sql,
+                DynamicQueryExecutorFacade.GetParameters(ref parameters, FlyFlint.Query.parameterPrefix),
+                FlyFlint.Query.parameterPrefix);
+
+#if !NET40
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public static QueryContext Query<TParameters>(
+            this DbConnection connection,
+            PreparedQueryContext prepared, TParameters parameters) =>
+            new QueryContext(
+                connection,
+                null,
+                prepared.fp,
+                prepared.encoding,
+                prepared.sql,
+                DynamicQueryExecutorFacade.GetParameters(ref parameters, prepared.parameterPrefix),
+                prepared.parameterPrefix);
+
+#if !NET40
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public static QueryContext Query<TParameters>(
+            this DbConnection connection, DbTransaction transaction,
+            PreparedQueryContext prepared, TParameters parameters) =>
+            new QueryContext(
+                connection,
+                transaction,
+                prepared.fp,
+                prepared.encoding,
+                prepared.sql,
+                DynamicQueryExecutorFacade.GetParameters(ref parameters, prepared.parameterPrefix),
+                prepared.parameterPrefix);
+
+#if !NET40
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
         public static QueryContext<T> Query<T, TParameters>(
             this DbConnection connection,
             PreparedQueryContext<T> prepared, TParameters parameters)
@@ -49,6 +109,32 @@ namespace FlyFlint
                 prepared.parameterPrefix);
 
         /////////////////////////////////////////////////////////////////////////////
+
+#if !NET40
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public static PreparedQueryContext Parameter<TParameter>(
+            this PreparedQueryContext query, TParameter parameters) =>
+            new PreparedQueryContext(
+                query.fp,
+                query.encoding,
+                query.sql,
+                DynamicQueryExecutorFacade.GetParameters(ref parameters, query.parameterPrefix),
+                query.parameterPrefix);
+
+#if !NET40
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public static QueryContext Parameter<TParameter>(
+            this QueryContext query, TParameter parameters) =>
+            new QueryContext(
+                query.connection,
+                query.transaction,
+                query.fp,
+                query.encoding,
+                query.sql,
+                DynamicQueryExecutorFacade.GetParameters(ref parameters, query.parameterPrefix),
+                query.parameterPrefix);
 
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

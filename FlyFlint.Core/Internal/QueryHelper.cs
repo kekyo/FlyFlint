@@ -16,10 +16,6 @@ namespace FlyFlint.Internal
 {
     internal static class QueryHelper
     {
-        public static readonly (string, object?)[] Empty = { };
-
-        /////////////////////////////////////////////////////////////////////
-
         public static DbCommand CreateCommand(
             DbConnection connection, DbTransaction? transaction,
             string sql, (string name, object? value)[] parameters)

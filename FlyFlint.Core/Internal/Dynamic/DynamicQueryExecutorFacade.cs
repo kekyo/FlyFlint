@@ -9,7 +9,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.IO;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -17,25 +16,21 @@ using System.Threading;
 
 namespace FlyFlint.Internal.Dynamic
 {
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public interface IDynamicQueryExecutor
+    internal interface IDynamicQueryExecutor
     {
-        [EditorBrowsable(EditorBrowsableState.Never)]
         (string name, object? value)[] GetParameters<TParameters>(
             ref TParameters parameters, string parameterPrefix);
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
         IEnumerable<T> Execute<T>(QueryContext<T> query)
             where T : new();
 
 #if !NET40 && !NET45
-        [EditorBrowsable(EditorBrowsableState.Never)]
         IAsyncEnumerable<T> ExecuteAsync<T>(QueryContext<T> query)
             where T : new();
 #endif
     }
     
-    public static class DynamicQueryExecutorFacade
+    internal static class DynamicQueryExecutorFacade
     {
         private static volatile IDynamicQueryExecutor? executor;
 
