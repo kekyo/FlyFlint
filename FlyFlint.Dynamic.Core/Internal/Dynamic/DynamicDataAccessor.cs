@@ -7,83 +7,22 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
+using FlyFlint.Internal.Converter;
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.Text;
 
 namespace FlyFlint.Internal.Dynamic
 {
     internal static class DynamicDataAccessor
     {
+        private static readonly Encoding encoding = Encoding.UTF8;
+
         public static object? GetValue(
-            IFormatProvider fp, DbDataReader reader, DataInjectionMetadata metadata, Type targetType)
-        {
-            if (reader.IsDBNull(metadata.Index))
-            {
-                return null;
-            }
-
-            var value = reader.GetValue(metadata.Index);
-            if (targetType == metadata.Type)
-            {
-                return value;
-            }
-            else if (targetType.IsEnum)
-            {
-                return GetEnumValue(targetType, value, fp);
-            }
-            else
-            {
-                return Convert.ChangeType(value, targetType, fp);
-            }
-        }
-
-        /////////////////////////////////////////////////////////////////////////////
-
-        private static readonly Dictionary<Type, (string[], Enum[])> enumMetadataDict =
-            new Dictionary<Type, (string[], Enum[])>();
-
-        private static bool TryToEnumValue(Type enumType, string strValue, out object? value)
-        {
-            (string[] fieldNames, Enum[] fieldValues) enumMetadata;
-            lock (enumMetadataDict)
-            {
-                if (!enumMetadataDict.TryGetValue(enumType, out enumMetadata))
-                {
-                    enumMetadata = QueryHelper.GetSortedEnumValues(enumType);
-                    enumMetadataDict.Add(enumType, enumMetadata);
-                }
-            }
-
-            var index = Array.BinarySearch(enumMetadata.fieldNames, strValue);
-            if (index >= 1)
-            {
-                value = enumMetadata.fieldValues[index];
-                return true;
-            }
-            else
-            {
-                value = null;
-                return false;
-            }
-        }
-
-        public static object GetEnumValue(Type enumType, object value, IFormatProvider fp)
-        {
-            // Makes flexible enum type conversion.
-            var ut = Enum.GetUnderlyingType(enumType);
-            if (ut == value.GetType())
-            {
-                return Enum.ToObject(enumType, value);
-            }
-            else if (value is string sv && TryToEnumValue(enumType, sv, out var ov))
-            {
-                return ov!;
-            }
-            else
-            {
-                return Enum.ToObject(enumType, Convert.ChangeType(value, ut, fp));
-            }
-        }
+            IFormatProvider fp, DbDataReader reader, DataInjectionMetadata metadata, Type targetType) =>
+            reader.IsDBNull(metadata.Index) ? null :
+                metadata.StoreDirect ? reader.GetValue(metadata.Index) :
+                    ValueConverter.UnsafeConvert(fp, encoding, reader.GetValue(metadata.Index), targetType);
     }
 }

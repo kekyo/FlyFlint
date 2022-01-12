@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data.Common;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 
 namespace FlyFlint.Internal.Static
 {
@@ -191,16 +192,44 @@ namespace FlyFlint.Internal.Static
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         [EditorBrowsable(EditorBrowsableState.Never)]
+        public static void ExecuteNonQuery(QueryContext query) =>
+            StaticQueryExecutor.ExecuteNonQuery(query);
+
+#if !NET40
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static T ExecuteScalar<T>(QueryContext query) =>
+                StaticQueryExecutor.ExecuteScalar<T>(query);
+
+#if !NET40
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public static IEnumerable<T> Execute<T>(QueryContext<T> query)
             where T : IDataInjectable, new() =>
             StaticQueryExecutor.Execute(query);
 
-#if !NET40 && !NET45
+        /////////////////////////////////////////////////////////////////////
+
+#if !NET40
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static Task ExecuteNonQueryAsync(QueryContext query) =>
+            StaticQueryExecutor.ExecuteNonQueryAsync(query);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static Task<T> ExecuteScalarAsync<T>(QueryContext query) =>
+                StaticQueryExecutor.ExecuteScalarAsync<T>(query);
+
+#if !NET45
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static IAsyncEnumerable<T> ExecuteAsync<T>(QueryContext<T> query)
             where T : IDataInjectable, new() =>
             StaticQueryExecutor.ExecuteAsync(query);
+#endif
 #endif
     }
 }

@@ -13,6 +13,7 @@ using System.IO;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace FlyFlint.Internal.Dynamic
 {
@@ -21,12 +22,18 @@ namespace FlyFlint.Internal.Dynamic
         (string name, object? value)[] GetParameters<TParameters>(
             ref TParameters parameters, string parameterPrefix);
 
+        int ExecuteNonQuery(QueryContext query);
+        T ExecuteScalar<T>(QueryContext query);
         IEnumerable<T> Execute<T>(QueryContext<T> query)
             where T : new();
 
-#if !NET40 && !NET45
+#if !NET40
+        Task<int> ExecuteNonQueryAsync(QueryContext query);
+        Task<T> ExecuteScalarAsync<T>(QueryContext query);
+#if !NET45
         IAsyncEnumerable<T> ExecuteAsync<T>(QueryContext<T> query)
             where T : new();
+#endif
 #endif
     }
     
@@ -69,14 +76,37 @@ namespace FlyFlint.Internal.Dynamic
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+        internal static int ExecuteNonQuery(QueryContext query) =>
+            GetDynamicQueryExecutor().ExecuteNonQuery(query);
+        
+#if !NET40
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        internal static T ExecuteScalar<T>(QueryContext query) =>
+            GetDynamicQueryExecutor().ExecuteScalar<T>(query);
+
+#if !NET40
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
         internal static IEnumerable<T> Execute<T>(QueryContext<T> query)
             where T : new() =>
             GetDynamicQueryExecutor().Execute(query);
 
-#if !NET40 && !NET45
+#if !NET40
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static Task<int> ExecuteNonQueryAsync(QueryContext query) =>
+            GetDynamicQueryExecutor().ExecuteNonQueryAsync(query);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static Task<T> ExecuteScalarAsync<T>(QueryContext query) =>
+            GetDynamicQueryExecutor().ExecuteScalarAsync<T>(query);
+
+#if !NET45
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static IAsyncEnumerable<T> ExecuteAsync<T>(QueryContext<T> query)
             where T : new() =>
             GetDynamicQueryExecutor().ExecuteAsync(query);
+#endif
 #endif
     }
 }

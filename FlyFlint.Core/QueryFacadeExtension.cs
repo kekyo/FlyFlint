@@ -11,6 +11,7 @@ using FlyFlint.Internal.Dynamic;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 
 namespace FlyFlint
 {
@@ -169,15 +170,39 @@ namespace FlyFlint
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+        public static int ExecuteNonQuery(this QueryContext query) =>
+            DynamicQueryExecutorFacade.ExecuteNonQuery(query);
+
+#if !NET40
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public static T ExecuteScalar<T>(this QueryContext query) =>
+            DynamicQueryExecutorFacade.ExecuteScalar<T>(query);
+
+#if !NET40
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
         public static IEnumerable<T> Execute<T>(this QueryContext<T> query)
             where T : new() =>
             DynamicQueryExecutorFacade.Execute(query);
 
-#if !NET40 && !NET45
+        /////////////////////////////////////////////////////////////////////
+
+#if !NET40
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Task<int> ExecuteNonQueryAsync(this QueryContext query) =>
+            DynamicQueryExecutorFacade.ExecuteNonQueryAsync(query);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Task<T> ExecuteScalarAsync<T>(this QueryContext query) =>
+            DynamicQueryExecutorFacade.ExecuteScalarAsync<T>(query);
+
+#if !NET45
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IAsyncEnumerable<T> ExecuteAsync<T>(this QueryContext<T> query)
             where T : new() =>
             DynamicQueryExecutorFacade.ExecuteAsync(query);
+#endif
 #endif
     }
 }

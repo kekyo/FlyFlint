@@ -34,10 +34,8 @@ namespace FlyFlint.Internal.Dynamic
                 if (dbFieldNameIndiciesIndex >= 0)
                 {
                     var dbFieldMetadata = dbFieldMetadataList[dbFieldNameIndiciesIndex];
-                    var ut = Nullable.GetUnderlyingType(member.type);
-                    var targetType = Nullable.GetUnderlyingType(member.type) ?? member.type;
                     candidates.Add((DbDataReader reader, ref T element) =>
-                        member.setter(ref element, DynamicDataAccessor.GetValue(fp, reader, dbFieldMetadata, targetType)));
+                        member.setter(ref element, DynamicDataAccessor.GetValue(fp, reader, dbFieldMetadata, member.type)));
                 }
             }
 
