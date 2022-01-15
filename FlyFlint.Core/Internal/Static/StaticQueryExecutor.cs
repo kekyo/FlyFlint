@@ -45,7 +45,7 @@ namespace FlyFlint.Internal.Static
             using (var command = QueryHelper.CreateCommand(
                 query.connection, query.transaction, query.sql, query.parameters))
             {
-                return ValueConverter<T>.Convert(
+                return StaticValueConverter.Convert<T>(
                     query.fp,
                     query.encoding,
                     command.ExecuteScalar());
@@ -79,7 +79,6 @@ namespace FlyFlint.Internal.Static
 
         /////////////////////////////////////////////////////////////////////
 
-#if !NET40
         public static async Task<int> ExecuteNonQueryAsync(QueryContext query)
         {
             using (var command = QueryHelper.CreateCommand(
@@ -94,14 +93,14 @@ namespace FlyFlint.Internal.Static
             using (var command = QueryHelper.CreateCommand(
                 query.connection, query.transaction, query.sql, query.parameters))
             {
-                return ValueConverter<T>.Convert(
+                return StaticValueConverter.Convert<T>(
                     query.fp,
                     query.encoding,
                     await command.ExecuteScalarAsync().ConfigureAwait(false));
             }
         }
 
-#if !NET45
+#if !NET40 && !NET45
         public static async IAsyncEnumerable<T> ExecuteAsync<T>(QueryContext<T> query)
             where T : IDataInjectable, new()
         {
@@ -126,7 +125,6 @@ namespace FlyFlint.Internal.Static
                 }
             }
         }
-#endif
 #endif
     }
 }

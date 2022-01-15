@@ -7,6 +7,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
+using FlyFlint.Internal.Converter.Specialized;
 using System;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
@@ -14,204 +15,138 @@ using System.Text;
 
 namespace FlyFlint.Internal.Converter
 {
-    internal static class InternalValueConverter
+    internal abstract class InternalValueConverter<T>
     {
-        public static InternalValueConverter<T> Create<T>()
+        public static readonly InternalValueConverter<T> converter;
+
+        static InternalValueConverter()
         {
             if (typeof(T) == typeof(bool))
             {
-                return new BooleanValueConverter<T>();
+                converter = new BooleanValueConverter<T>();
             }
             else if (typeof(T) == typeof(byte))
             {
-                return new ByteValueConverter<T>();
+                converter = new ByteValueConverter<T>();
             }
             else if (typeof(T) == typeof(short))
             {
-                return new Int16ValueConverter<T>();
+                converter = new Int16ValueConverter<T>();
             }
             else if (typeof(T) == typeof(int))
             {
-                return new Int32ValueConverter<T>();
+                converter = new Int32ValueConverter<T>();
             }
             else if (typeof(T) == typeof(long))
             {
-                return new Int64ValueConverter<T>();
+                converter = new Int64ValueConverter<T>();
             }
             else if (typeof(T) == typeof(float))
             {
-                return new SingleValueConverter<T>();
+                converter = new SingleValueConverter<T>();
             }
             else if (typeof(T) == typeof(double))
             {
-                return new DoubleValueConverter<T>();
+                converter = new DoubleValueConverter<T>();
             }
             else if (typeof(T) == typeof(decimal))
             {
-                return new DecimalValueConverter<T>();
+                converter = new DecimalValueConverter<T>();
             }
             else if (typeof(T) == typeof(Guid))
             {
-                return new GuidValueConverter<T>();
+                converter = new GuidValueConverter<T>();
             }
             else if (typeof(T) == typeof(DateTime))
             {
-                return new DateTimeValueConverter<T>();
+                converter = new DateTimeValueConverter<T>();
             }
             else if (typeof(T) == typeof(char))
             {
-                return new CharValueConverter<T>();
+                converter = new CharValueConverter<T>();
             }
             else if (typeof(T) == typeof(string))
             {
-                return new NullableStringValueConverter<T>();
+                converter = new NullableStringValueConverter<T>();
             }
             else if (typeof(T).IsEnum)
             {
-                return new EnumValueConverter<T>();
+                converter = new EnumValueConverter<T>();
             }
             else if (typeof(T) == typeof(byte[]))
             {
-                return new NullableByteArrayValueConverter<T>();
+                converter = new NullableByteArrayValueConverter<T>();
             }
             else if (typeof(T) == typeof(bool?))
             {
-                return new NullableBooleanValueConverter<T>();
+                converter = new NullableBooleanValueConverter<T>();
             }
             else if (typeof(T) == typeof(byte?))
             {
-                return new NullableByteValueConverter<T>();
+                converter = new NullableByteValueConverter<T>();
             }
             else if (typeof(T) == typeof(short?))
             {
-                return new NullableInt16ValueConverter<T>();
+                converter = new NullableInt16ValueConverter<T>();
             }
             else if (typeof(T) == typeof(int?))
             {
-                return new NullableInt32ValueConverter<T>();
+                converter = new NullableInt32ValueConverter<T>();
             }
             else if (typeof(T) == typeof(long?))
             {
-                return new NullableInt64ValueConverter<T>();
+                converter = new NullableInt64ValueConverter<T>();
             }
             else if (typeof(T) == typeof(float?))
             {
-                return new NullableSingleValueConverter<T>();
+                converter = new NullableSingleValueConverter<T>();
             }
             else if (typeof(T) == typeof(double?))
             {
-                return new NullableDoubleValueConverter<T>();
+                converter = new NullableDoubleValueConverter<T>();
             }
             else if (typeof(T) == typeof(decimal?))
             {
-                return new NullableDecimalValueConverter<T>();
+                converter = new NullableDecimalValueConverter<T>();
             }
             else if (typeof(T) == typeof(Guid?))
             {
-                return new NullableGuidValueConverter<T>();
+                converter = new NullableGuidValueConverter<T>();
             }
             else if (typeof(T) == typeof(DateTime?))
             {
-                return new NullableDateTimeValueConverter<T>();
+                converter = new NullableDateTimeValueConverter<T>();
             }
             else if (typeof(T) == typeof(char?))
             {
-                return new NullableCharValueConverter<T>();
+                converter = new NullableCharValueConverter<T>();
             }
             else if (Nullable.GetUnderlyingType(typeof(T))?.IsEnum ?? false)
             {
-                return new NullableEnumValueConverter<T>();
+                converter = new NullableEnumValueConverter<T>();
             }
             else
             {
-                return new InvalidOperationExceptionConverter<T>();
+                converter = new InvalidOperationExceptionConverter<T>();
             }
         }
-    }
 
-    internal abstract class InternalValueConverter<T>
-    {
         public abstract T Convert(IFormatProvider fp, Encoding encoding, object? value);
         public abstract T UnsafeConvert(IFormatProvider fp, Encoding encoding, object value);
     }
 
-    public static class ValueConverter<T>
+    internal sealed class InvalidOperationExceptionConverter<T> : InternalValueConverter<T>
     {
-        private static readonly InternalValueConverter<T> converter =
-            InternalValueConverter.Create<T>();
-
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static T Convert(IFormatProvider fp, Encoding encoding, object? value) =>
-            converter.Convert(fp, encoding, value);
-
+        public override T Convert(IFormatProvider fp, Encoding encoding, object? value) =>
+            throw new InvalidOperationException($"Could not convert to {typeof(T).FullName}");
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static T UnsafeConvert(IFormatProvider fp, Encoding encoding, object value)
-        {
-            Debug.Assert(value != null);
-            Debug.Assert(value is not DBNull);
-            return converter.UnsafeConvert(fp, encoding, value!);
-        }
-    }
-
-    /////////////////////////////////////////////////////////////////////////////
-
-    internal static class ByteArrayValueConverter
-    {
-        public static byte[] ToByteArray(object value, IFormatProvider fp, Encoding encoding)
-        {
-            if (value is string str)
-            {
-                return encoding.GetBytes(str);
-            }
-            else if (value is char c)
-            {
-                return BitConverter.GetBytes(c);
-            }
-            else if (value is bool b)
-            {
-                return BitConverter.GetBytes(b);
-            }
-            else if (value is byte b8)
-            {
-                return BitConverter.GetBytes(b8);
-            }
-            else if (value is short i16)
-            {
-                return BitConverter.GetBytes(i16);
-            }
-            else if (value is int i32)
-            {
-                return BitConverter.GetBytes(i32);
-            }
-            else if (value is long i64)
-            {
-                return BitConverter.GetBytes(i64);
-            }
-            else if (value is float f)
-            {
-                return BitConverter.GetBytes(f);
-            }
-            else if (value is double d)
-            {
-                return BitConverter.GetBytes(d);
-            }
-            else if (value is Guid g)
-            {
-                return g.ToByteArray();
-            }
-            else if (value is DateTime dt)
-            {
-                return BitConverter.GetBytes(dt.ToBinary());
-            }
-            else
-            {
-                return encoding.GetBytes(Convert.ToString(value, fp)!);
-            }
-        }
+        public override T UnsafeConvert(IFormatProvider fp, Encoding encoding, object value) =>
+            throw new InvalidOperationException($"Could not convert to {typeof(T).FullName}");
     }
 
     /////////////////////////////////////////////////////////////////////////////
@@ -221,10 +156,10 @@ namespace FlyFlint.Internal.Converter
         static InternalValueConverterBase() =>
             Debug.Assert(typeof(T) == typeof(TR));
 
-        protected readonly Func<object, IFormatProvider, T> converter;
+        protected readonly Func<object, IFormatProvider, T> convert;
 
-        protected InternalValueConverterBase(Func<object, IFormatProvider, TR> converter) =>
-            this.converter = (Func<object, IFormatProvider, T>)(Delegate)converter;
+        protected InternalValueConverterBase(Func<object, IFormatProvider, TR> convert) =>
+            this.convert = (Func<object, IFormatProvider, T>)(Delegate)convert;
 
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -233,14 +168,14 @@ namespace FlyFlint.Internal.Converter
             value is null ? throw new NullReferenceException($"Could not convert from null to {typeof(T).FullName}.") :
             value is DBNull ? throw new NullReferenceException($"Could not convert from DBNull to {typeof(T).FullName}.") :
             value is T v ? v :
-            converter(value!, fp);
+            convert(value, fp);
 
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public override sealed T UnsafeConvert(IFormatProvider fp, Encoding encoding, object value) =>
             value is T v ? v :
-            converter(value!, fp);
+            convert(value, fp);
     }
 
     internal sealed class BooleanValueConverter<T> : InternalValueConverterBase<T, bool>
@@ -332,7 +267,7 @@ namespace FlyFlint.Internal.Converter
             Debug.Assert(typeof(T).IsEnum);
 
         public EnumValueConverter() :
-            base(EnumConverter<T>.Convert)
+            base(EnumConverter<T>.convert)
         { }
     }
 
@@ -348,15 +283,15 @@ namespace FlyFlint.Internal.Converter
             Debug.Assert(ut == nt);
         }
 
-        protected readonly Func<TUnderlying, T> caster;
-        protected readonly Func<object, IFormatProvider, T> converter;
+        protected readonly Func<TUnderlying, T> cast;
+        protected readonly Func<object, IFormatProvider, T> convert;
 
         protected InternalNullableValueConverterBase(
-            Func<TUnderlying, TNullable> caster,
-            Func<object, IFormatProvider, TNullable> converter)
+            Func<TUnderlying, TNullable> cast,
+            Func<object, IFormatProvider, TNullable> convert)
         {
-            this.caster = (Func<TUnderlying, T>)(Delegate)caster;
-            this.converter = (Func<object, IFormatProvider, T>)(Delegate)converter;
+            this.cast = (Func<TUnderlying, T>)(Delegate)cast;
+            this.convert = (Func<object, IFormatProvider, T>)(Delegate)convert;
         }
 
 #if !NET40
@@ -365,15 +300,15 @@ namespace FlyFlint.Internal.Converter
         public override sealed T Convert(IFormatProvider fp, Encoding encoding, object? value) =>
             value is null ? default! :
             value is DBNull ? default! :
-            value is TUnderlying v ? caster(v) :
-            converter(value!, fp);
+            value is TUnderlying v ? cast(v) :
+            convert(value, fp);
 
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public override sealed T UnsafeConvert(IFormatProvider fp, Encoding encoding, object value) =>
-            value is TUnderlying v ? caster(v) :
-            converter(value!, fp);
+            value is TUnderlying v ? cast(v) :
+            convert(value, fp);
     }
 
     internal sealed class NullableBooleanValueConverter<T> :
@@ -533,69 +468,68 @@ namespace FlyFlint.Internal.Converter
     internal sealed class NullableStringValueConverter<T> :
         InternalValueConverter<T>
     {
-        private static readonly Func<object, IFormatProvider, T> converter =
+        private static readonly Func<object, IFormatProvider, T> convert =
             (Func<object, IFormatProvider, T>)(Delegate)
             new Func<object, IFormatProvider, string>(System.Convert.ToString!);
 
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public override sealed T Convert(IFormatProvider fp, Encoding encoding, object? value) =>
+        public override T Convert(IFormatProvider fp, Encoding encoding, object? value) =>
             value is null ? default! :
             value is DBNull ? default! :
             value is T v ? v :
-            converter(value!, fp);
+            convert(value!, fp);
 
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public override sealed T UnsafeConvert(IFormatProvider fp, Encoding encoding, object value) =>
+        public override T UnsafeConvert(IFormatProvider fp, Encoding encoding, object value) =>
             value is T v ? v :
-            converter(value!, fp);
+            convert(value!, fp);
     }
 
     internal sealed class NullableEnumValueConverter<T> :
-        InternalNullableValueConverterBase<T, T?, T>
+        InternalValueConverter<T>
     {
-        private static T? ToEnum(object value, IFormatProvider fp) =>
-            EnumConverter<T>.Convert(value, fp);
+#if !NET40
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public override T Convert(IFormatProvider fp, Encoding encoding, object? value) =>
+            value is null ? default! :
+            value is DBNull ? default! :
+            value is T v ? v :
+            EnumConverter<T>.convert(value!, fp);
 
-        public NullableEnumValueConverter() :
-            base(value => value, ToEnum)
-        { }
+#if !NET40
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public override T UnsafeConvert(IFormatProvider fp, Encoding encoding, object value) =>
+            value is T v ? v :
+            EnumConverter<T>.convert(value, fp);
     }
 
     internal sealed class NullableByteArrayValueConverter<T> :
         InternalValueConverter<T>
     {
-        private static readonly Func<object, IFormatProvider, Encoding, T> converter =
+        private static readonly Func<object, IFormatProvider, Encoding, T> convert =
             (Func<object, IFormatProvider, Encoding, T>)(Delegate)
-            new Func<object, IFormatProvider, Encoding, byte[]>(ByteArrayValueConverter.ToByteArray);
+            new Func<object, IFormatProvider, Encoding, byte[]>(ByteArrayConverter.Convert);
 
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public override sealed T Convert(IFormatProvider fp, Encoding encoding, object? value) =>
+        public override T Convert(IFormatProvider fp, Encoding encoding, object? value) =>
             value is null ? default! :
             value is DBNull ? default! :
             value is T v ? v :
-            converter(value!, fp, encoding);
+            convert(value!, fp, encoding);
 
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public override sealed T UnsafeConvert(IFormatProvider fp, Encoding encoding, object value) =>
-            value is T v ? v :
-            converter(value!, fp, encoding);
-    }
-
-    /////////////////////////////////////////////////////////////////////////////
-
-    internal sealed class InvalidOperationExceptionConverter<T> : InternalValueConverter<T>
-    {
-        public override T Convert(IFormatProvider fp, Encoding encoding, object? value) =>
-            throw new InvalidOperationException($"Could not convert to {typeof(T).FullName}");
         public override T UnsafeConvert(IFormatProvider fp, Encoding encoding, object value) =>
-            throw new InvalidOperationException($"Could not convert to {typeof(T).FullName}");
+            value is T v ? v :
+            convert(value!, fp, encoding);
     }
 }

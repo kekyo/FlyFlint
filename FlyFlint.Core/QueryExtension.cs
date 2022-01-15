@@ -25,11 +25,11 @@ namespace FlyFlint
             new QueryContext(
                 connection,
                 null,
-                FlyFlint.Query.fp,
-                FlyFlint.Query.encoding,
+                FlyFlint.Query.defaultFp,
+                FlyFlint.Query.defaultEncoding,
                 sql,
-                FlyFlint.Query.parameters,
-                FlyFlint.Query.parameterPrefix);
+                FlyFlint.Query.defaultParameters,
+                FlyFlint.Query.defaultParameterPrefix);
 
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -41,11 +41,11 @@ namespace FlyFlint
             new QueryContext(
                 connection,
                 transaction,
-                FlyFlint.Query.fp,
-                FlyFlint.Query.encoding,
+                FlyFlint.Query.defaultFp,
+                FlyFlint.Query.defaultEncoding,
                 sql,
-                FlyFlint.Query.parameters,
-                FlyFlint.Query.parameterPrefix);
+                FlyFlint.Query.defaultParameters,
+                FlyFlint.Query.defaultParameterPrefix);
 
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -56,11 +56,11 @@ namespace FlyFlint
             new QueryContext<T>(
                 connection,
                 null,
-                FlyFlint.Query.fp,
-                FlyFlint.Query.encoding,
+                FlyFlint.Query.defaultFp,
+                FlyFlint.Query.defaultEncoding,
                 sql,
-                FlyFlint.Query.parameters,
-                FlyFlint.Query.parameterPrefix);
+                FlyFlint.Query.defaultParameters,
+                FlyFlint.Query.defaultParameterPrefix);
 
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -73,11 +73,11 @@ namespace FlyFlint
             new QueryContext<T>(
                 connection,
                 transaction,
-                FlyFlint.Query.fp,
-                FlyFlint.Query.encoding,
+                FlyFlint.Query.defaultFp,
+                FlyFlint.Query.defaultEncoding,
                 sql,
-                FlyFlint.Query.parameters,
-                FlyFlint.Query.parameterPrefix);
+                FlyFlint.Query.defaultParameters,
+                FlyFlint.Query.defaultParameterPrefix);
 
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

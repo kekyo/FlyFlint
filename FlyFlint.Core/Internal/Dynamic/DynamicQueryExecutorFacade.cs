@@ -27,13 +27,11 @@ namespace FlyFlint.Internal.Dynamic
         IEnumerable<T> Execute<T>(QueryContext<T> query)
             where T : new();
 
-#if !NET40
         Task<int> ExecuteNonQueryAsync(QueryContext query);
         Task<T> ExecuteScalarAsync<T>(QueryContext query);
-#if !NET45
+#if !NET40 && !NET45
         IAsyncEnumerable<T> ExecuteAsync<T>(QueryContext<T> query)
             where T : new();
-#endif
 #endif
     }
     
@@ -94,19 +92,21 @@ namespace FlyFlint.Internal.Dynamic
 
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
         internal static Task<int> ExecuteNonQueryAsync(QueryContext query) =>
             GetDynamicQueryExecutor().ExecuteNonQueryAsync(query);
 
+#if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
         internal static Task<T> ExecuteScalarAsync<T>(QueryContext query) =>
             GetDynamicQueryExecutor().ExecuteScalarAsync<T>(query);
 
-#if !NET45
+#if !NET40 && !NET45
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static IAsyncEnumerable<T> ExecuteAsync<T>(QueryContext<T> query)
             where T : new() =>
             GetDynamicQueryExecutor().ExecuteAsync(query);
-#endif
 #endif
     }
 }

@@ -11,6 +11,7 @@ using System;
 using System.Data;
 using System.Data.Common;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace FlyFlint.Internal
 {
@@ -57,17 +58,14 @@ namespace FlyFlint.Internal
 
             return (dbFieldNames, dbFieldMetadataList);
         }
-
+        
         /////////////////////////////////////////////////////////////////////
 
-        public static (string[] fieldNames, Enum[] fieldValues) GetSortedEnumValues(Type enumType)
-        {
-            var fieldNames = Enum.GetNames(enumType);
-            var fieldValues = Enum.GetValues(enumType).Cast<Enum>().ToArray();   // TODO: slow
-
-            Array.Sort(fieldNames, fieldValues);
-
-            return (fieldNames, fieldValues);
-        }
+#if NET40
+        public static Task<int> ExecuteNonQueryAsync(this DbCommand command) =>
+            Task.Factory.StartNew(command.ExecuteNonQuery);
+        public static Task<object?> ExecuteScalarAsync(this DbCommand command) =>
+            Task.Factory.StartNew(command.ExecuteScalar);
+#endif
     }
 }

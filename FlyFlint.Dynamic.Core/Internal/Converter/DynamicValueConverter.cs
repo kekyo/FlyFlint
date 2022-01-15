@@ -18,10 +18,10 @@ namespace FlyFlint.Internal.Converter
     {
         private static readonly Dictionary<Type, DynamicValueConverter> converters = new();
 
-        public abstract object? Convert(IFormatProvider fp, Encoding encoding, object? value);
-        public abstract object? UnsafeConvert(IFormatProvider fp, Encoding encoding, object value);
+        protected abstract object? Convert(IFormatProvider fp, Encoding encoding, object? value);
+        protected abstract object? UnsafeConvert(IFormatProvider fp, Encoding encoding, object value);
 
-        public static DynamicValueConverter GetConverter(Type targetType)
+        private static DynamicValueConverter GetConverter(Type targetType)
         {
             lock (converters)
             {
@@ -34,37 +34,31 @@ namespace FlyFlint.Internal.Converter
                 return converter;
             }
         }
-    }
 
-    internal sealed class DynamicValueConverter<T> : DynamicValueConverter
-    {
-        private static readonly InternalValueConverter<T> converter =
-            InternalValueConverter.Create<T>();
-
-#if !NET40
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-        public override object? Convert(IFormatProvider fp, Encoding encoding, object? value) =>
-            converter.Convert(fp, encoding, value);
-#if !NET40
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-        public override object? UnsafeConvert(IFormatProvider fp, Encoding encoding, object value) =>
-            converter.UnsafeConvert(fp, encoding, value);
-    }
-
-    public static class ValueConverter
-    {
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public static object? Convert(IFormatProvider fp, Encoding encoding, object? value, Type targetType) =>
-            DynamicValueConverter.GetConverter(targetType).Convert(fp, encoding, value);
+            GetConverter(targetType).Convert(fp, encoding, value);
 
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public static object? UnsafeConvert(IFormatProvider fp, Encoding encoding, object value, Type targetType) =>
-            DynamicValueConverter.GetConverter(targetType).UnsafeConvert(fp, encoding, value);
+            GetConverter(targetType).UnsafeConvert(fp, encoding, value);
+    }
+
+    internal sealed class DynamicValueConverter<T> : DynamicValueConverter
+    {
+#if !NET40
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        protected override object? Convert(IFormatProvider fp, Encoding encoding, object? value) =>
+            InternalValueConverter<T>.converter.Convert(fp, encoding, value);
+#if !NET40
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        protected override object? UnsafeConvert(IFormatProvider fp, Encoding encoding, object value) =>
+            InternalValueConverter<T>.converter.UnsafeConvert(fp, encoding, value);
     }
 }

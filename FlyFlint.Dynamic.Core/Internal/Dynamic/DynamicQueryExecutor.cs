@@ -49,7 +49,7 @@ namespace FlyFlint.Internal.Dynamic
             using (var command = QueryHelper.CreateCommand(
                 query.connection, query.transaction, query.sql, query.parameters))
             {
-                return ValueConverter<T>.Convert(
+                return StaticValueConverter.Convert<T>(
                     query.fp,
                     query.encoding,
                     command.ExecuteScalar());
@@ -80,7 +80,6 @@ namespace FlyFlint.Internal.Dynamic
             }
         }
 
-#if !NET40
         [EditorBrowsable(EditorBrowsableState.Never)]
         public async Task<int> ExecuteNonQueryAsync(QueryContext query)
         {
@@ -97,14 +96,14 @@ namespace FlyFlint.Internal.Dynamic
             using (var command = QueryHelper.CreateCommand(
                 query.connection, query.transaction, query.sql, query.parameters))
             {
-                return ValueConverter<T>.Convert(
+                return StaticValueConverter.Convert<T>(
                     query.fp,
                     query.encoding,
                     await command.ExecuteScalarAsync().ConfigureAwait(false));
             }
         }
 
-#if !NET45
+#if !NET40 && !NET45
         [EditorBrowsable(EditorBrowsableState.Never)]
         public async IAsyncEnumerable<T> ExecuteAsync<T>(QueryContext<T> query)
             where T : new()
@@ -128,7 +127,6 @@ namespace FlyFlint.Internal.Dynamic
                 }
             }
         }
-#endif
 #endif
     }
 }

@@ -9,7 +9,6 @@
 
 using FlyFlint.Internal.Converter;
 using System;
-using System.Collections.Generic;
 using System.Data.Common;
 using System.Text;
 
@@ -23,6 +22,6 @@ namespace FlyFlint.Internal.Dynamic
             IFormatProvider fp, DbDataReader reader, DataInjectionMetadata metadata, Type targetType) =>
             reader.IsDBNull(metadata.Index) ? null :
                 metadata.StoreDirect ? reader.GetValue(metadata.Index) :
-                    ValueConverter.UnsafeConvert(fp, encoding, reader.GetValue(metadata.Index), targetType);
+                    DynamicValueConverter.UnsafeConvert(fp, encoding, reader.GetValue(metadata.Index), targetType);
     }
 }

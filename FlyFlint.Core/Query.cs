@@ -16,22 +16,22 @@ namespace FlyFlint
 {
     public static class Query
     {
-        internal static readonly IFormatProvider fp = CultureInfo.InvariantCulture;
-        internal static readonly Encoding encoding = Encoding.UTF8;
-        internal static readonly (string, object?)[] parameters = { };
-        internal static readonly string parameterPrefix = "@";
+        internal static readonly IFormatProvider defaultFp = CultureInfo.InvariantCulture;
+        internal static readonly Encoding defaultEncoding = Encoding.UTF8;
+        internal static readonly (string, object?)[] defaultParameters = { };
+        internal static readonly string defaultParameterPrefix = "@";
         
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public static PreparedQueryContext Prepare(string sql) =>
-            new PreparedQueryContext(fp, encoding, sql, parameters, parameterPrefix);
+            new PreparedQueryContext(defaultFp, defaultEncoding, sql, defaultParameters, defaultParameterPrefix);
 
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public static PreparedQueryContext<T> Prepare<T>(string sql)
             where T : new() =>
-            new PreparedQueryContext<T>(fp, encoding, sql, parameters, parameterPrefix);
+            new PreparedQueryContext<T>(defaultFp, defaultEncoding, sql, defaultParameters, defaultParameterPrefix);
     }
 }

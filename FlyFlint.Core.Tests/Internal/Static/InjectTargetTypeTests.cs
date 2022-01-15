@@ -42,7 +42,8 @@ namespace FlyFlint.Internal.Static
             public EnumValue Value11;
             public EnumValue Value12;
             public EnumValue Value13;
-            public string Value14;
+            public EnumValue Value14;
+            public string Value15;
 
             private static readonly (string, Type)[] members = new[]
             {
@@ -59,7 +60,8 @@ namespace FlyFlint.Internal.Static
                 (nameof(Value11), typeof(EnumValue)),
                 (nameof(Value12), typeof(EnumValue)),
                 (nameof(Value13), typeof(EnumValue)),
-                (nameof(Value14), typeof(string)),
+                (nameof(Value14), typeof(EnumValue)),
+                (nameof(Value15), typeof(string)),
             };
 
             public DataInjectionMetadata[] PrepareAndInject(IFormatProvider fp, DbDataReader reader)
@@ -84,7 +86,8 @@ namespace FlyFlint.Internal.Static
                 this.Value11 = StaticDataAccessor.GetEnum<EnumValue>(fp, reader, metadataList[10]);
                 this.Value12 = StaticDataAccessor.GetEnum<EnumValue>(fp, reader, metadataList[11]);
                 this.Value13 = StaticDataAccessor.GetEnum<EnumValue>(fp, reader, metadataList[12]);
-                this.Value14 = StaticDataAccessor.GetString(fp, reader, metadataList[13]);
+                this.Value14 = StaticDataAccessor.GetEnum<EnumValue>(fp, reader, metadataList[13]);
+                this.Value15 = StaticDataAccessor.GetString(fp, reader, metadataList[14]);
             }
         }
 
@@ -105,10 +108,11 @@ namespace FlyFlint.Internal.Static
             data.Columns.Add("Value11", typeof(int));
             data.Columns.Add("Value12", typeof(string));
             data.Columns.Add("Value13", typeof(string));
-            data.Columns.Add("Value14", typeof(string));
+            data.Columns.Add("Value14", typeof(int));
+            data.Columns.Add("Value15", typeof(string));
             var guid = new Guid("fd752796-8c8e-4f87-8efd-b982d3d28bcb");
             var date = new DateTime(2022, 1, 23, 12, 34, 56, 789);
-            data.Rows.Add(true, 111, 222, 333, 444, 555.55f, 666.66, 777.77m, guid, date, 4, "7", "ValueD", "ABCD");
+            data.Rows.Add(true, 111, 222, 333, 444, 555.55f, 666.66, 777.77m, guid, date, 4, "7", "ValueD", 3, "ABCD");
 
             using var reader = data.CreateDataReader();
             Assert.IsTrue(reader.Read());
@@ -119,7 +123,7 @@ namespace FlyFlint.Internal.Static
 
             element.Inject(CultureInfo.InvariantCulture, metadataList, reader);
 
-            return Verify($"{element.Value1},{element.Value2},{element.Value3},{element.Value4},{element.Value5},{element.Value6},{element.Value7},{element.Value8},{element.Value9},{element.Value10.ToString(CultureInfo.InvariantCulture)},{element.Value11},{element.Value12},{element.Value13},{element.Value14}");
+            return Verify($"{element.Value1},{element.Value2},{element.Value3},{element.Value4},{element.Value5},{element.Value6},{element.Value7},{element.Value8},{element.Value9},{element.Value10.ToString(CultureInfo.InvariantCulture)},{element.Value11},{element.Value12},{element.Value13},{element.Value14},{element.Value15}");
         }
 
         public struct TargetNullableValueTypes : IDataInjectable
@@ -137,7 +141,8 @@ namespace FlyFlint.Internal.Static
             public EnumValue? Value11;
             public EnumValue? Value12;
             public EnumValue? Value13;
-            public string? Value14;
+            public EnumValue? Value14;
+            public string? Value15;
 
             private static readonly (string, Type)[] members = new[]
             {
@@ -154,7 +159,8 @@ namespace FlyFlint.Internal.Static
                 (nameof(Value11), typeof(EnumValue)),
                 (nameof(Value12), typeof(EnumValue)),
                 (nameof(Value13), typeof(EnumValue)),
-                (nameof(Value14), typeof(string)),
+                (nameof(Value14), typeof(EnumValue)),
+                (nameof(Value15), typeof(string)),
             };
 
             public DataInjectionMetadata[] PrepareAndInject(IFormatProvider fp, DbDataReader reader)
@@ -179,7 +185,8 @@ namespace FlyFlint.Internal.Static
                 this.Value11 = StaticDataAccessor.GetNullableEnum<EnumValue>(fp, reader, metadataList[10]);
                 this.Value12 = StaticDataAccessor.GetNullableEnum<EnumValue>(fp, reader, metadataList[11]);
                 this.Value13 = StaticDataAccessor.GetNullableEnum<EnumValue>(fp, reader, metadataList[12]);
-                this.Value14 = StaticDataAccessor.GetNullableString(fp, reader, metadataList[13]);
+                this.Value14 = StaticDataAccessor.GetNullableEnum<EnumValue>(fp, reader, metadataList[13]);
+                this.Value15 = StaticDataAccessor.GetNullableString(fp, reader, metadataList[14]);
             }
         }
 
@@ -200,10 +207,11 @@ namespace FlyFlint.Internal.Static
             data.Columns.Add("Value11", typeof(int)).AllowDBNull = true;
             data.Columns.Add("Value12", typeof(string)).AllowDBNull = true;
             data.Columns.Add("Value13", typeof(string)).AllowDBNull = true;
-            data.Columns.Add("Value14", typeof(string)).AllowDBNull = true;
+            data.Columns.Add("Value14", typeof(int)).AllowDBNull = true;
+            data.Columns.Add("Value15", typeof(string)).AllowDBNull = true;
             var guid = new Guid("fd752796-8c8e-4f87-8efd-b982d3d28bcb");
             var date = new DateTime(2022, 1, 23, 12, 34, 56, 789);
-            data.Rows.Add(true, 111, 222, 333, 444, 555.55f, 666.66, 777.77m, guid, date, 4, "7", "ValueD", "ABCD");
+            data.Rows.Add(true, 111, 222, 333, 444, 555.55f, 666.66, 777.77m, guid, date, 4, "7", "ValueD", 3, "ABCD");
 
             using var reader = data.CreateDataReader();
             Assert.IsTrue(reader.Read());
@@ -214,7 +222,7 @@ namespace FlyFlint.Internal.Static
 
             element.Inject(CultureInfo.InvariantCulture, metadataList, reader);
 
-            return Verify($"{element.Value1},{element.Value2},{element.Value3},{element.Value4},{element.Value5},{element.Value6},{element.Value7},{element.Value8},{element.Value9},{element.Value10?.ToString(CultureInfo.InvariantCulture)},{element.Value11},{element.Value12},{element.Value13},{element.Value14}");
+            return Verify($"{element.Value1},{element.Value2},{element.Value3},{element.Value4},{element.Value5},{element.Value6},{element.Value7},{element.Value8},{element.Value9},{element.Value10?.ToString(CultureInfo.InvariantCulture)},{element.Value11},{element.Value12},{element.Value13},{element.Value14},{element.Value15}");
         }
 
         [Test]
@@ -234,8 +242,9 @@ namespace FlyFlint.Internal.Static
             data.Columns.Add("Value11", typeof(int)).AllowDBNull = true;
             data.Columns.Add("Value12", typeof(string)).AllowDBNull = true;
             data.Columns.Add("Value13", typeof(string)).AllowDBNull = true;
-            data.Columns.Add("Value14", typeof(string)).AllowDBNull = true;
-            data.Rows.Add(DBNull.Value, DBNull.Value, DBNull.Value, DBNull.Value, DBNull.Value, DBNull.Value, DBNull.Value, DBNull.Value, DBNull.Value, DBNull.Value, DBNull.Value, DBNull.Value, DBNull.Value, DBNull.Value);
+            data.Columns.Add("Value14", typeof(int)).AllowDBNull = true;
+            data.Columns.Add("Value15", typeof(string)).AllowDBNull = true;
+            data.Rows.Add(DBNull.Value, DBNull.Value, DBNull.Value, DBNull.Value, DBNull.Value, DBNull.Value, DBNull.Value, DBNull.Value, DBNull.Value, DBNull.Value, DBNull.Value, DBNull.Value, DBNull.Value, DBNull.Value, DBNull.Value);
 
             using var reader = data.CreateDataReader();
             Assert.IsTrue(reader.Read());
@@ -246,7 +255,7 @@ namespace FlyFlint.Internal.Static
 
             element.Inject(CultureInfo.InvariantCulture, metadataList, reader);
 
-            return Verify($"{element.Value1},{element.Value2},{element.Value3},{element.Value4},{element.Value5},{element.Value6},{element.Value7},{element.Value8},{element.Value9},{element.Value10?.ToString(CultureInfo.InvariantCulture)},{element.Value11},{element.Value12},{element.Value13},{element.Value14}");
+            return Verify($"{element.Value1},{element.Value2},{element.Value3},{element.Value4},{element.Value5},{element.Value6},{element.Value7},{element.Value8},{element.Value9},{element.Value10?.ToString(CultureInfo.InvariantCulture)},{element.Value11},{element.Value12},{element.Value13},{element.Value14},{element.Value15}");
         }
     }
 }

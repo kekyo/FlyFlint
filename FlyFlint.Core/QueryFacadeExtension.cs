@@ -26,11 +26,11 @@ namespace FlyFlint
             new QueryContext(
                 connection,
                 null,
-                FlyFlint.Query.fp,
-                FlyFlint.Query.encoding,
+                FlyFlint.Query.defaultFp,
+                FlyFlint.Query.defaultEncoding,
                 sql,
-                DynamicQueryExecutorFacade.GetParameters(ref parameters, FlyFlint.Query.parameterPrefix),
-                FlyFlint.Query.parameterPrefix);
+                DynamicQueryExecutorFacade.GetParameters(ref parameters, FlyFlint.Query.defaultParameterPrefix),
+                FlyFlint.Query.defaultParameterPrefix);
 
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -41,11 +41,11 @@ namespace FlyFlint
             new QueryContext(
                 connection,
                 transaction,
-                FlyFlint.Query.fp,
-                FlyFlint.Query.encoding,
+                FlyFlint.Query.defaultFp,
+                FlyFlint.Query.defaultEncoding,
                 sql,
-                DynamicQueryExecutorFacade.GetParameters(ref parameters, FlyFlint.Query.parameterPrefix),
-                FlyFlint.Query.parameterPrefix);
+                DynamicQueryExecutorFacade.GetParameters(ref parameters, FlyFlint.Query.defaultParameterPrefix),
+                FlyFlint.Query.defaultParameterPrefix);
 
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -190,19 +190,21 @@ namespace FlyFlint
 
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
         public static Task<int> ExecuteNonQueryAsync(this QueryContext query) =>
             DynamicQueryExecutorFacade.ExecuteNonQueryAsync(query);
 
+#if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
         public static Task<T> ExecuteScalarAsync<T>(this QueryContext query) =>
             DynamicQueryExecutorFacade.ExecuteScalarAsync<T>(query);
 
-#if !NET45
+#if !NET40 && !NET45
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IAsyncEnumerable<T> ExecuteAsync<T>(this QueryContext<T> query)
             where T : new() =>
             DynamicQueryExecutorFacade.ExecuteAsync(query);
-#endif
 #endif
     }
 }
