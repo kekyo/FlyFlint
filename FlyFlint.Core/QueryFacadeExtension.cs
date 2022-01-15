@@ -170,27 +170,6 @@ namespace FlyFlint
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static int ExecuteNonQuery(this QueryContext query) =>
-            DynamicQueryExecutorFacade.ExecuteNonQuery(query);
-
-#if !NET40
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-        public static T ExecuteScalar<T>(this QueryContext query) =>
-            DynamicQueryExecutorFacade.ExecuteScalar<T>(query);
-
-#if !NET40
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-        public static IEnumerable<T> Execute<T>(this QueryContext<T> query)
-            where T : new() =>
-            DynamicQueryExecutorFacade.Execute(query);
-
-        /////////////////////////////////////////////////////////////////////
-
-#if !NET40
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
         public static Task<int> ExecuteNonQueryAsync(this QueryContext query) =>
             DynamicQueryExecutorFacade.ExecuteNonQueryAsync(query);
 

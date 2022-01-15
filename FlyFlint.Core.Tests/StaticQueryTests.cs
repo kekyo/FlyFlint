@@ -9,6 +9,7 @@
 
 using FlyFlint.Internal;
 using FlyFlint.Internal.Static;
+using FlyFlint.Utilities;
 using NUnit.Framework;
 using System;
 using System.Data;
@@ -70,7 +71,7 @@ namespace FlyFlint
             await c.ExecuteNonQueryAsync();
 
             var qc = QueryExtension.Query<Target>(connection, "SELECT * FROM target");
-            var targets = StaticQueryFacade.Execute(qc).ToArray();
+            var targets = await StaticQueryFacade.ExecuteAsync(qc).ToArrayAsync();
 
             await Verify(targets.Select(element => $"{element.Id},{element.Name},{element.Birth.ToString(CultureInfo.InvariantCulture)}"));
         }

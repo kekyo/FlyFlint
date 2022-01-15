@@ -7,6 +7,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
+using FlyFlint.Utilities;
 using NUnit.Framework;
 using System;
 using System.Data;
@@ -48,7 +49,7 @@ namespace FlyFlint
             await c.ExecuteNonQueryAsync();
 
             var qc = QueryExtension.Query<Target>(connection, "SELECT * FROM target");
-            var targets = QueryFacadeExtension.Execute(qc).ToArray();
+            var targets = await QueryFacadeExtension.ExecuteAsync(qc).ToArrayAsync();
 
             await Verify(targets.Select(element => $"{element.Id},{element.Name},{element.Birth.ToString(CultureInfo.InvariantCulture)}"));
         }
@@ -76,7 +77,7 @@ namespace FlyFlint
             var qc = QueryExtension.Query<Target>(
                 connection, "SELECT * FROM target WHERE Id = @idparam").
                 Parameter(new { idparam = 2 });
-            var targets = QueryFacadeExtension.Execute(qc).ToArray();
+            var targets = await QueryFacadeExtension.ExecuteAsync(qc).ToArrayAsync();
 
             await Verify(targets.Select(element => $"{element.Id},{element.Name},{element.Birth.ToString(CultureInfo.InvariantCulture)}"));
         }
