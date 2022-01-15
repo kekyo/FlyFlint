@@ -50,22 +50,10 @@ namespace FlyFlint.Internal.Dynamic
         {
             if (executor == null)
             {
-#if NETFRAMEWORK
-                var thisPath = new Uri(typeof(DynamicQueryExecutorFacade).Assembly.CodeBase!).LocalPath;
-#else
-                var thisPath = typeof(DynamicQueryExecutorFacade).Assembly.Location;
-#endif
-                var basePath = Path.GetDirectoryName(thisPath)!;
-                var path = Path.Combine(basePath, "FlyFlint.Dynamic.Core.dll");
-                var assembly = Assembly.LoadFrom(path);
-                var type = assembly.GetType("FlyFlint.Internal.Dynamic.DynamicQueryExecutor")!;
-                if (executor == null)
-                {
-                    var newExecutor = (IDynamicQueryExecutor)Activator.CreateInstance(type)!;
-                    Interlocked.CompareExchange(ref executor, newExecutor, null);
-                }
+                throw new InvalidOperationException(
+                    "Dynamic query feature was not enabled. You need to install `FlyFlint.Dynamic` NuGet package and call `DynamicQuery.Enable()`.");
             }
-            return executor!;
+            return executor;
         }
 
 #if !NET40

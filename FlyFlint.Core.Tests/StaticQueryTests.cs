@@ -7,9 +7,12 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
+using FlyFlint.Internal;
+using FlyFlint.Internal.Static;
 using NUnit.Framework;
 using System;
 using System.Data;
+using System.Data.Common;
 using System.Data.SQLite;
 using System.Globalization;
 using System.Linq;
@@ -18,13 +21,34 @@ using static VerifyNUnit.Verifier;
 
 namespace FlyFlint
 {
-    public sealed class QueryTests
+    public sealed class StaticQueryTests
     {
-        public struct Target
+        private sealed class Target : IDataInjectable
         {
             public int Id;
             public string? Name;
             public DateTime Birth;
+
+            private static readonly (string, Type)[] members = new[]
+            {
+                (nameof(Id), typeof(int)),
+                (nameof(Name), typeof(string)),
+                (nameof(Birth), typeof(DateTime)),
+            };
+
+            public DataInjectionMetadata[] PrepareAndInject(IFormatProvider fp, DbDataReader reader)
+            {
+                var metadataList = StaticInjectonHelper<Target>.Prepare(reader, members);
+                this.Inject(fp, metadataList, reader);
+                return metadataList;
+            }
+
+            public void Inject(IFormatProvider fp, DataInjectionMetadata[] metadataList, DbDataReader reader)
+            {
+                this.Id = StaticDataAccessor.GetInt32(fp, reader, metadataList[0]);
+                this.Name = StaticDataAccessor.GetString(fp, reader, metadataList[1]);
+                this.Birth = StaticDataAccessor.GetDateTime(fp, reader, metadataList[2]);
+            }
         }
 
         [Test]
@@ -46,9 +70,17 @@ namespace FlyFlint
             await c.ExecuteNonQueryAsync();
 
             var qc = QueryExtension.Query<Target>(connection, "SELECT * FROM target");
-            var targets = QueryFacadeExtension.Execute(qc).ToArray();
+            var targets = StaticQueryFacade.Execute(qc).ToArray();
 
             await Verify(targets.Select(element => $"{element.Id},{element.Name},{element.Birth.ToString(CultureInfo.InvariantCulture)}"));
+        }
+
+        public sealed class Parameter : IParameterExtractable
+        {
+            public int idparam { get; set; }
+
+            public (string name, object? value)[] Extract() =>
+                new[] { ( "idparam", (object?)this.idparam ) };
         }
 
         [Test]
@@ -69,10 +101,11 @@ namespace FlyFlint
             c.CommandText = "INSERT INTO target VALUES (3,'CCCCC','2022/01/23 12:34:58.789')";
             await c.ExecuteNonQueryAsync();
 
-            var qc = QueryExtension.Query<Target>(
-                connection, "SELECT * FROM target WHERE Id = @idparam").
-                Parameter(new { idparam = 2 });
-            var targets = QueryFacadeExtension.Execute(qc).ToArray();
+            var query = StaticQueryFacade.Parameter(
+                QueryExtension.Query<Target>(
+                    connection, "SELECT * FROM target WHERE Id = @idparam"),
+                    new Parameter { idparam = 2 });
+            var targets = StaticQueryFacade.Execute(query).ToArray();
 
             await Verify(targets.Select(element => $"{element.Id},{element.Name},{element.Birth.ToString(CultureInfo.InvariantCulture)}"));
         }

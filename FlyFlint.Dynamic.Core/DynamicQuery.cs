@@ -13,7 +13,7 @@ namespace FlyFlint
 {
     public static class DynamicQuery
     {
-        public static void EnableExplicitly() =>
+        public static void Enable() =>
             DynamicQueryExecutorFacade.SetDynamicQueryExecutor(new DynamicQueryExecutor());
     }
 }

@@ -10,48 +10,28 @@
 using NUnit.Framework;
 using System;
 using System.Data;
-using System.Data.Common;
 using System.Data.SQLite;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using static VerifyNUnit.Verifier;
 
-namespace FlyFlint.Internal.Static
+namespace FlyFlint
 {
-    public sealed class StaticQueryTests
+    public sealed class DynamicQueryTests
     {
-        private sealed class Target : IDataInjectable
+        public struct Target
         {
             public int Id;
             public string? Name;
             public DateTime Birth;
-
-            private static readonly (string, Type)[] members = new[]
-            {
-                (nameof(Id), typeof(int)),
-                (nameof(Name), typeof(string)),
-                (nameof(Birth), typeof(DateTime)),
-            };
-
-            public DataInjectionMetadata[] PrepareAndInject(IFormatProvider fp, DbDataReader reader)
-            {
-                var metadataList = StaticInjectonHelper<Target>.Prepare(reader, members);
-                this.Inject(fp, metadataList, reader);
-                return metadataList;
-            }
-
-            public void Inject(IFormatProvider fp, DataInjectionMetadata[] metadataList, DbDataReader reader)
-            {
-                this.Id = StaticDataAccessor.GetInt32(fp, reader, metadataList[0]);
-                this.Name = StaticDataAccessor.GetString(fp, reader, metadataList[1]);
-                this.Birth = StaticDataAccessor.GetDateTime(fp, reader, metadataList[2]);
-            }
         }
 
         [Test]
         public async Task Query()
         {
+            DynamicQuery.Enable();
+
             using var connection = new SQLiteConnection("Data Source=:memory:");
             await connection.OpenAsync();
 
@@ -68,7 +48,7 @@ namespace FlyFlint.Internal.Static
             await c.ExecuteNonQueryAsync();
 
             var qc = QueryExtension.Query<Target>(connection, "SELECT * FROM target");
-            var targets = StaticQueryFacade.Execute(qc).ToArray();
+            var targets = QueryFacadeExtension.Execute(qc).ToArray();
 
             await Verify(targets.Select(element => $"{element.Id},{element.Name},{element.Birth.ToString(CultureInfo.InvariantCulture)}"));
         }
@@ -76,6 +56,8 @@ namespace FlyFlint.Internal.Static
         [Test]
         public async Task QueryWithParameter()
         {
+            DynamicQuery.Enable();
+
             using var connection = new SQLiteConnection("Data Source=:memory:");
             await connection.OpenAsync();
 
@@ -91,10 +73,10 @@ namespace FlyFlint.Internal.Static
             c.CommandText = "INSERT INTO target VALUES (3,'CCCCC','2022/01/23 12:34:58.789')";
             await c.ExecuteNonQueryAsync();
 
-            var query = QueryExtension.Query<Target>(
+            var qc = QueryExtension.Query<Target>(
                 connection, "SELECT * FROM target WHERE Id = @idparam").
                 Parameter(new { idparam = 2 });
-            var targets = StaticQueryFacade.Execute(query).ToArray();
+            var targets = QueryFacadeExtension.Execute(qc).ToArray();
 
             await Verify(targets.Select(element => $"{element.Id},{element.Name},{element.Birth.ToString(CultureInfo.InvariantCulture)}"));
         }
