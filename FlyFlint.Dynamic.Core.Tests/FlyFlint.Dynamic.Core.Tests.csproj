@@ -19,6 +19,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\FlyFlint.Core\FlyFlint.Core.csproj" />
+    <ProjectReference Include="..\FlyFlint.Dynamic.Core\FlyFlint.Dynamic.Core.csproj" />
   </ItemGroup>
 
   <!-- https://stackoverflow.com/questions/21293105/system-dllnotfoundexception-on-mono-sqlite -->
