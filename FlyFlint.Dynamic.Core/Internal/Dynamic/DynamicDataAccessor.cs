@@ -22,6 +22,6 @@ namespace FlyFlint.Internal.Dynamic
             IFormatProvider fp, DbDataReader reader, DataInjectionMetadata metadata, Type targetType) =>
             reader.IsDBNull(metadata.Index) ? null :
                 metadata.StoreDirect ? reader.GetValue(metadata.Index) :
-                    DynamicValueConverter.UnsafeConvert(fp, encoding, reader.GetValue(metadata.Index), targetType);
+                    DynamicValueConverter.GetConverter(targetType).UnsafeConvert(fp, encoding, reader.GetValue(metadata.Index));
     }
 }

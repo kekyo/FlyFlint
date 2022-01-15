@@ -45,7 +45,7 @@ namespace FlyFlint.Internal.Static
             using (var command = QueryHelper.CreateCommand(
                 query.connection, query.transaction, query.sql, query.parameters))
             {
-                return StaticValueConverter.Convert<T>(
+                return ValueConverter.Convert<T>(
                     query.fp,
                     query.encoding,
                     command.ExecuteScalar());
@@ -93,7 +93,7 @@ namespace FlyFlint.Internal.Static
             using (var command = QueryHelper.CreateCommand(
                 query.connection, query.transaction, query.sql, query.parameters))
             {
-                return StaticValueConverter.Convert<T>(
+                return ValueConverter.Convert<T>(
                     query.fp,
                     query.encoding,
                     await command.ExecuteScalarAsync().ConfigureAwait(false));

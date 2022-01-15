@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -19,6 +20,9 @@ namespace FlyFlint.Internal.Dynamic
 {
     internal interface IDynamicQueryExecutor
     {
+        object? Convert(IFormatProvider fp, Encoding encoding, object? value, Type targetType);
+        object? UnsafeConvert(IFormatProvider fp, Encoding encoding, object value, Type targetType);
+
         (string name, object? value)[] GetParameters<TParameters>(
             ref TParameters parameters, string parameterPrefix);
 
@@ -63,6 +67,19 @@ namespace FlyFlint.Internal.Dynamic
             }
             return executor!;
         }
+
+#if !NET40
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        internal static object? Convert(IFormatProvider fp, Encoding encoding, object? value, Type targetType) =>
+            GetDynamicQueryExecutor().Convert(fp, encoding, value, targetType);
+
+#if !NET40
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        internal static object? UnsafeConvert(IFormatProvider fp, Encoding encoding, object value, Type targetType) =>
+            GetDynamicQueryExecutor().UnsafeConvert(fp, encoding, value, targetType);
+
 
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

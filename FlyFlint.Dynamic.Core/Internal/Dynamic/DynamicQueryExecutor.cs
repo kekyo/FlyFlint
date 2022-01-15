@@ -7,9 +7,10 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
-using FlyFlint.Internal.Converter;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace FlyFlint.Internal.Dynamic
@@ -17,6 +18,14 @@ namespace FlyFlint.Internal.Dynamic
     [EditorBrowsable(EditorBrowsableState.Never)]
     public sealed class DynamicQueryExecutor : IDynamicQueryExecutor
     {
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public object? Convert(IFormatProvider fp, Encoding encoding, object? value, Type targetType) =>
+            Converter.DynamicValueConverter.GetConverter(targetType).Convert(fp, encoding, value);
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public object? UnsafeConvert(IFormatProvider fp, Encoding encoding, object value, Type targetType) =>
+            Converter.DynamicValueConverter.GetConverter(targetType).UnsafeConvert(fp, encoding, value);
+
         [EditorBrowsable(EditorBrowsableState.Never)]
         public (string name, object? value)[] GetParameters<TParameters>(
             ref TParameters parameters, string parameterPrefix)
@@ -49,7 +58,7 @@ namespace FlyFlint.Internal.Dynamic
             using (var command = QueryHelper.CreateCommand(
                 query.connection, query.transaction, query.sql, query.parameters))
             {
-                return StaticValueConverter.Convert<T>(
+                return ValueConverter.Convert<T>(
                     query.fp,
                     query.encoding,
                     command.ExecuteScalar());
@@ -96,7 +105,7 @@ namespace FlyFlint.Internal.Dynamic
             using (var command = QueryHelper.CreateCommand(
                 query.connection, query.transaction, query.sql, query.parameters))
             {
-                return StaticValueConverter.Convert<T>(
+                return ValueConverter.Convert<T>(
                     query.fp,
                     query.encoding,
                     await command.ExecuteScalarAsync().ConfigureAwait(false));
