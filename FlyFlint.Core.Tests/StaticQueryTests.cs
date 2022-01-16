@@ -7,13 +7,13 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
+using FlyFlint.Context;
 using FlyFlint.Internal;
 using FlyFlint.Internal.Static;
 using FlyFlint.Utilities;
 using NUnit.Framework;
 using System;
 using System.Data;
-using System.Data.Common;
 using System.Data.SQLite;
 using System.Globalization;
 using System.Linq;
@@ -37,18 +37,14 @@ namespace FlyFlint
                 (nameof(Birth), typeof(DateTime)),
             };
 
-            public DataInjectionMetadata[] PrepareAndInject(DataInjectionContext context)
-            {
-                var metadataList = StaticInjectonHelper<Target>.Prepare(context, members);
-                this.Inject(context, metadataList);
-                return metadataList;
-            }
+            public DataInjectionMetadata[] Prepare(DataInjectionContext context) =>
+                context.Prepare(members);
 
             public void Inject(DataInjectionContext context, DataInjectionMetadata[] metadataList)
             {
-                this.Id = StaticDataAccessor.GetInt32(context, metadataList[0]);
-                this.Name = StaticDataAccessor.GetString(context, metadataList[1]);
-                this.Birth = StaticDataAccessor.GetDateTime(context, metadataList[2]);
+                this.Id = context.GetInt32(metadataList[0]);
+                this.Name = context.GetString(metadataList[1]);
+                this.Birth = context.GetDateTime(metadataList[2]);
             }
         }
 

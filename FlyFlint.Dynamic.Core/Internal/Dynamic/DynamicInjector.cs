@@ -7,9 +7,9 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
+using FlyFlint.Context;
 using System;
 using System.Collections.Generic;
-using System.Data.Common;
 using System.Runtime.CompilerServices;
 
 namespace FlyFlint.Internal.Dynamic
@@ -35,7 +35,7 @@ namespace FlyFlint.Internal.Dynamic
                 {
                     var dbFieldMetadata = dbFieldMetadataList[dbFieldNameIndiciesIndex];
                     candidates.Add((ref T element) =>
-                        member.setter(ref element, DynamicDataAccessor.GetValue(context, dbFieldMetadata, member.type)));
+                        member.setter(ref element, context.GetValue(dbFieldMetadata, member.type)));
                 }
             }
 

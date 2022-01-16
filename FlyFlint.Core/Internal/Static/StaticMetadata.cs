@@ -7,6 +7,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
+using FlyFlint.Context;
 using FlyFlint.Internal.Converter;
 using System;
 using System.ComponentModel;
@@ -26,7 +27,8 @@ namespace FlyFlint.Internal.Static
     public interface IDataInjectable
     {
         [EditorBrowsable(EditorBrowsableState.Never)]
-        DataInjectionMetadata[] PrepareAndInject(DataInjectionContext context);
+        DataInjectionMetadata[] Prepare(DataInjectionContext context);
+
         [EditorBrowsable(EditorBrowsableState.Never)]
         void Inject(DataInjectionContext context, DataInjectionMetadata[] metadataList);
     }

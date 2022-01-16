@@ -7,6 +7,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
+using FlyFlint.Context;
 using System;
 using System.Text;
 
@@ -18,7 +19,7 @@ namespace FlyFlint.Internal.Converter.Specialized
         {
             if (value is string str)
             {
-                return context.encoding.GetBytes(str);
+                return context.Encoding.GetBytes(str);
             }
             else if (value is char c)
             {
@@ -62,7 +63,7 @@ namespace FlyFlint.Internal.Converter.Specialized
             }
             else
             {
-                return context.encoding.GetBytes(System.Convert.ToString(value, context.fp)!);
+                return context.Encoding.GetBytes(System.Convert.ToString(value, context.FormatProvider)!);
             }
         }
     }
