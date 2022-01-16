@@ -7,7 +7,9 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
+using FlyFlint.Context;
 using FlyFlint.Internal.Dynamic;
+using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Runtime.CompilerServices;
@@ -26,8 +28,7 @@ namespace FlyFlint
             new QueryContext(
                 connection,
                 null,
-                FlyFlint.Query.defaultFp,
-                FlyFlint.Query.defaultEncoding,
+                ConversionContext.Default,
                 sql,
                 DynamicQueryExecutorFacade.GetParameters(ref parameters, FlyFlint.Query.defaultParameterPrefix),
                 FlyFlint.Query.defaultParameterPrefix);
@@ -41,8 +42,7 @@ namespace FlyFlint
             new QueryContext(
                 connection,
                 transaction,
-                FlyFlint.Query.defaultFp,
-                FlyFlint.Query.defaultEncoding,
+                ConversionContext.Default,
                 sql,
                 DynamicQueryExecutorFacade.GetParameters(ref parameters, FlyFlint.Query.defaultParameterPrefix),
                 FlyFlint.Query.defaultParameterPrefix);
@@ -56,8 +56,7 @@ namespace FlyFlint
             new QueryContext(
                 connection,
                 null,
-                prepared.fp,
-                prepared.encoding,
+                prepared.cc,
                 prepared.sql,
                 DynamicQueryExecutorFacade.GetParameters(ref parameters, prepared.parameterPrefix),
                 prepared.parameterPrefix);
@@ -71,8 +70,7 @@ namespace FlyFlint
             new QueryContext(
                 connection,
                 transaction,
-                prepared.fp,
-                prepared.encoding,
+                prepared.cc,
                 prepared.sql,
                 DynamicQueryExecutorFacade.GetParameters(ref parameters, prepared.parameterPrefix),
                 prepared.parameterPrefix);
@@ -87,8 +85,7 @@ namespace FlyFlint
             new QueryContext<T>(
                 connection,
                 null,
-                prepared.fp,
-                prepared.encoding,
+                prepared.cc,
                 prepared.sql,
                 DynamicQueryExecutorFacade.GetParameters(ref parameters, prepared.parameterPrefix),
                 prepared.parameterPrefix);
@@ -103,8 +100,7 @@ namespace FlyFlint
             new QueryContext<T>(
                 connection,
                 transaction,
-                prepared.fp,
-                prepared.encoding,
+                prepared.cc,
                 prepared.sql,
                 DynamicQueryExecutorFacade.GetParameters(ref parameters, prepared.parameterPrefix),
                 prepared.parameterPrefix);
@@ -115,13 +111,12 @@ namespace FlyFlint
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public static PreparedQueryContext Parameter<TParameter>(
-            this PreparedQueryContext query, TParameter parameters) =>
+            this PreparedQueryContext prepared, TParameter parameters) =>
             new PreparedQueryContext(
-                query.fp,
-                query.encoding,
-                query.sql,
-                DynamicQueryExecutorFacade.GetParameters(ref parameters, query.parameterPrefix),
-                query.parameterPrefix);
+                prepared.cc,
+                prepared.sql,
+                DynamicQueryExecutorFacade.GetParameters(ref parameters, prepared.parameterPrefix),
+                prepared.parameterPrefix);
 
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -131,8 +126,7 @@ namespace FlyFlint
             new QueryContext(
                 query.connection,
                 query.transaction,
-                query.fp,
-                query.encoding,
+                query.cc,
                 query.sql,
                 DynamicQueryExecutorFacade.GetParameters(ref parameters, query.parameterPrefix),
                 query.parameterPrefix);
@@ -141,14 +135,13 @@ namespace FlyFlint
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public static PreparedQueryContext<T> Parameter<T, TParameter>(
-            this PreparedQueryContext<T> query, TParameter parameters)
+            this PreparedQueryContext<T> prepared, TParameter parameters)
             where T : new() =>
             new PreparedQueryContext<T>(
-                query.fp,
-                query.encoding,
-                query.sql,
-                DynamicQueryExecutorFacade.GetParameters(ref parameters, query.parameterPrefix),
-                query.parameterPrefix);
+                prepared.cc,
+                prepared.sql,
+                DynamicQueryExecutorFacade.GetParameters(ref parameters, prepared.parameterPrefix),
+                prepared.parameterPrefix);
 
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -159,8 +152,7 @@ namespace FlyFlint
             new QueryContext<T>(
                 query.connection,
                 query.transaction,
-                query.fp,
-                query.encoding,
+                query.cc,
                 query.sql,
                 DynamicQueryExecutorFacade.GetParameters(ref parameters, query.parameterPrefix),
                 query.parameterPrefix);
@@ -184,6 +176,11 @@ namespace FlyFlint
         public static IAsyncEnumerable<T> ExecuteAsync<T>(this QueryContext<T> query)
             where T : new() =>
             DynamicQueryExecutorFacade.ExecuteAsync(query);
+#else
+        [Obsolete("Before net461 platform, it is not supported async enumeration. Consider upgrades to net461 or upper, or `Execute()` method with `FlyFlint.Synchronized` namespace instead.", true)]
+        public static void ExecuteAsync<T>(this QueryContext<T> query)
+            where T : new() =>
+            throw new InvalidOperationException("Before net461 platform, it is not supported async enumeration. Consider upgrades to net461 or upper, or `Execute()` method with `FlyFlint.Synchronized` namespace instead.");
 #endif
     }
 }

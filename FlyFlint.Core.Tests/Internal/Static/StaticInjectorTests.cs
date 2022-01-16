@@ -12,7 +12,6 @@ using NUnit.Framework;
 using System;
 using System.Data;
 using System.Globalization;
-using System.Text;
 using System.Threading.Tasks;
 using static VerifyNUnit.Verifier;
 
@@ -58,7 +57,7 @@ namespace FlyFlint.Internal.Static
 
             var element = new TargetValueType();
 
-            var context = new DataInjectionContext(reader, CultureInfo.InvariantCulture, Encoding.UTF8);
+            var context = new DataInjectionContext(ConversionContext.Default, reader);
             var metadataList = element.Prepare(context);
 
             element.Inject(context, metadataList);
@@ -104,7 +103,7 @@ namespace FlyFlint.Internal.Static
 
             var element = new TargetReferenceType();
 
-            var context = new DataInjectionContext(reader, CultureInfo.InvariantCulture, Encoding.UTF8);
+            var context = new DataInjectionContext(ConversionContext.Default, reader);
             var metadataList = element.Prepare(context);
 
             element.Inject(context, metadataList);

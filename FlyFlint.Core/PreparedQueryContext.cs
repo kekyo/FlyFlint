@@ -7,16 +7,14 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
-using System;
+using FlyFlint.Context;
 using System.Runtime.CompilerServices;
-using System.Text;
 
 namespace FlyFlint
 {
     public sealed class PreparedQueryContext
     {
-        internal readonly IFormatProvider fp;
-        internal readonly Encoding encoding;
+        internal readonly ConversionContext cc;
         internal readonly string sql;
         internal readonly (string name, object? value)[] parameters;
         internal readonly string parameterPrefix;
@@ -25,14 +23,12 @@ namespace FlyFlint
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         internal PreparedQueryContext(
-            IFormatProvider fp,
-            Encoding encoding,
+            ConversionContext cc,
             string sql,
             (string name, object? value)[] parameters, 
             string parameterPrefix)
         {
-            this.fp = fp;
-            this.encoding = encoding;
+            this.cc = cc;
             this.sql = sql;
             this.parameters = parameters;
             this.parameterPrefix = parameterPrefix;
@@ -42,33 +38,26 @@ namespace FlyFlint
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public PreparedQueryContext Prefix(string parameterPrefix) =>
-            new PreparedQueryContext(this.fp, this.encoding, this.sql, this.parameters, parameterPrefix);
+            new PreparedQueryContext(this.cc, this.sql, this.parameters, parameterPrefix);
 
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public PreparedQueryContext Formatter(IFormatProvider fp) =>
-            new PreparedQueryContext(fp, this.encoding, this.sql, this.parameters, this.parameterPrefix);
-
-#if !NET40
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-        public PreparedQueryContext Encoding(Encoding encoding) =>
-            new PreparedQueryContext(this.fp, encoding, this.sql, this.parameters, this.parameterPrefix);
+        public PreparedQueryContext Conversion(ConversionContext cc) =>
+            new PreparedQueryContext(cc, this.sql, this.parameters, this.parameterPrefix);
 
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public PreparedQueryContext<T> Typed<T>()
             where T : new() =>
-            new PreparedQueryContext<T>(this.fp, this.encoding, this.sql, this.parameters, this.parameterPrefix);
+            new PreparedQueryContext<T>(this.cc, this.sql, this.parameters, this.parameterPrefix);
     }
 
     public sealed class PreparedQueryContext<T>
         where T : new()
     {
-        internal readonly IFormatProvider fp;
-        internal readonly Encoding encoding;
+        internal readonly ConversionContext cc;
         internal readonly string sql;
         internal readonly (string name, object? value)[] parameters;
         internal readonly string parameterPrefix;
@@ -77,14 +66,12 @@ namespace FlyFlint
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         internal PreparedQueryContext(
-            IFormatProvider fp,
-            Encoding encoding,
+            ConversionContext cc,
             string sql,
             (string name, object? value)[] parameters, 
             string parameterPrefix)
         {
-            this.fp = fp;
-            this.encoding = encoding;
+            this.cc = cc;
             this.sql = sql;
             this.parameters = parameters;
             this.parameterPrefix = parameterPrefix;
@@ -94,18 +81,12 @@ namespace FlyFlint
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public PreparedQueryContext<T> Prefix(string parameterPrefix) =>
-            new PreparedQueryContext<T>(this.fp, this.encoding, this.sql, this.parameters, parameterPrefix);
+            new PreparedQueryContext<T>(this.cc, this.sql, this.parameters, parameterPrefix);
 
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public PreparedQueryContext<T> Formatter(IFormatProvider fp) =>
-            new PreparedQueryContext<T>(fp, this.encoding, this.sql, this.parameters, this.parameterPrefix);
-
-#if !NET40
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-        public PreparedQueryContext<T> Encoding(Encoding encoding) =>
-            new PreparedQueryContext<T>(this.fp, encoding, this.sql, this.parameters, this.parameterPrefix);
+        public PreparedQueryContext<T> Conversion(ConversionContext cc) =>
+            new PreparedQueryContext<T>(cc, this.sql, this.parameters, this.parameterPrefix);
     }
 }

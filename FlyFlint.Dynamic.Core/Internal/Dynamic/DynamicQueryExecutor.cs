@@ -11,23 +11,30 @@ using FlyFlint.Context;
 using FlyFlint.Internal.Converter;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace FlyFlint.Internal.Dynamic
 {
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public sealed class DynamicQueryExecutor : IDynamicQueryExecutor
+    internal sealed class DynamicQueryExecutor : IDynamicQueryExecutor
     {
-        [EditorBrowsable(EditorBrowsableState.Never)]
+#if !NET40
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
         public object? Convert(ConversionContext context, object? value, Type targetType) =>
             DynamicValueConverter.GetConverter(targetType).Convert(context, value);
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+#if !NET40
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
         public object? UnsafeConvert(ConversionContext context, object value, Type targetType) =>
             DynamicValueConverter.GetConverter(targetType).UnsafeConvert(context, value);
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        /////////////////////////////////////////////////////////////////////
+
+#if !NET40
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
         public (string name, object? value)[] GetParameters<TParameters>(
             ref TParameters parameters, string parameterPrefix)
         {
@@ -43,7 +50,9 @@ namespace FlyFlint.Internal.Dynamic
 
         /////////////////////////////////////////////////////////////////////
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+#if !NET40
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
         public int ExecuteNonQuery(QueryContext query)
         {
             using (var command = QueryHelper.CreateCommand(
@@ -53,19 +62,22 @@ namespace FlyFlint.Internal.Dynamic
             }
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+#if !NET40
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
         public T ExecuteScalar<T>(QueryContext query)
         {
             using (var command = QueryHelper.CreateCommand(
                 query.connection, query.transaction, query.sql, query.parameters))
             {
-                var context = new ConversionContext(query.fp, query.encoding);
                 return InternalValueConverter<T>.converter.Convert(
-                    context, command.ExecuteScalar());
+                    query.cc, command.ExecuteScalar());
             }
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+#if !NET40
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
         public IEnumerable<T> Execute<T>(QueryContext<T> query)
             where T : new()
         {
@@ -76,7 +88,7 @@ namespace FlyFlint.Internal.Dynamic
                 {
                     if (reader.Read())
                     {
-                        var context = new DataInjectionContext(reader, query.fp, query.encoding);
+                        var context = new DataInjectionContext(query.cc, reader);
 
                         var injector = new DynamicInjector<T>(context);
                         do
@@ -91,7 +103,9 @@ namespace FlyFlint.Internal.Dynamic
             }
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+#if !NET40
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
         public async Task<int> ExecuteNonQueryAsync(QueryContext query)
         {
             using (var command = QueryHelper.CreateCommand(
@@ -101,20 +115,21 @@ namespace FlyFlint.Internal.Dynamic
             }
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+#if !NET40
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
         public async Task<T> ExecuteScalarAsync<T>(QueryContext query)
         {
             using (var command = QueryHelper.CreateCommand(
                 query.connection, query.transaction, query.sql, query.parameters))
             {
-                var context = new ConversionContext(query.fp, query.encoding);
                 return InternalValueConverter<T>.converter.Convert(
-                    context, await command.ExecuteScalarAsync().ConfigureAwait(false));
+                    query.cc, await command.ExecuteScalarAsync().ConfigureAwait(false));
             }
         }
 
 #if !NET40 && !NET45
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public async IAsyncEnumerable<T> ExecuteAsync<T>(QueryContext<T> query)
             where T : new()
         {
@@ -125,7 +140,7 @@ namespace FlyFlint.Internal.Dynamic
                 {
                     if (await reader.ReadAsync().ConfigureAwait(false))
                     {
-                        var context = new DataInjectionContext(reader, query.fp, query.encoding);
+                        var context = new DataInjectionContext(query.cc, reader);
 
                         var injector = new DynamicInjector<T>(context);
                         do

@@ -10,14 +10,13 @@
 using FlyFlint.Internal.Converter;
 using FlyFlint.Internal.Dynamic;
 using System;
-using System.ComponentModel;
 using System.Diagnostics;
+using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace FlyFlint.Context
 {
-    [EditorBrowsable(EditorBrowsableState.Never)]
     public class ConversionContext
     {
         public readonly IFormatProvider FormatProvider;
@@ -26,7 +25,7 @@ namespace FlyFlint.Context
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        protected internal ConversionContext(IFormatProvider fp, Encoding encoding)
+        public ConversionContext(IFormatProvider fp, Encoding encoding)
         {
             this.FormatProvider = fp;
             this.Encoding = encoding;
@@ -35,7 +34,7 @@ namespace FlyFlint.Context
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        protected virtual T Convert<T>(object value)
+        public virtual T Convert<T>(object value)
         {
             Debug.Assert(value != null);
             Debug.Assert(value is not DBNull);
@@ -45,11 +44,14 @@ namespace FlyFlint.Context
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        protected virtual object? Convert(object value, Type targetType)
+        public virtual object? Convert(object value, Type targetType)
         {
             Debug.Assert(value != null);
             Debug.Assert(value is not DBNull);
             return DynamicQueryExecutorFacade.UnsafeConvert(this, value!, targetType);
         }
+
+        public static readonly ConversionContext Default =
+            new ConversionContext(CultureInfo.InvariantCulture, Encoding.UTF8);
     }
 }

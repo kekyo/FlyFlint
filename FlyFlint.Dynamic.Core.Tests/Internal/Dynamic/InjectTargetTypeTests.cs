@@ -12,7 +12,6 @@ using NUnit.Framework;
 using System;
 using System.Data;
 using System.Globalization;
-using System.Text;
 using System.Threading.Tasks;
 using static VerifyNUnit.Verifier;
 
@@ -73,7 +72,7 @@ namespace FlyFlint.Internal.Dynamic
             using var reader = data.CreateDataReader();
             Assert.IsTrue(reader.Read());
 
-            var context = new DataInjectionContext(reader, CultureInfo.InvariantCulture, Encoding.UTF8);
+            var context = new DataInjectionContext(ConversionContext.Default, reader);
             var injector = new DynamicInjector<TargetValueTypes>(context);
 
             var element = new TargetValueTypes();
@@ -128,7 +127,7 @@ namespace FlyFlint.Internal.Dynamic
             using var reader = data.CreateDataReader();
             Assert.IsTrue(reader.Read());
 
-            var context = new DataInjectionContext(reader, CultureInfo.InvariantCulture, Encoding.UTF8);
+            var context = new DataInjectionContext(ConversionContext.Default, reader);
             var injector = new DynamicInjector<TargetNullableValueTypes>(context);
 
             var element = new TargetNullableValueTypes();
@@ -162,7 +161,7 @@ namespace FlyFlint.Internal.Dynamic
             using var reader = data.CreateDataReader();
             Assert.IsTrue(reader.Read());
 
-            var context = new DataInjectionContext(reader, CultureInfo.InvariantCulture, Encoding.UTF8);
+            var context = new DataInjectionContext(ConversionContext.Default, reader);
             var injector = new DynamicInjector<TargetNullableValueTypes>(context);
 
             var element = new TargetNullableValueTypes();

@@ -22,7 +22,7 @@ namespace FlyFlint.Utilities
             this IAsyncEnumerable<T> enumerable)
         {
             var result = new List<T>();
-            await foreach (var item in enumerable)
+            await foreach (var item in enumerable.ConfigureAwait(false))
             {
                 result.Add(item);
             }
@@ -94,7 +94,7 @@ namespace FlyFlint.Utilities
         {
             foreach (var item in enumerable)
             {
-                await foreach (var inner in binder(item))
+                await foreach (var inner in binder(item).ConfigureAwait(false))
                 {
                     yield return inner;
                 }
@@ -106,7 +106,7 @@ namespace FlyFlint.Utilities
         {
             await foreach (var item in enumerable)
             {
-                await foreach (var inner in binder(item))
+                await foreach (var inner in binder(item).ConfigureAwait(false))
                 {
                     yield return inner;
                 }
@@ -118,7 +118,7 @@ namespace FlyFlint.Utilities
         public static async ValueTask<T> FirstAsync<T>(
             this IAsyncEnumerable<T> enumerable)
         {
-            await foreach (var item in enumerable)
+            await foreach (var item in enumerable.ConfigureAwait(false))
             {
                 return item;
             }
@@ -156,7 +156,7 @@ namespace FlyFlint.Utilities
         public static async ValueTask<T> FirstOrDefaultAsync<T>(
             this IAsyncEnumerable<T> enumerable, T defaultValue = default!)
         {
-            await foreach (var item in enumerable)
+            await foreach (var item in enumerable.ConfigureAwait(false))
             {
                 return item;
             }

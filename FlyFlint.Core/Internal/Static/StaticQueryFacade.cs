@@ -7,6 +7,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
+using FlyFlint.Context;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data.Common;
@@ -29,8 +30,7 @@ namespace FlyFlint.Internal.Static
             new QueryContext(
                 connection,
                 null,
-                FlyFlint.Query.defaultFp,
-                FlyFlint.Query.defaultEncoding,
+                ConversionContext.Default,
                 sql,
                 StaticQueryExecutor.GetParameters(ref parameters, FlyFlint.Query.defaultParameterPrefix),
                 FlyFlint.Query.defaultParameterPrefix);
@@ -46,8 +46,7 @@ namespace FlyFlint.Internal.Static
             new QueryContext(
                 connection,
                 transaction,
-                FlyFlint.Query.defaultFp,
-                FlyFlint.Query.defaultEncoding,
+                ConversionContext.Default,
                 sql,
                 StaticQueryExecutor.GetParameters(ref parameters, FlyFlint.Query.defaultParameterPrefix),
                 FlyFlint.Query.defaultParameterPrefix);
@@ -63,8 +62,7 @@ namespace FlyFlint.Internal.Static
             new QueryContext(
                 connection,
                 null,
-                prepared.fp,
-                prepared.encoding,
+                prepared.cc,
                 prepared.sql,
                 StaticQueryExecutor.GetParameters(ref parameters, prepared.parameterPrefix),
                 prepared.parameterPrefix);
@@ -80,8 +78,7 @@ namespace FlyFlint.Internal.Static
             new QueryContext(
                 connection,
                 transaction,
-                prepared.fp,
-                prepared.encoding,
+                prepared.cc,
                 prepared.sql,
                 StaticQueryExecutor.GetParameters(ref parameters, prepared.parameterPrefix),
                 prepared.parameterPrefix);
@@ -98,8 +95,7 @@ namespace FlyFlint.Internal.Static
             new QueryContext<T>(
                 connection,
                 null,
-                prepared.fp,
-                prepared.encoding,
+                prepared.cc,
                 prepared.sql,
                 StaticQueryExecutor.GetParameters(ref parameters, prepared.parameterPrefix),
                 prepared.parameterPrefix);
@@ -116,8 +112,7 @@ namespace FlyFlint.Internal.Static
             new QueryContext<T>(
                 connection,
                 transaction,
-                prepared.fp,
-                prepared.encoding,
+                prepared.cc,
                 prepared.sql,
                 StaticQueryExecutor.GetParameters(ref parameters, prepared.parameterPrefix),
                 prepared.parameterPrefix);
@@ -129,14 +124,13 @@ namespace FlyFlint.Internal.Static
 #endif
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static PreparedQueryContext Parameter<TParameters>(
-            PreparedQueryContext query, TParameters parameters)
+            PreparedQueryContext prepared, TParameters parameters)
             where TParameters : IParameterExtractable =>
             new PreparedQueryContext(
-                query.fp,
-                query.encoding,
-                query.sql,
-                StaticQueryExecutor.GetParameters(ref parameters, query.parameterPrefix),
-                query.parameterPrefix);
+                prepared.cc,
+                prepared.sql,
+                StaticQueryExecutor.GetParameters(ref parameters, prepared.parameterPrefix),
+                prepared.parameterPrefix);
 
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -148,8 +142,7 @@ namespace FlyFlint.Internal.Static
             new QueryContext(
                 query.connection,
                 query.transaction,
-                query.fp,
-                query.encoding,
+                query.cc,
                 query.sql,
                 StaticQueryExecutor.GetParameters(ref parameters, query.parameterPrefix),
                 query.parameterPrefix);
@@ -159,15 +152,14 @@ namespace FlyFlint.Internal.Static
 #endif
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static PreparedQueryContext<T> Parameter<T, TParameters>(
-            PreparedQueryContext<T> query, TParameters parameters)
+            PreparedQueryContext<T> prepared, TParameters parameters)
             where T : new()
             where TParameters : IParameterExtractable =>
             new PreparedQueryContext<T>(
-                query.fp,
-                query.encoding,
-                query.sql,
-                StaticQueryExecutor.GetParameters(ref parameters, query.parameterPrefix),
-                query.parameterPrefix);
+                prepared.cc,
+                prepared.sql,
+                StaticQueryExecutor.GetParameters(ref parameters, prepared.parameterPrefix),
+                prepared.parameterPrefix);
 
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -180,8 +172,7 @@ namespace FlyFlint.Internal.Static
             new QueryContext<T>(
                 query.connection,
                 query.transaction,
-                query.fp,
-                query.encoding,
+                query.cc,
                 query.sql,
                 StaticQueryExecutor.GetParameters(ref parameters, query.parameterPrefix),
                 query.parameterPrefix);

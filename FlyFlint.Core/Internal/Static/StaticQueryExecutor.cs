@@ -46,9 +46,8 @@ namespace FlyFlint.Internal.Static
             using (var command = QueryHelper.CreateCommand(
                 query.connection, query.transaction, query.sql, query.parameters))
             {
-                var context = new ConversionContext(query.fp, query.encoding);
                 return InternalValueConverter<T>.converter.Convert(
-                    context, command.ExecuteScalar());
+                    query.cc, command.ExecuteScalar());
             }
         }
 
@@ -62,7 +61,7 @@ namespace FlyFlint.Internal.Static
                 {
                     if (reader.Read())
                     {
-                        var context = new DataInjectionContext(reader, query.fp, query.encoding);
+                        var context = new DataInjectionContext(query.cc, reader);
 
                         var element = new T();
                         var metadataList = element.Prepare(context);
@@ -97,9 +96,8 @@ namespace FlyFlint.Internal.Static
             using (var command = QueryHelper.CreateCommand(
                 query.connection, query.transaction, query.sql, query.parameters))
             {
-                var context = new ConversionContext(query.fp, query.encoding);
                 return InternalValueConverter<T>.converter.Convert(
-                    context, await command.ExecuteScalarAsync().ConfigureAwait(false));
+                    query.cc, await command.ExecuteScalarAsync().ConfigureAwait(false));
             }
         }
 
@@ -114,7 +112,7 @@ namespace FlyFlint.Internal.Static
                 {
                     if (await reader.ReadAsync().ConfigureAwait(false))
                     {
-                        var context = new DataInjectionContext(reader, query.fp, query.encoding);
+                        var context = new DataInjectionContext(query.cc, reader);
 
                         var element = new T();
                         var metadataList = element.Prepare(context);

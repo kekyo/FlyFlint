@@ -20,13 +20,19 @@ namespace FlyFlint.Internal.Dynamic
         object? Convert(ConversionContext context, object? value, Type targetType);
         object? UnsafeConvert(ConversionContext context, object value, Type targetType);
 
+        /////////////////////////////////////////////////////////////////////
+
         (string name, object? value)[] GetParameters<TParameters>(
             ref TParameters parameters, string parameterPrefix);
+
+        /////////////////////////////////////////////////////////////////////
 
         int ExecuteNonQuery(QueryContext query);
         T ExecuteScalar<T>(QueryContext query);
         IEnumerable<T> Execute<T>(QueryContext<T> query)
             where T : new();
+
+        /////////////////////////////////////////////////////////////////////
 
         Task<int> ExecuteNonQueryAsync(QueryContext query);
         Task<T> ExecuteScalarAsync<T>(QueryContext query);
@@ -40,6 +46,9 @@ namespace FlyFlint.Internal.Dynamic
     {
         private static volatile IDynamicQueryExecutor? executor;
 
+#if !NET40
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
         public static void SetDynamicQueryExecutor(IDynamicQueryExecutor executor) =>
             DynamicQueryExecutorFacade.executor = executor;
         
@@ -53,6 +62,8 @@ namespace FlyFlint.Internal.Dynamic
             return executor;
         }
 
+        /////////////////////////////////////////////////////////////////////
+
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
@@ -65,6 +76,8 @@ namespace FlyFlint.Internal.Dynamic
         internal static object? UnsafeConvert(ConversionContext context, object value, Type targetType) =>
             GetDynamicQueryExecutor().UnsafeConvert(context, value, targetType);
 
+        /////////////////////////////////////////////////////////////////////
+
 
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -72,6 +85,8 @@ namespace FlyFlint.Internal.Dynamic
         internal static (string name, object? value)[] GetParameters<TParameters>(
             ref TParameters parameters, string parameterPrefix) =>
             GetDynamicQueryExecutor().GetParameters(ref parameters, parameterPrefix);
+
+        /////////////////////////////////////////////////////////////////////
 
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -91,6 +106,8 @@ namespace FlyFlint.Internal.Dynamic
         internal static IEnumerable<T> Execute<T>(QueryContext<T> query)
             where T : new() =>
             GetDynamicQueryExecutor().Execute(query);
+
+        /////////////////////////////////////////////////////////////////////
 
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

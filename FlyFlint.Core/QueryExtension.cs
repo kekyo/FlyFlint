@@ -7,11 +7,9 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
-using FlyFlint.Internal;
+using FlyFlint.Context;
 using System.Data.Common;
-using System.Globalization;
 using System.Runtime.CompilerServices;
-using System.Text;
 
 namespace FlyFlint
 {
@@ -21,12 +19,12 @@ namespace FlyFlint
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public static QueryContext Query(
-            this DbConnection connection, string sql) =>
+            this DbConnection connection,
+            string sql) =>
             new QueryContext(
                 connection,
                 null,
-                FlyFlint.Query.defaultFp,
-                FlyFlint.Query.defaultEncoding,
+                ConversionContext.Default,
                 sql,
                 FlyFlint.Query.defaultParameters,
                 FlyFlint.Query.defaultParameterPrefix);
@@ -41,8 +39,7 @@ namespace FlyFlint
             new QueryContext(
                 connection,
                 transaction,
-                FlyFlint.Query.defaultFp,
-                FlyFlint.Query.defaultEncoding,
+                ConversionContext.Default,
                 sql,
                 FlyFlint.Query.defaultParameters,
                 FlyFlint.Query.defaultParameterPrefix);
@@ -51,13 +48,13 @@ namespace FlyFlint
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public static QueryContext<T> Query<T>(
-            this DbConnection connection, string sql)
+            this DbConnection connection,
+            string sql)
             where T : new() =>
             new QueryContext<T>(
                 connection,
                 null,
-                FlyFlint.Query.defaultFp,
-                FlyFlint.Query.defaultEncoding,
+                ConversionContext.Default,
                 sql,
                 FlyFlint.Query.defaultParameters,
                 FlyFlint.Query.defaultParameterPrefix);
@@ -73,8 +70,7 @@ namespace FlyFlint
             new QueryContext<T>(
                 connection,
                 transaction,
-                FlyFlint.Query.defaultFp,
-                FlyFlint.Query.defaultEncoding,
+                ConversionContext.Default,
                 sql,
                 FlyFlint.Query.defaultParameters,
                 FlyFlint.Query.defaultParameterPrefix);
@@ -88,8 +84,7 @@ namespace FlyFlint
             new QueryContext(
                 connection,
                 null,
-                prepared.fp,
-                prepared.encoding,
+                prepared.cc,
                 prepared.sql,
                 prepared.parameters,
                 prepared.parameterPrefix);
@@ -103,8 +98,7 @@ namespace FlyFlint
             new QueryContext(
                 connection,
                 transaction,
-                prepared.fp,
-                prepared.encoding,
+                prepared.cc,
                 prepared.sql,
                 prepared.parameters,
                 prepared.parameterPrefix);
@@ -119,8 +113,7 @@ namespace FlyFlint
             new QueryContext<T>(
                 connection,
                 null,
-                prepared.fp,
-                prepared.encoding,
+                prepared.cc,
                 prepared.sql,
                 prepared.parameters,
                 prepared.parameterPrefix);
@@ -135,8 +128,7 @@ namespace FlyFlint
             new QueryContext<T>(
                 connection,
                 transaction,
-                prepared.fp,
-                prepared.encoding,
+                prepared.cc,
                 prepared.sql,
                 prepared.parameters,
                 prepared.parameterPrefix);

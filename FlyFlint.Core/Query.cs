@@ -7,17 +7,13 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
-using System;
-using System.Globalization;
+using FlyFlint.Context;
 using System.Runtime.CompilerServices;
-using System.Text;
 
 namespace FlyFlint
 {
     public static class Query
     {
-        internal static readonly IFormatProvider defaultFp = CultureInfo.InvariantCulture;
-        internal static readonly Encoding defaultEncoding = Encoding.UTF8;
         internal static readonly (string, object?)[] defaultParameters = { };
         internal static readonly string defaultParameterPrefix = "@";
         
@@ -25,13 +21,21 @@ namespace FlyFlint
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public static PreparedQueryContext Prepare(string sql) =>
-            new PreparedQueryContext(defaultFp, defaultEncoding, sql, defaultParameters, defaultParameterPrefix);
+            new PreparedQueryContext(
+                ConversionContext.Default,
+                sql,
+                defaultParameters,
+                defaultParameterPrefix);
 
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public static PreparedQueryContext<T> Prepare<T>(string sql)
             where T : new() =>
-            new PreparedQueryContext<T>(defaultFp, defaultEncoding, sql, defaultParameters, defaultParameterPrefix);
+            new PreparedQueryContext<T>(
+                ConversionContext.Default,
+                sql,
+                defaultParameters,
+                defaultParameterPrefix);
     }
 }

@@ -13,7 +13,9 @@ namespace FlyFlint
 {
     public static class DynamicQuery
     {
+        private static readonly DynamicQueryExecutor executor = new();
+
         public static void Enable() =>
-            DynamicQueryExecutorFacade.SetDynamicQueryExecutor(new DynamicQueryExecutor());
+            DynamicQueryExecutorFacade.SetDynamicQueryExecutor(executor);
     }
 }
