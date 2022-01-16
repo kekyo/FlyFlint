@@ -37,16 +37,16 @@ namespace FlyFlint.Context
             (string name, Type type)[] members)
         {
             var (dbFieldNames, dbFieldMetadataList) =
-                QueryHelper.GetSortedMetadataMap(this.reader);
+                QueryHelper.CreateSortedMetadataMap(this.reader);
 
             var candidates = new List<DataInjectionMetadata>(members.Length);
             for (var index = 0; index < members.Length; index++)
             {
                 var member = members[index];
-                var dbFieldNameIndexesIndex = Array.BinarySearch(dbFieldNames, member.name);
-                if (dbFieldNameIndexesIndex >= 0)
+                var dbFieldNameIndiciesIndex = Array.BinarySearch(dbFieldNames, member.name);
+                if (dbFieldNameIndiciesIndex >= 0)
                 {
-                    var dbFieldMetadata = dbFieldMetadataList[dbFieldNameIndexesIndex];
+                    var dbFieldMetadata = dbFieldMetadataList[dbFieldNameIndiciesIndex];
 
                     var ut = Nullable.GetUnderlyingType(member.type) ?? member.type;
                     dbFieldMetadata.StoreDirect = ut == dbFieldMetadata.Type;
@@ -302,13 +302,13 @@ namespace FlyFlint.Context
 
         /////////////////////////////////////////////////////////////////////////////
 
-#if !NET40
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public object? GetValue(DataInjectionMetadata metadata, Type targetType) =>
-            this.reader.IsDBNull(metadata.Index) ? null :
-                metadata.StoreDirect ? this.reader.GetValue(metadata.Index) :
-                    this.cc.Convert(this.reader.GetValue(metadata.Index), targetType);
+//#if !NET40
+//        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+//#endif
+//        [EditorBrowsable(EditorBrowsableState.Never)]
+//        public object? GetValue(DataInjectionMetadata metadata, Type targetType) =>
+//            this.reader.IsDBNull(metadata.Index) ? null :
+//                metadata.StoreDirect ? this.reader.GetValue(metadata.Index) :
+//                    this.cc.Convert(this.reader.GetValue(metadata.Index), targetType);
     }
 }

@@ -41,16 +41,6 @@ namespace FlyFlint.Context
             return InternalValueConverter<T>.converter.UnsafeConvert(this, value!);
         }
 
-#if !NET40
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-        public virtual object? Convert(object value, Type targetType)
-        {
-            Debug.Assert(value != null);
-            Debug.Assert(value is not DBNull);
-            return DynamicQueryExecutorFacade.UnsafeConvert(this, value!, targetType);
-        }
-
         public static readonly ConversionContext Default =
             new ConversionContext(CultureInfo.InvariantCulture, Encoding.UTF8);
     }

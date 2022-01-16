@@ -72,7 +72,7 @@ namespace FlyFlint.Internal.Dynamic
             using var reader = data.CreateDataReader();
             Assert.IsTrue(reader.Read());
 
-            var context = new DataInjectionContext(ConversionContext.Default, reader);
+            var context = new DynamicDataInjectionContext(ConversionContext.Default, reader);
             var injector = new DynamicInjector<TargetValueTypes>(context);
 
             var element = new TargetValueTypes();
@@ -127,7 +127,7 @@ namespace FlyFlint.Internal.Dynamic
             using var reader = data.CreateDataReader();
             Assert.IsTrue(reader.Read());
 
-            var context = new DataInjectionContext(ConversionContext.Default, reader);
+            var context = new DynamicDataInjectionContext(ConversionContext.Default, reader);
             var injector = new DynamicInjector<TargetNullableValueTypes>(context);
 
             var element = new TargetNullableValueTypes();
@@ -161,7 +161,7 @@ namespace FlyFlint.Internal.Dynamic
             using var reader = data.CreateDataReader();
             Assert.IsTrue(reader.Read());
 
-            var context = new DataInjectionContext(ConversionContext.Default, reader);
+            var context = new DynamicDataInjectionContext(ConversionContext.Default, reader);
             var injector = new DynamicInjector<TargetNullableValueTypes>(context);
 
             var element = new TargetNullableValueTypes();

@@ -88,7 +88,7 @@ namespace FlyFlint.Internal.Dynamic
                 {
                     if (reader.Read())
                     {
-                        var context = new DataInjectionContext(query.cc, reader);
+                        var context = new DynamicDataInjectionContext(query.cc, reader);
 
                         var injector = new DynamicInjector<T>(context);
                         do
@@ -140,7 +140,7 @@ namespace FlyFlint.Internal.Dynamic
                 {
                     if (await reader.ReadAsync().ConfigureAwait(false))
                     {
-                        var context = new DataInjectionContext(query.cc, reader);
+                        var context = new DynamicDataInjectionContext(query.cc, reader);
 
                         var injector = new DynamicInjector<T>(context);
                         do

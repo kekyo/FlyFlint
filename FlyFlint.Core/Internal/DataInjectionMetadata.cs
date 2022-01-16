@@ -13,21 +13,21 @@ using System.ComponentModel;
 namespace FlyFlint.Internal
 {
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public struct DataInjectionMetadata
+    public sealed class DataInjectionMetadata
     {
         [EditorBrowsable(EditorBrowsableState.Never)]
         public DataInjectionMetadata(int index, Type type)
         {
             this.Index = index;
-            this.Type = type;
             this.StoreDirect = false;
+            this.Type = type;
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public readonly int Index;
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public readonly Type Type;
-        [EditorBrowsable(EditorBrowsableState.Never)]
         public bool StoreDirect;
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public readonly Type Type;
     }
 }

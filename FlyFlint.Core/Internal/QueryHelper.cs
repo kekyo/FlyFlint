@@ -39,7 +39,7 @@ namespace FlyFlint.Internal
 
         /////////////////////////////////////////////////////////////////////
 
-        public static (string[], DataInjectionMetadata[]) GetSortedMetadataMap(DbDataReader reader)
+        public static (string[], DataInjectionMetadata[]) CreateSortedMetadataMap(DbDataReader reader)
         {
             var dbFieldCount = reader.FieldCount;
             var dbFieldNames = new string[dbFieldCount];

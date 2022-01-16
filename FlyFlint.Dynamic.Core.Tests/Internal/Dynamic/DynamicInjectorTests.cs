@@ -42,7 +42,7 @@ namespace FlyFlint.Internal.Dynamic
             using var reader = data.CreateDataReader();
             Assert.IsTrue(reader.Read());
 
-            var context = new DataInjectionContext(ConversionContext.Default, reader);
+            var context = new DynamicDataInjectionContext(ConversionContext.Default, reader);
             var injector = new DynamicInjector<FieldValueType>(context);
 
             var element = new FieldValueType();
@@ -75,7 +75,7 @@ namespace FlyFlint.Internal.Dynamic
             using var reader = data.CreateDataReader();
             Assert.IsTrue(reader.Read());
 
-            var context = new DataInjectionContext(ConversionContext.Default, reader);
+            var context = new DynamicDataInjectionContext(ConversionContext.Default, reader);
             var injector = new DynamicInjector<FieldReferenceType>(context);
 
             var element = new FieldReferenceType();
@@ -108,7 +108,7 @@ namespace FlyFlint.Internal.Dynamic
             using var reader = data.CreateDataReader();
             Assert.IsTrue(reader.Read());
 
-            var context = new DataInjectionContext(ConversionContext.Default, reader);
+            var context = new DynamicDataInjectionContext(ConversionContext.Default, reader);
             var injector = new DynamicInjector<PropertyValueType>(context);
 
             var element = new PropertyValueType();
@@ -141,7 +141,7 @@ namespace FlyFlint.Internal.Dynamic
             using var reader = data.CreateDataReader();
             Assert.IsTrue(reader.Read());
 
-            var context = new DataInjectionContext(ConversionContext.Default, reader);
+            var context = new DynamicDataInjectionContext(ConversionContext.Default, reader);
             var injector = new DynamicInjector<PropertyReferenceType>(context);
 
             var element = new PropertyReferenceType();

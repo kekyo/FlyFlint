@@ -19,10 +19,10 @@ namespace FlyFlint.Internal.Dynamic
         private delegate void Setter(ref T element);
         private readonly Setter[] setters;
 
-        public DynamicInjector(DataInjectionContext context)
+        public DynamicInjector(DynamicDataInjectionContext context)
         {
             var (dbFieldNames, dbFieldMetadataList) =
-                QueryHelper.GetSortedMetadataMap(context.reader);
+                QueryHelper.CreateSortedMetadataMap(context.reader);
             var members =
                 DynamicHelper.GetSetterMetadataList<T>();
 
@@ -34,6 +34,10 @@ namespace FlyFlint.Internal.Dynamic
                 if (dbFieldNameIndiciesIndex >= 0)
                 {
                     var dbFieldMetadata = dbFieldMetadataList[dbFieldNameIndiciesIndex];
+
+                    var ut = Nullable.GetUnderlyingType(member.type) ?? member.type;
+                    dbFieldMetadata.StoreDirect = ut == dbFieldMetadata.Type;
+
                     candidates.Add((ref T element) =>
                         member.setter(ref element, context.GetValue(dbFieldMetadata, member.type)));
                 }
