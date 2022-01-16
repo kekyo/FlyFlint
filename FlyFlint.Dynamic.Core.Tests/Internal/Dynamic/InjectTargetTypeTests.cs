@@ -11,6 +11,7 @@ using NUnit.Framework;
 using System;
 using System.Data;
 using System.Globalization;
+using System.Text;
 using System.Threading.Tasks;
 using static VerifyNUnit.Verifier;
 
@@ -71,11 +72,12 @@ namespace FlyFlint.Internal.Dynamic
             using var reader = data.CreateDataReader();
             Assert.IsTrue(reader.Read());
 
-            var injector = new DynamicInjector<TargetValueTypes>(reader, CultureInfo.InvariantCulture);
+            var context = new DataInjectionContext(reader, CultureInfo.InvariantCulture, Encoding.UTF8);
+            var injector = new DynamicInjector<TargetValueTypes>(context);
 
             var element = new TargetValueTypes();
 
-            injector.Inject(reader, ref element);
+            injector.Inject(ref element);
 
             return Verify($"{element.Value1},{element.Value2},{element.Value3},{element.Value4},{element.Value5},{element.Value6},{element.Value7},{element.Value8},{element.Value9},{element.Value10.ToString(CultureInfo.InvariantCulture)},{element.Value11},{element.Value12},{element.Value13},{element.Value14},{element.Value15}");
         }
@@ -125,11 +127,12 @@ namespace FlyFlint.Internal.Dynamic
             using var reader = data.CreateDataReader();
             Assert.IsTrue(reader.Read());
 
-            var injector = new DynamicInjector<TargetNullableValueTypes>(reader, CultureInfo.InvariantCulture);
+            var context = new DataInjectionContext(reader, CultureInfo.InvariantCulture, Encoding.UTF8);
+            var injector = new DynamicInjector<TargetNullableValueTypes>(context);
 
             var element = new TargetNullableValueTypes();
 
-            injector.Inject(reader, ref element);
+            injector.Inject(ref element);
 
             return Verify($"{element.Value1},{element.Value2},{element.Value3},{element.Value4},{element.Value5},{element.Value6},{element.Value7},{element.Value8},{element.Value9},{element.Value10?.ToString(CultureInfo.InvariantCulture)},{element.Value11},{element.Value12},{element.Value13},{element.Value14},{element.Value15}");
         }
@@ -158,11 +161,12 @@ namespace FlyFlint.Internal.Dynamic
             using var reader = data.CreateDataReader();
             Assert.IsTrue(reader.Read());
 
-            var injector = new DynamicInjector<TargetNullableValueTypes>(reader, CultureInfo.InvariantCulture);
+            var context = new DataInjectionContext(reader, CultureInfo.InvariantCulture, Encoding.UTF8);
+            var injector = new DynamicInjector<TargetNullableValueTypes>(context);
 
             var element = new TargetNullableValueTypes();
 
-            injector.Inject(reader, ref element);
+            injector.Inject(ref element);
 
             return Verify($"{element.Value1},{element.Value2},{element.Value3},{element.Value4},{element.Value5},{element.Value6},{element.Value7},{element.Value8},{element.Value9},{element.Value10?.ToString(CultureInfo.InvariantCulture)},{element.Value11},{element.Value12},{element.Value13},{element.Value14},{element.Value15}");
         }

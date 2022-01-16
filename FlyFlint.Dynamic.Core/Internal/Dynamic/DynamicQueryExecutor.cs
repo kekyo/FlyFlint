@@ -7,10 +7,10 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
+using FlyFlint.Internal.Converter;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace FlyFlint.Internal.Dynamic
@@ -19,12 +19,12 @@ namespace FlyFlint.Internal.Dynamic
     public sealed class DynamicQueryExecutor : IDynamicQueryExecutor
     {
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public object? Convert(IFormatProvider fp, Encoding encoding, object? value, Type targetType) =>
-            Converter.DynamicValueConverter.GetConverter(targetType).Convert(fp, encoding, value);
+        public object? Convert(ConversionContext context, object? value, Type targetType) =>
+            DynamicValueConverter.GetConverter(targetType).Convert(context, value);
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public object? UnsafeConvert(IFormatProvider fp, Encoding encoding, object value, Type targetType) =>
-            Converter.DynamicValueConverter.GetConverter(targetType).UnsafeConvert(fp, encoding, value);
+        public object? UnsafeConvert(ConversionContext context, object value, Type targetType) =>
+            DynamicValueConverter.GetConverter(targetType).UnsafeConvert(context, value);
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public (string name, object? value)[] GetParameters<TParameters>(
@@ -76,11 +76,13 @@ namespace FlyFlint.Internal.Dynamic
                 {
                     if (reader.Read())
                     {
-                        var injector = new DynamicInjector<T>(reader, query.fp);
+                        var context = new DataInjectionContext(reader, query.fp, query.encoding);
+
+                        var injector = new DynamicInjector<T>(context);
                         do
                         {
                             var element = new T();
-                            injector.Inject(reader, ref element);
+                            injector.Inject(ref element);
                             yield return element;
                         }
                         while (reader.Read());
@@ -124,11 +126,13 @@ namespace FlyFlint.Internal.Dynamic
                 {
                     if (await reader.ReadAsync().ConfigureAwait(false))
                     {
-                        var injector = new DynamicInjector<T>(reader, query.fp);
+                        var context = new DataInjectionContext(reader, query.fp, query.encoding);
+
+                        var injector = new DynamicInjector<T>(context);
                         do
                         {
                             var element = new T();
-                            injector.Inject(reader, ref element);
+                            injector.Inject(ref element);
                             yield return element;
                         }
                         while (await reader.ReadAsync().ConfigureAwait(false));

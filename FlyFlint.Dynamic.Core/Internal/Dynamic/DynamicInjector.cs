@@ -16,13 +16,13 @@ namespace FlyFlint.Internal.Dynamic
 {
     internal sealed class DynamicInjector<T>
     {
-        private delegate void Setter(DbDataReader reader, ref T element);
+        private delegate void Setter(ref T element);
         private readonly Setter[] setters;
 
-        public DynamicInjector(DbDataReader reader, IFormatProvider fp)
+        public DynamicInjector(DataInjectionContext context)
         {
             var (dbFieldNames, dbFieldMetadataList) =
-                QueryHelper.GetSortedMetadataMap(reader);
+                QueryHelper.GetSortedMetadataMap(context.reader);
             var members =
                 DynamicHelper.GetSetterMetadataList<T>();
 
@@ -34,8 +34,8 @@ namespace FlyFlint.Internal.Dynamic
                 if (dbFieldNameIndiciesIndex >= 0)
                 {
                     var dbFieldMetadata = dbFieldMetadataList[dbFieldNameIndiciesIndex];
-                    candidates.Add((DbDataReader reader, ref T element) =>
-                        member.setter(ref element, DynamicDataAccessor.GetValue(fp, reader, dbFieldMetadata, member.type)));
+                    candidates.Add((ref T element) =>
+                        member.setter(ref element, DynamicDataAccessor.GetValue(context, dbFieldMetadata, member.type)));
                 }
             }
 
@@ -45,11 +45,11 @@ namespace FlyFlint.Internal.Dynamic
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public void Inject(DbDataReader reader, ref T element)
+        public void Inject(ref T element)
         {
             for (var index = 0; index < this.setters.Length; index++)
             {
-                this.setters[index](reader, ref element);
+                this.setters[index](ref element);
             }
         }
     }

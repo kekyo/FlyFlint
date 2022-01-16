@@ -7,7 +7,6 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
-using FlyFlint.Internal.Converter;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -62,14 +61,16 @@ namespace FlyFlint.Internal.Static
                 {
                     if (reader.Read())
                     {
+                        var context = new DataInjectionContext(reader, query.fp, query.encoding);
+
                         var element = new T();
-                        var metadataList = element.PrepareAndInject(query.fp, reader);
+                        var metadataList = element.PrepareAndInject(context);
                         yield return element;
 
                         while (reader.Read())
                         {
                             element = new T();
-                            element.Inject(query.fp, metadataList, reader);
+                            element.Inject(context, metadataList);
                             yield return element;
                         }
                     }
@@ -111,14 +112,16 @@ namespace FlyFlint.Internal.Static
                 {
                     if (await reader.ReadAsync().ConfigureAwait(false))
                     {
+                        var context = new DataInjectionContext(reader, query.fp, query.encoding);
+
                         var element = new T();
-                        var metadataList = element.PrepareAndInject(query.fp, reader);
+                        var metadataList = element.PrepareAndInject(context);
                         yield return element;
 
                         while (await reader.ReadAsync().ConfigureAwait(false))
                         {
                             element = new T();
-                            element.Inject(query.fp, metadataList, reader);
+                            element.Inject(context, metadataList);
                             yield return element;
                         }
                     }

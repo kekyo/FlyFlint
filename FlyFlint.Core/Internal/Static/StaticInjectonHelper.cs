@@ -10,7 +10,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data.Common;
 
 namespace FlyFlint.Internal.Static
 {
@@ -19,9 +18,10 @@ namespace FlyFlint.Internal.Static
     {
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static DataInjectionMetadata[] Prepare(
-            DbDataReader reader, (string name, Type type)[] members)
+            DataInjectionContext context, (string name, Type type)[] members)
         {
-            var (dbFieldNames, dbFieldMetadataList) = QueryHelper.GetSortedMetadataMap(reader);
+            var (dbFieldNames, dbFieldMetadataList) =
+                QueryHelper.GetSortedMetadataMap(context.reader);
 
             var candidates = new List<DataInjectionMetadata>(members.Length);
             for (var index = 0; index < members.Length; index++)

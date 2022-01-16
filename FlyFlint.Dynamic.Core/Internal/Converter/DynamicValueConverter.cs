@@ -10,7 +10,6 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using System.Text;
 
 namespace FlyFlint.Internal.Converter
 {
@@ -18,8 +17,8 @@ namespace FlyFlint.Internal.Converter
     {
         private static readonly Dictionary<Type, DynamicValueConverter> converters = new();
 
-        public abstract object? Convert(IFormatProvider fp, Encoding encoding, object? value);
-        public abstract object? UnsafeConvert(IFormatProvider fp, Encoding encoding, object value);
+        public abstract object? Convert(ConversionContext context, object? value);
+        public abstract object? UnsafeConvert(ConversionContext context, object value);
 
         public static DynamicValueConverter GetConverter(Type targetType)
         {
@@ -41,12 +40,12 @@ namespace FlyFlint.Internal.Converter
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public override object? Convert(IFormatProvider fp, Encoding encoding, object? value) =>
-            InternalValueConverter<T>.converter.Convert(fp, encoding, value);
+        public override object? Convert(ConversionContext context, object? value) =>
+            InternalValueConverter<T>.converter.Convert(context, value);
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public override object? UnsafeConvert(IFormatProvider fp, Encoding encoding, object value) =>
-            InternalValueConverter<T>.converter.UnsafeConvert(fp, encoding, value);
+        public override object? UnsafeConvert(ConversionContext context, object value) =>
+            InternalValueConverter<T>.converter.UnsafeConvert(context, value);
     }
 }

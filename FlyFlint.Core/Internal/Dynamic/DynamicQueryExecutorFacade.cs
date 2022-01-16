@@ -7,21 +7,18 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
+using FlyFlint.Internal.Converter;
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace FlyFlint.Internal.Dynamic
 {
     internal interface IDynamicQueryExecutor
     {
-        object? Convert(IFormatProvider fp, Encoding encoding, object? value, Type targetType);
-        object? UnsafeConvert(IFormatProvider fp, Encoding encoding, object value, Type targetType);
+        object? Convert(ConversionContext context, object? value, Type targetType);
+        object? UnsafeConvert(ConversionContext context, object value, Type targetType);
 
         (string name, object? value)[] GetParameters<TParameters>(
             ref TParameters parameters, string parameterPrefix);
@@ -59,14 +56,14 @@ namespace FlyFlint.Internal.Dynamic
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        internal static object? Convert(IFormatProvider fp, Encoding encoding, object? value, Type targetType) =>
-            GetDynamicQueryExecutor().Convert(fp, encoding, value, targetType);
+        internal static object? Convert(ConversionContext context, object? value, Type targetType) =>
+            GetDynamicQueryExecutor().Convert(context, value, targetType);
 
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        internal static object? UnsafeConvert(IFormatProvider fp, Encoding encoding, object value, Type targetType) =>
-            GetDynamicQueryExecutor().UnsafeConvert(fp, encoding, value, targetType);
+        internal static object? UnsafeConvert(ConversionContext context, object value, Type targetType) =>
+            GetDynamicQueryExecutor().UnsafeConvert(context, value, targetType);
 
 
 #if !NET40

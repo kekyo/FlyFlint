@@ -14,11 +14,11 @@ namespace FlyFlint.Internal.Converter.Specialized
 {
     internal static class ByteArrayConverter
     {
-        public static byte[] Convert(object value, IFormatProvider fp, Encoding encoding)
+        public static byte[] Convert(ConversionContext context, object value)
         {
             if (value is string str)
             {
-                return encoding.GetBytes(str);
+                return context.encoding.GetBytes(str);
             }
             else if (value is char c)
             {
@@ -62,7 +62,7 @@ namespace FlyFlint.Internal.Converter.Specialized
             }
             else
             {
-                return encoding.GetBytes(System.Convert.ToString(value, fp)!);
+                return context.encoding.GetBytes(System.Convert.ToString(value, context.fp)!);
             }
         }
     }

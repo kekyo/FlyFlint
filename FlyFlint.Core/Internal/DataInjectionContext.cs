@@ -11,23 +11,23 @@ using FlyFlint.Internal.Converter;
 using System;
 using System.ComponentModel;
 using System.Data.Common;
+using System.Runtime.CompilerServices;
 using System.Text;
 
-namespace FlyFlint.Internal.Static
+namespace FlyFlint.Internal
 {
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public interface IParameterExtractable
+    public sealed class DataInjectionContext : ConversionContext
     {
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        (string name, object? value)[] Extract();
-    }
+        internal readonly DbDataReader reader;
 
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public interface IDataInjectable
-    {
+#if !NET40
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
         [EditorBrowsable(EditorBrowsableState.Never)]
-        DataInjectionMetadata[] PrepareAndInject(DataInjectionContext context);
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        void Inject(DataInjectionContext context, DataInjectionMetadata[] metadataList);
+        public DataInjectionContext(
+            DbDataReader reader, IFormatProvider fp, Encoding encoding) :
+            base(fp, encoding) =>
+            this.reader = reader;
     }
 }

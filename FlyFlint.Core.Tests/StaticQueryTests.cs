@@ -37,18 +37,18 @@ namespace FlyFlint
                 (nameof(Birth), typeof(DateTime)),
             };
 
-            public DataInjectionMetadata[] PrepareAndInject(IFormatProvider fp, DbDataReader reader)
+            public DataInjectionMetadata[] PrepareAndInject(DataInjectionContext context)
             {
-                var metadataList = StaticInjectonHelper<Target>.Prepare(reader, members);
-                this.Inject(fp, metadataList, reader);
+                var metadataList = StaticInjectonHelper<Target>.Prepare(context, members);
+                this.Inject(context, metadataList);
                 return metadataList;
             }
 
-            public void Inject(IFormatProvider fp, DataInjectionMetadata[] metadataList, DbDataReader reader)
+            public void Inject(DataInjectionContext context, DataInjectionMetadata[] metadataList)
             {
-                this.Id = StaticDataAccessor.GetInt32(fp, reader, metadataList[0]);
-                this.Name = StaticDataAccessor.GetString(fp, reader, metadataList[1]);
-                this.Birth = StaticDataAccessor.GetDateTime(fp, reader, metadataList[2]);
+                this.Id = StaticDataAccessor.GetInt32(context, metadataList[0]);
+                this.Name = StaticDataAccessor.GetString(context, metadataList[1]);
+                this.Birth = StaticDataAccessor.GetDateTime(context, metadataList[2]);
             }
         }
 

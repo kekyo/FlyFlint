@@ -12,6 +12,7 @@ using System;
 using System.Data;
 using System.Globalization;
 using System.Runtime.Serialization;
+using System.Text;
 using System.Threading.Tasks;
 using static VerifyNUnit.Verifier;
 
@@ -41,11 +42,12 @@ namespace FlyFlint.Internal.Dynamic
             using var reader = data.CreateDataReader();
             Assert.IsTrue(reader.Read());
 
-            var injector = new DynamicInjector<FieldValueType>(reader, CultureInfo.InvariantCulture);
+            var context = new DataInjectionContext(reader, CultureInfo.InvariantCulture, Encoding.UTF8);
+            var injector = new DynamicInjector<FieldValueType>(context);
 
             var element = new FieldValueType();
 
-            injector.Inject(reader, ref element);
+            injector.Inject(ref element);
 
             return Verify($"{element.Id},{element.Name},{element.Birth.ToString(CultureInfo.InvariantCulture)}");
         }
@@ -72,11 +74,12 @@ namespace FlyFlint.Internal.Dynamic
             using var reader = data.CreateDataReader();
             Assert.IsTrue(reader.Read());
 
-            var injector = new DynamicInjector<FieldReferenceType>(reader, CultureInfo.InvariantCulture);
+            var context = new DataInjectionContext(reader, CultureInfo.InvariantCulture, Encoding.UTF8);
+            var injector = new DynamicInjector<FieldReferenceType>(context);
 
             var element = new FieldReferenceType();
 
-            injector.Inject(reader, ref element);
+            injector.Inject(ref element);
 
             return Verify($"{element.Id},{element.Name},{element.Birth.ToString(CultureInfo.InvariantCulture)}");
         }
@@ -103,11 +106,12 @@ namespace FlyFlint.Internal.Dynamic
             using var reader = data.CreateDataReader();
             Assert.IsTrue(reader.Read());
 
-            var injector = new DynamicInjector<PropertyValueType>(reader, CultureInfo.InvariantCulture);
+            var context = new DataInjectionContext(reader, CultureInfo.InvariantCulture, Encoding.UTF8);
+            var injector = new DynamicInjector<PropertyValueType>(context);
 
             var element = new PropertyValueType();
 
-            injector.Inject(reader, ref element);
+            injector.Inject(ref element);
 
             return Verify($"{element.Id},{element.Name},{element.Birth.ToString(CultureInfo.InvariantCulture)}");
         }
@@ -134,11 +138,12 @@ namespace FlyFlint.Internal.Dynamic
             using var reader = data.CreateDataReader();
             Assert.IsTrue(reader.Read());
 
-            var injector = new DynamicInjector<PropertyReferenceType>(reader, CultureInfo.InvariantCulture);
+            var context = new DataInjectionContext(reader, CultureInfo.InvariantCulture, Encoding.UTF8);
+            var injector = new DynamicInjector<PropertyReferenceType>(context);
 
             var element = new PropertyReferenceType();
 
-            injector.Inject(reader, ref element);
+            injector.Inject(ref element);
 
             return Verify($"{element.Id},{element.Name},{element.Birth.ToString(CultureInfo.InvariantCulture)}");
         }

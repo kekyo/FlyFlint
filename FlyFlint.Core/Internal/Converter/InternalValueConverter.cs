@@ -11,7 +11,6 @@ using FlyFlint.Internal.Converter.Specialized;
 using System;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
-using System.Text;
 
 namespace FlyFlint.Internal.Converter
 {
@@ -131,8 +130,8 @@ namespace FlyFlint.Internal.Converter
             }
         }
 
-        public abstract T Convert(IFormatProvider fp, Encoding encoding, object? value);
-        public abstract T UnsafeConvert(IFormatProvider fp, Encoding encoding, object value);
+        public abstract T Convert(ConversionContext context, object? value);
+        public abstract T UnsafeConvert(ConversionContext context, object value);
     }
 
     internal sealed class InvalidOperationExceptionConverter<T> : InternalValueConverter<T>
@@ -140,12 +139,12 @@ namespace FlyFlint.Internal.Converter
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public override T Convert(IFormatProvider fp, Encoding encoding, object? value) =>
+        public override T Convert(ConversionContext context, object? value) =>
             throw new InvalidOperationException($"Could not convert to {typeof(T).FullName}");
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public override T UnsafeConvert(IFormatProvider fp, Encoding encoding, object value) =>
+        public override T UnsafeConvert(ConversionContext context, object value) =>
             throw new InvalidOperationException($"Could not convert to {typeof(T).FullName}");
     }
 
@@ -164,18 +163,18 @@ namespace FlyFlint.Internal.Converter
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public override sealed T Convert(IFormatProvider fp, Encoding encoding, object? value) =>
+        public override sealed T Convert(ConversionContext context, object? value) =>
             value is null ? throw new NullReferenceException($"Could not convert from null to {typeof(T).FullName}.") :
             value is DBNull ? throw new NullReferenceException($"Could not convert from DBNull to {typeof(T).FullName}.") :
             value is T v ? v :
-            convert(value, fp);
+            convert(value, context.fp);
 
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public override sealed T UnsafeConvert(IFormatProvider fp, Encoding encoding, object value) =>
+        public override sealed T UnsafeConvert(ConversionContext context, object value) =>
             value is T v ? v :
-            convert(value, fp);
+            convert(value, context.fp);
     }
 
     internal sealed class BooleanValueConverter<T> : InternalValueConverterBase<T, bool>
@@ -297,18 +296,18 @@ namespace FlyFlint.Internal.Converter
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public override sealed T Convert(IFormatProvider fp, Encoding encoding, object? value) =>
+        public override sealed T Convert(ConversionContext context, object? value) =>
             value is null ? default! :
             value is DBNull ? default! :
             value is TUnderlying v ? cast(v) :
-            convert(value, fp);
+            convert(value, context.fp);
 
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public override sealed T UnsafeConvert(IFormatProvider fp, Encoding encoding, object value) =>
+        public override sealed T UnsafeConvert(ConversionContext context, object value) =>
             value is TUnderlying v ? cast(v) :
-            convert(value, fp);
+            convert(value, context.fp);
     }
 
     internal sealed class NullableBooleanValueConverter<T> :
@@ -475,18 +474,18 @@ namespace FlyFlint.Internal.Converter
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public override T Convert(IFormatProvider fp, Encoding encoding, object? value) =>
+        public override T Convert(ConversionContext context, object? value) =>
             value is null ? default! :
             value is DBNull ? default! :
             value is T v ? v :
-            convert(value!, fp);
+            convert(value!, context.fp);
 
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public override T UnsafeConvert(IFormatProvider fp, Encoding encoding, object value) =>
+        public override T UnsafeConvert(ConversionContext context, object value) =>
             value is T v ? v :
-            convert(value!, fp);
+            convert(value!, context.fp);
     }
 
     internal sealed class NullableEnumValueConverter<T> :
@@ -495,41 +494,41 @@ namespace FlyFlint.Internal.Converter
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public override T Convert(IFormatProvider fp, Encoding encoding, object? value) =>
+        public override T Convert(ConversionContext context, object? value) =>
             value is null ? default! :
             value is DBNull ? default! :
             value is T v ? v :
-            EnumConverter<T>.convert(value!, fp);
+            EnumConverter<T>.convert(value!, context.fp);
 
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public override T UnsafeConvert(IFormatProvider fp, Encoding encoding, object value) =>
+        public override T UnsafeConvert(ConversionContext context, object value) =>
             value is T v ? v :
-            EnumConverter<T>.convert(value, fp);
+            EnumConverter<T>.convert(value, context.fp);
     }
 
     internal sealed class NullableByteArrayValueConverter<T> :
         InternalValueConverter<T>
     {
-        private static readonly Func<object, IFormatProvider, Encoding, T> convert =
-            (Func<object, IFormatProvider, Encoding, T>)(Delegate)
-            new Func<object, IFormatProvider, Encoding, byte[]>(ByteArrayConverter.Convert);
+        private static readonly Func<ConversionContext, object, T> convert =
+            (Func<ConversionContext, object, T>)(Delegate)
+            new Func<ConversionContext, object, byte[]>(ByteArrayConverter.Convert);
 
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public override T Convert(IFormatProvider fp, Encoding encoding, object? value) =>
+        public override T Convert(ConversionContext context, object? value) =>
             value is null ? default! :
             value is DBNull ? default! :
             value is T v ? v :
-            convert(value!, fp, encoding);
+            convert(context, value!);
 
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public override T UnsafeConvert(IFormatProvider fp, Encoding encoding, object value) =>
+        public override T UnsafeConvert(ConversionContext context, object value) =>
             value is T v ? v :
-            convert(value!, fp, encoding);
+            convert(context, value);
     }
 }

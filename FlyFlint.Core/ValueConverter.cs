@@ -7,6 +7,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
+using FlyFlint.Internal;
 using FlyFlint.Internal.Converter;
 using FlyFlint.Internal.Dynamic;
 using System;
@@ -22,28 +23,28 @@ namespace FlyFlint
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public static T Convert<T>(IFormatProvider fp, Encoding encoding, object? value) =>
-            InternalValueConverter<T>.converter.Convert(fp, encoding, value);
+            InternalValueConverter<T>.converter.Convert(new ConversionContext(fp, encoding), value);
 
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        internal static T UnsafeConvert<T>(IFormatProvider fp, Encoding encoding, object value)
+        internal static T UnsafeConvert<T>(DataInjectionContext context, object value)
         {
             Debug.Assert(value != null);
             Debug.Assert(value is not DBNull);
-            return InternalValueConverter<T>.converter.UnsafeConvert(fp, encoding, value!);
+            return InternalValueConverter<T>.converter.UnsafeConvert(context, value!);
         }
 
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public static object? Convert(IFormatProvider fp, Encoding encoding, object? value, Type targetType) =>
-            DynamicQueryExecutorFacade.Convert(fp, encoding, value, targetType);
+            DynamicQueryExecutorFacade.Convert(new ConversionContext(fp, encoding), value, targetType);
 
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        internal static object? UnsafeConvert(IFormatProvider fp, Encoding encoding, object value, Type targetType) =>
-            DynamicQueryExecutorFacade.UnsafeConvert(fp, encoding, value, targetType);
+        internal static object? UnsafeConvert(DataInjectionContext context, object value, Type targetType) =>
+            DynamicQueryExecutorFacade.UnsafeConvert(context, value, targetType);
     }
 }

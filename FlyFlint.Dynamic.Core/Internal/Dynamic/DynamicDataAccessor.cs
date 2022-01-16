@@ -9,19 +9,15 @@
 
 using FlyFlint.Internal.Converter;
 using System;
-using System.Data.Common;
-using System.Text;
 
 namespace FlyFlint.Internal.Dynamic
 {
     internal static class DynamicDataAccessor
     {
-        private static readonly Encoding encoding = Encoding.UTF8;
-
         public static object? GetValue(
-            IFormatProvider fp, DbDataReader reader, DataInjectionMetadata metadata, Type targetType) =>
-            reader.IsDBNull(metadata.Index) ? null :
-                metadata.StoreDirect ? reader.GetValue(metadata.Index) :
-                    DynamicValueConverter.GetConverter(targetType).UnsafeConvert(fp, encoding, reader.GetValue(metadata.Index));
+            DataInjectionContext context, DataInjectionMetadata metadata, Type targetType) =>
+            context.reader.IsDBNull(metadata.Index) ? null :
+                metadata.StoreDirect ? context.reader.GetValue(metadata.Index) :
+                    DynamicValueConverter.GetConverter(targetType).UnsafeConvert(context, context.reader.GetValue(metadata.Index));
     }
 }

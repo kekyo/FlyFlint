@@ -10,8 +10,8 @@
 using NUnit.Framework;
 using System;
 using System.Data;
-using System.Data.Common;
 using System.Globalization;
+using System.Text;
 using System.Threading.Tasks;
 using static VerifyNUnit.Verifier;
 
@@ -64,30 +64,30 @@ namespace FlyFlint.Internal.Static
                 (nameof(Value15), typeof(string)),
             };
 
-            public DataInjectionMetadata[] PrepareAndInject(IFormatProvider fp, DbDataReader reader)
+            public DataInjectionMetadata[] PrepareAndInject(DataInjectionContext context)
             {
-                var metadataList = StaticInjectonHelper<TargetValueTypes>.Prepare(reader, members);
-                this.Inject(fp, metadataList, reader);
+                var metadataList = StaticInjectonHelper<TargetValueTypes>.Prepare(context, members);
+                this.Inject(context, metadataList);
                 return metadataList;
             }
 
-            public void Inject(IFormatProvider fp, DataInjectionMetadata[] metadataList, DbDataReader reader)
+            public void Inject(DataInjectionContext context, DataInjectionMetadata[] metadataList)
             {
-                this.Value1 = StaticDataAccessor.GetBoolean(fp, reader, metadataList[0]);
-                this.Value2 = StaticDataAccessor.GetByte(fp, reader, metadataList[1]);
-                this.Value3 = StaticDataAccessor.GetInt16(fp, reader, metadataList[2]);
-                this.Value4 = StaticDataAccessor.GetInt32(fp, reader, metadataList[3]);
-                this.Value5 = StaticDataAccessor.GetInt64(fp, reader, metadataList[4]);
-                this.Value6 = StaticDataAccessor.GetSingle(fp, reader, metadataList[5]);
-                this.Value7 = StaticDataAccessor.GetDouble(fp, reader, metadataList[6]);
-                this.Value8 = StaticDataAccessor.GetDecimal(fp, reader, metadataList[7]);
-                this.Value9 = StaticDataAccessor.GetGuid(fp, reader, metadataList[8]);
-                this.Value10 = StaticDataAccessor.GetDateTime(fp, reader, metadataList[9]);
-                this.Value11 = StaticDataAccessor.GetEnum<EnumValue>(fp, reader, metadataList[10]);
-                this.Value12 = StaticDataAccessor.GetEnum<EnumValue>(fp, reader, metadataList[11]);
-                this.Value13 = StaticDataAccessor.GetEnum<EnumValue>(fp, reader, metadataList[12]);
-                this.Value14 = StaticDataAccessor.GetEnum<EnumValue>(fp, reader, metadataList[13]);
-                this.Value15 = StaticDataAccessor.GetString(fp, reader, metadataList[14]);
+                this.Value1 = StaticDataAccessor.GetBoolean(context, metadataList[0]);
+                this.Value2 = StaticDataAccessor.GetByte(context, metadataList[1]);
+                this.Value3 = StaticDataAccessor.GetInt16(context, metadataList[2]);
+                this.Value4 = StaticDataAccessor.GetInt32(context, metadataList[3]);
+                this.Value5 = StaticDataAccessor.GetInt64(context, metadataList[4]);
+                this.Value6 = StaticDataAccessor.GetSingle(context, metadataList[5]);
+                this.Value7 = StaticDataAccessor.GetDouble(context, metadataList[6]);
+                this.Value8 = StaticDataAccessor.GetDecimal(context, metadataList[7]);
+                this.Value9 = StaticDataAccessor.GetGuid(context, metadataList[8]);
+                this.Value10 = StaticDataAccessor.GetDateTime(context, metadataList[9]);
+                this.Value11 = StaticDataAccessor.GetEnum<EnumValue>(context, metadataList[10]);
+                this.Value12 = StaticDataAccessor.GetEnum<EnumValue>(context, metadataList[11]);
+                this.Value13 = StaticDataAccessor.GetEnum<EnumValue>(context, metadataList[12]);
+                this.Value14 = StaticDataAccessor.GetEnum<EnumValue>(context, metadataList[13]);
+                this.Value15 = StaticDataAccessor.GetString(context, metadataList[14]);
             }
         }
 
@@ -119,9 +119,10 @@ namespace FlyFlint.Internal.Static
 
             var element = new TargetValueTypes();
 
-            var metadataList = element.PrepareAndInject(CultureInfo.InvariantCulture, reader);
+            var context = new DataInjectionContext(reader, CultureInfo.InvariantCulture, Encoding.UTF8);
+            var metadataList = element.PrepareAndInject(context);
 
-            element.Inject(CultureInfo.InvariantCulture, metadataList, reader);
+            element.Inject(context, metadataList);
 
             return Verify($"{element.Value1},{element.Value2},{element.Value3},{element.Value4},{element.Value5},{element.Value6},{element.Value7},{element.Value8},{element.Value9},{element.Value10.ToString(CultureInfo.InvariantCulture)},{element.Value11},{element.Value12},{element.Value13},{element.Value14},{element.Value15}");
         }
@@ -163,30 +164,30 @@ namespace FlyFlint.Internal.Static
                 (nameof(Value15), typeof(string)),
             };
 
-            public DataInjectionMetadata[] PrepareAndInject(IFormatProvider fp, DbDataReader reader)
+            public DataInjectionMetadata[] PrepareAndInject(DataInjectionContext context)
             {
-                var metadataList = StaticInjectonHelper<TargetValueTypes>.Prepare(reader, members);
-                this.Inject(fp, metadataList, reader);
+                var metadataList = StaticInjectonHelper<TargetValueTypes>.Prepare(context, members);
+                this.Inject(context, metadataList);
                 return metadataList;
             }
 
-            public void Inject(IFormatProvider fp, DataInjectionMetadata[] metadataList, DbDataReader reader)
+            public void Inject(DataInjectionContext context, DataInjectionMetadata[] metadataList)
             {
-                this.Value1 = StaticDataAccessor.GetNullableBoolean(fp, reader, metadataList[0]);
-                this.Value2 = StaticDataAccessor.GetNullableByte(fp, reader, metadataList[1]);
-                this.Value3 = StaticDataAccessor.GetNullableInt16(fp, reader, metadataList[2]);
-                this.Value4 = StaticDataAccessor.GetNullableInt32(fp, reader, metadataList[3]);
-                this.Value5 = StaticDataAccessor.GetNullableInt64(fp, reader, metadataList[4]);
-                this.Value6 = StaticDataAccessor.GetNullableSingle(fp, reader, metadataList[5]);
-                this.Value7 = StaticDataAccessor.GetNullableDouble(fp, reader, metadataList[6]);
-                this.Value8 = StaticDataAccessor.GetNullableDecimal(fp, reader, metadataList[7]);
-                this.Value9 = StaticDataAccessor.GetNullableGuid(fp, reader, metadataList[8]);
-                this.Value10 = StaticDataAccessor.GetNullableDateTime(fp, reader, metadataList[9]);
-                this.Value11 = StaticDataAccessor.GetNullableEnum<EnumValue>(fp, reader, metadataList[10]);
-                this.Value12 = StaticDataAccessor.GetNullableEnum<EnumValue>(fp, reader, metadataList[11]);
-                this.Value13 = StaticDataAccessor.GetNullableEnum<EnumValue>(fp, reader, metadataList[12]);
-                this.Value14 = StaticDataAccessor.GetNullableEnum<EnumValue>(fp, reader, metadataList[13]);
-                this.Value15 = StaticDataAccessor.GetNullableString(fp, reader, metadataList[14]);
+                this.Value1 = StaticDataAccessor.GetNullableBoolean(context, metadataList[0]);
+                this.Value2 = StaticDataAccessor.GetNullableByte(context, metadataList[1]);
+                this.Value3 = StaticDataAccessor.GetNullableInt16(context, metadataList[2]);
+                this.Value4 = StaticDataAccessor.GetNullableInt32(context, metadataList[3]);
+                this.Value5 = StaticDataAccessor.GetNullableInt64(context, metadataList[4]);
+                this.Value6 = StaticDataAccessor.GetNullableSingle(context, metadataList[5]);
+                this.Value7 = StaticDataAccessor.GetNullableDouble(context, metadataList[6]);
+                this.Value8 = StaticDataAccessor.GetNullableDecimal(context, metadataList[7]);
+                this.Value9 = StaticDataAccessor.GetNullableGuid(context, metadataList[8]);
+                this.Value10 = StaticDataAccessor.GetNullableDateTime(context, metadataList[9]);
+                this.Value11 = StaticDataAccessor.GetNullableEnum<EnumValue>(context, metadataList[10]);
+                this.Value12 = StaticDataAccessor.GetNullableEnum<EnumValue>(context, metadataList[11]);
+                this.Value13 = StaticDataAccessor.GetNullableEnum<EnumValue>(context, metadataList[12]);
+                this.Value14 = StaticDataAccessor.GetNullableEnum<EnumValue>(context, metadataList[13]);
+                this.Value15 = StaticDataAccessor.GetNullableString(context, metadataList[14]);
             }
         }
 
@@ -218,9 +219,10 @@ namespace FlyFlint.Internal.Static
 
             var element = new TargetNullableValueTypes();
 
-            var metadataList = element.PrepareAndInject(CultureInfo.InvariantCulture, reader);
+            var context = new DataInjectionContext(reader, CultureInfo.InvariantCulture, Encoding.UTF8);
+            var metadataList = element.PrepareAndInject(context);
 
-            element.Inject(CultureInfo.InvariantCulture, metadataList, reader);
+            element.Inject(context, metadataList);
 
             return Verify($"{element.Value1},{element.Value2},{element.Value3},{element.Value4},{element.Value5},{element.Value6},{element.Value7},{element.Value8},{element.Value9},{element.Value10?.ToString(CultureInfo.InvariantCulture)},{element.Value11},{element.Value12},{element.Value13},{element.Value14},{element.Value15}");
         }
@@ -251,9 +253,10 @@ namespace FlyFlint.Internal.Static
 
             var element = new TargetNullableValueTypes();
 
-            var metadataList = element.PrepareAndInject(CultureInfo.InvariantCulture, reader);
+            var context = new DataInjectionContext(reader, CultureInfo.InvariantCulture, Encoding.UTF8);
+            var metadataList = element.PrepareAndInject(context);
 
-            element.Inject(CultureInfo.InvariantCulture, metadataList, reader);
+            element.Inject(context, metadataList);
 
             return Verify($"{element.Value1},{element.Value2},{element.Value3},{element.Value4},{element.Value5},{element.Value6},{element.Value7},{element.Value8},{element.Value9},{element.Value10?.ToString(CultureInfo.InvariantCulture)},{element.Value11},{element.Value12},{element.Value13},{element.Value14},{element.Value15}");
         }
