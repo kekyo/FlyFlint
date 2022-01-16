@@ -58,10 +58,9 @@ namespace FlyFlint.Internal.Dynamic
             using (var command = QueryHelper.CreateCommand(
                 query.connection, query.transaction, query.sql, query.parameters))
             {
-                return ValueConverter.Convert<T>(
-                    query.fp,
-                    query.encoding,
-                    command.ExecuteScalar());
+                var context = new ConversionContext(query.fp, query.encoding);
+                return InternalValueConverter<T>.converter.Convert(
+                    context, command.ExecuteScalar());
             }
         }
 
@@ -107,10 +106,9 @@ namespace FlyFlint.Internal.Dynamic
             using (var command = QueryHelper.CreateCommand(
                 query.connection, query.transaction, query.sql, query.parameters))
             {
-                return ValueConverter.Convert<T>(
-                    query.fp,
-                    query.encoding,
-                    await command.ExecuteScalarAsync().ConfigureAwait(false));
+                var context = new ConversionContext(query.fp, query.encoding);
+                return InternalValueConverter<T>.converter.Convert(
+                    context, await command.ExecuteScalarAsync().ConfigureAwait(false));
             }
         }
 
