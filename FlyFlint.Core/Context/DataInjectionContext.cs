@@ -20,15 +20,17 @@ namespace FlyFlint.Context
     public sealed class DataInjectionContext
     {
         internal readonly ConversionContext cc;
+        internal readonly IComparer<string> fieldComparer;
         internal readonly DbDataReader reader;
 
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         internal DataInjectionContext(
-            ConversionContext cc, DbDataReader reader)
+            ConversionContext cc, IComparer<string> fieldComparer, DbDataReader reader)
         {
             this.cc = cc;
+            this.fieldComparer = fieldComparer;
             this.reader = reader;
         }
 
@@ -37,13 +39,14 @@ namespace FlyFlint.Context
             (string name, Type type)[] members)
         {
             var (dbFieldNames, dbFieldMetadataList) =
-                QueryHelper.CreateSortedMetadataMap(this.reader);
+                QueryHelper.CreateSortedMetadataMap(this.reader, this.fieldComparer);
 
             var candidates = new List<DataInjectionMetadata>(members.Length);
             for (var index = 0; index < members.Length; index++)
             {
                 var member = members[index];
-                var dbFieldNameIndiciesIndex = Array.BinarySearch(dbFieldNames, member.name);
+                var dbFieldNameIndiciesIndex =
+                    Array.BinarySearch(dbFieldNames, member.name, this.fieldComparer);
                 if (dbFieldNameIndiciesIndex >= 0)
                 {
                     var dbFieldMetadata = dbFieldMetadataList[dbFieldNameIndiciesIndex];
@@ -299,16 +302,5 @@ namespace FlyFlint.Context
             this.reader.IsDBNull(metadata.Index) ? null :
                 metadata.StoreDirect ? (byte[])this.reader.GetValue(metadata.Index) :
                     this.cc.Convert<byte[]?>(this.reader.GetValue(metadata.Index));
-
-        /////////////////////////////////////////////////////////////////////////////
-
-//#if !NET40
-//        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-//#endif
-//        [EditorBrowsable(EditorBrowsableState.Never)]
-//        public object? GetValue(DataInjectionMetadata metadata, Type targetType) =>
-//            this.reader.IsDBNull(metadata.Index) ? null :
-//                metadata.StoreDirect ? this.reader.GetValue(metadata.Index) :
-//                    this.cc.Convert(this.reader.GetValue(metadata.Index), targetType);
     }
 }

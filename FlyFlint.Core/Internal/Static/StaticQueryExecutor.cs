@@ -61,7 +61,8 @@ namespace FlyFlint.Internal.Static
                 {
                     if (reader.Read())
                     {
-                        var context = new DataInjectionContext(query.cc, reader);
+                        var context = new DataInjectionContext(
+                            query.cc, query.fieldComparer, reader);
 
                         var element = new T();
                         var metadataList = element.Prepare(context);
@@ -112,7 +113,8 @@ namespace FlyFlint.Internal.Static
                 {
                     if (await reader.ReadAsync().ConfigureAwait(false))
                     {
-                        var context = new DataInjectionContext(query.cc, reader);
+                        var context = new DataInjectionContext(
+                            query.cc, query.fieldComparer, reader);
 
                         var element = new T();
                         var metadataList = element.Prepare(context);

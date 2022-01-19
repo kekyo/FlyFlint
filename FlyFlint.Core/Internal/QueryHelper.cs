@@ -8,6 +8,7 @@
 ////////////////////////////////////////////////////////////////////////////
 
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Threading.Tasks;
@@ -39,7 +40,8 @@ namespace FlyFlint.Internal
 
         /////////////////////////////////////////////////////////////////////
 
-        public static (string[], DataInjectionMetadata[]) CreateSortedMetadataMap(DbDataReader reader)
+        public static (string[], DataInjectionMetadata[]) CreateSortedMetadataMap(
+            DbDataReader reader, IComparer<string> fieldComparer)
         {
             var dbFieldCount = reader.FieldCount;
             var dbFieldNames = new string[dbFieldCount];
@@ -53,7 +55,7 @@ namespace FlyFlint.Internal
                     new DataInjectionMetadata(dbFieldIndex, reader.GetFieldType(dbFieldIndex));
             }
 
-            Array.Sort(dbFieldNames, dbFieldMetadataList);
+            Array.Sort(dbFieldNames, dbFieldMetadataList, fieldComparer);
 
             return (dbFieldNames, dbFieldMetadataList);
         }

@@ -48,15 +48,17 @@ namespace FlyFlint.Context
         }
 
         internal readonly ConversionContext cc;
+        internal readonly IComparer<string> fieldComparer;
         internal readonly DbDataReader reader;
 
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         internal DynamicDataInjectionContext(
-            ConversionContext cc, DbDataReader reader)
+            ConversionContext cc, IComparer<string> fieldComparer, DbDataReader reader)
         {
             this.cc = cc;
+            this.fieldComparer = fieldComparer;
             this.reader = reader;
         }
 

@@ -115,7 +115,8 @@ namespace FlyFlint.Internal.Static
 
             var element = new TargetValueTypes();
 
-            var context = new DataInjectionContext(ConversionContext.Default, reader);
+            var context = new DataInjectionContext(
+                ConversionContext.Default, StringComparer.InvariantCultureIgnoreCase, reader);
             var metadataList = element.Prepare(context);
 
             element.Inject(context, metadataList);
@@ -211,7 +212,8 @@ namespace FlyFlint.Internal.Static
 
             var element = new TargetNullableValueTypes();
 
-            var context = new DataInjectionContext(ConversionContext.Default, reader);
+            var context = new DataInjectionContext(
+                ConversionContext.Default, StringComparer.InvariantCultureIgnoreCase, reader);
             var metadataList = element.Prepare(context);
 
             element.Inject(context, metadataList);
@@ -245,7 +247,8 @@ namespace FlyFlint.Internal.Static
 
             var element = new TargetNullableValueTypes();
 
-            var context = new DataInjectionContext(ConversionContext.Default, reader);
+            var context = new DataInjectionContext(
+                ConversionContext.Default, StringComparer.InvariantCultureIgnoreCase, reader);
             var metadataList = element.Prepare(context);
 
             element.Inject(context, metadataList);

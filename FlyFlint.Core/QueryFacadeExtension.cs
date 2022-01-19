@@ -86,6 +86,7 @@ namespace FlyFlint
                 connection,
                 null,
                 prepared.cc,
+                prepared.fieldComparer,
                 prepared.sql,
                 DynamicQueryExecutorFacade.GetParameters(ref parameters, prepared.parameterPrefix),
                 prepared.parameterPrefix);
@@ -101,6 +102,7 @@ namespace FlyFlint
                 connection,
                 transaction,
                 prepared.cc,
+                prepared.fieldComparer,
                 prepared.sql,
                 DynamicQueryExecutorFacade.GetParameters(ref parameters, prepared.parameterPrefix),
                 prepared.parameterPrefix);
@@ -139,6 +141,7 @@ namespace FlyFlint
             where T : new() =>
             new PreparedQueryContext<T>(
                 prepared.cc,
+                prepared.fieldComparer,
                 prepared.sql,
                 DynamicQueryExecutorFacade.GetParameters(ref parameters, prepared.parameterPrefix),
                 prepared.parameterPrefix);
@@ -153,6 +156,7 @@ namespace FlyFlint
                 query.connection,
                 query.transaction,
                 query.cc,
+                query.fieldComparer,
                 query.sql,
                 DynamicQueryExecutorFacade.GetParameters(ref parameters, query.parameterPrefix),
                 query.parameterPrefix);

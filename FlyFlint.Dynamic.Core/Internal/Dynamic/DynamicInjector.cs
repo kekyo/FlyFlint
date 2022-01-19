@@ -22,7 +22,7 @@ namespace FlyFlint.Internal.Dynamic
         public DynamicInjector(DynamicDataInjectionContext context)
         {
             var (dbFieldNames, dbFieldMetadataList) =
-                QueryHelper.CreateSortedMetadataMap(context.reader);
+                QueryHelper.CreateSortedMetadataMap(context.reader, context.fieldComparer);
             var members =
                 DynamicHelper.GetSetterMetadataList<T>();
 

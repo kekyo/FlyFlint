@@ -8,6 +8,7 @@
 ////////////////////////////////////////////////////////////////////////////
 
 using FlyFlint.Context;
+using System;
 using System.Data.Common;
 using System.Runtime.CompilerServices;
 
@@ -55,6 +56,7 @@ namespace FlyFlint
                 connection,
                 null,
                 ConversionContext.Default,
+                FlyFlint.Query.defaultFieldComparer,
                 sql,
                 FlyFlint.Query.defaultParameters,
                 FlyFlint.Query.defaultParameterPrefix);
@@ -71,6 +73,7 @@ namespace FlyFlint
                 connection,
                 transaction,
                 ConversionContext.Default,
+                FlyFlint.Query.defaultFieldComparer,
                 sql,
                 FlyFlint.Query.defaultParameters,
                 FlyFlint.Query.defaultParameterPrefix);
@@ -114,6 +117,7 @@ namespace FlyFlint
                 connection,
                 null,
                 prepared.cc,
+                prepared.fieldComparer,
                 prepared.sql,
                 prepared.parameters,
                 prepared.parameterPrefix);
@@ -129,6 +133,7 @@ namespace FlyFlint
                 connection,
                 transaction,
                 prepared.cc,
+                prepared.fieldComparer,
                 prepared.sql,
                 prepared.parameters,
                 prepared.parameterPrefix);
