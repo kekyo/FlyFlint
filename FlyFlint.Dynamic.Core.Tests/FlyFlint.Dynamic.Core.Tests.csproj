@@ -25,6 +25,61 @@
     <ProjectReference Include="..\FlyFlint.Dynamic.Core\FlyFlint.Dynamic.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="ConstructVariationTests.QueryAfterTypedParameter.verified.txt">
+      <ParentFile>$([System.String]::Copy('%(FileName)').Split('.')[0])</ParentFile>
+      <DependentUpon>%(ParentFile).cs</DependentUpon>
+    </None>
+    <None Update="ConstructVariationTests.QueryAfterTypedParameterAfterTypedElement.verified.txt">
+      <ParentFile>$([System.String]::Copy('%(FileName)').Split('.')[0])</ParentFile>
+      <DependentUpon>%(ParentFile).cs</DependentUpon>
+    </None>
+    <None Update="ConstructVariationTests.QueryAfterTypedParameterBeforeTypedElement.verified.txt">
+      <ParentFile>$([System.String]::Copy('%(FileName)').Split('.')[0])</ParentFile>
+      <DependentUpon>%(ParentFile).cs</DependentUpon>
+    </None>
+    <None Update="ConstructVariationTests.QueryFromPreparedWithInlineParameter.verified.txt">
+      <ParentFile>$([System.String]::Copy('%(FileName)').Split('.')[0])</ParentFile>
+      <DependentUpon>%(ParentFile).cs</DependentUpon>
+    </None>
+    <None Update="ConstructVariationTests.QueryFromPreparedWithInlineParameterAfterTypedElement.verified.txt">
+      <ParentFile>$([System.String]::Copy('%(FileName)').Split('.')[0])</ParentFile>
+      <DependentUpon>%(ParentFile).cs</DependentUpon>
+    </None>
+    <None Update="ConstructVariationTests.QueryFromPreparedWithInlineParameterWithTypedElement.verified.txt">
+      <ParentFile>$([System.String]::Copy('%(FileName)').Split('.')[0])</ParentFile>
+      <DependentUpon>%(ParentFile).cs</DependentUpon>
+    </None>
+    <None Update="ConstructVariationTests.QueryFromPreparedWithTypedParameter.verified.txt">
+      <ParentFile>$([System.String]::Copy('%(FileName)').Split('.')[0])</ParentFile>
+      <DependentUpon>%(ParentFile).cs</DependentUpon>
+    </None>
+    <None Update="ConstructVariationTests.QueryFromPreparedWithTypedParameterAfterTypedElement.verified.txt">
+      <ParentFile>$([System.String]::Copy('%(FileName)').Split('.')[0])</ParentFile>
+      <DependentUpon>%(ParentFile).cs</DependentUpon>
+    </None>
+    <None Update="ConstructVariationTests.QueryFromPreparedWithTypedParameterBeforeTypedElement.verified.txt">
+      <ParentFile>$([System.String]::Copy('%(FileName)').Split('.')[0])</ParentFile>
+      <DependentUpon>%(ParentFile).cs</DependentUpon>
+    </None>
+    <None Update="ConstructVariationTests.QueryFromPreparedWithTypedParameterWithTypedElement.verified.txt">
+      <ParentFile>$([System.String]::Copy('%(FileName)').Split('.')[0])</ParentFile>
+      <DependentUpon>%(ParentFile).cs</DependentUpon>
+    </None>
+    <None Update="ConstructVariationTests.QueryWithInlineParameter.verified.txt">
+      <ParentFile>$([System.String]::Copy('%(FileName)').Split('.')[0])</ParentFile>
+      <DependentUpon>%(ParentFile).cs</DependentUpon>
+    </None>
+    <None Update="ConstructVariationTests.QueryWithTypedElementAfterTypedParameter.verified.txt">
+      <ParentFile>$([System.String]::Copy('%(FileName)').Split('.')[0])</ParentFile>
+      <DependentUpon>%(ParentFile).cs</DependentUpon>
+    </None>
+    <None Update="ConstructVariationTests.QueryWithTypedParameter.verified.txt">
+      <ParentFile>$([System.String]::Copy('%(FileName)').Split('.')[0])</ParentFile>
+      <DependentUpon>%(ParentFile).cs</DependentUpon>
+    </None>
+  </ItemGroup>
+
   <!-- https://stackoverflow.com/questions/21293105/system-dllnotfoundexception-on-mono-sqlite -->
   <Target Name="FixSQLiteInteropFilesOnLinuxAndOSX" BeforeTargets="CopySQLiteInteropFiles">
     <ItemGroup>

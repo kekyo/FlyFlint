@@ -134,6 +134,40 @@ namespace FlyFlint
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+        public static ParameterizedQueryContext<TElement> Query<TElement>(
+            this DbConnection connection,
+            PreparedParameterizedQueryContext prepared)
+        {
+            var built = prepared.builder();
+            return new ParameterizedQueryContext<TElement>(
+                connection,
+                null,
+                prepared.trait,
+                built.sql,
+                built.parameters);
+        }
+
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public static PartialQueryContext<TElement> Query<TElement>(
+            this DbConnection connection,
+            PreparedPartialQueryContext prepared)
+        {
+            var built = prepared.builder();
+            Debug.Assert(object.ReferenceEquals(built.parameters, DatabaseTrait.defaultParameters));
+            return new PartialQueryContext<TElement>(
+                connection,
+                null,
+                prepared.trait,
+                built.sql);
+        }
+
+        /////////////////////////////////////////////////////////////////////////////
+
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
         public static ParameterizedQueryContext Query(
             this DbConnection connection,
             DbTransaction transaction,
