@@ -89,7 +89,7 @@ namespace FlyFlint
                 null,
                 prepared.cc,
                 prepared.sql,
-                prepared.parameters,
+                prepared.constructParameters(),
                 prepared.parameterPrefix);
 
 #if !NET40
@@ -103,7 +103,7 @@ namespace FlyFlint
                 transaction,
                 prepared.cc,
                 prepared.sql,
-                prepared.parameters,
+                prepared.constructParameters(),
                 prepared.parameterPrefix);
 
 #if !NET40
@@ -119,7 +119,7 @@ namespace FlyFlint
                 prepared.cc,
                 prepared.fieldComparer,
                 prepared.sql,
-                prepared.parameters,
+                prepared.constructParameters(),
                 prepared.parameterPrefix);
 
 #if !NET40
@@ -135,7 +135,7 @@ namespace FlyFlint
                 prepared.cc,
                 prepared.fieldComparer,
                 prepared.sql,
-                prepared.parameters,
+                prepared.constructParameters(),
                 prepared.parameterPrefix);
     }
 }

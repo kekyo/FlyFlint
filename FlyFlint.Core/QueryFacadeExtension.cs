@@ -24,13 +24,15 @@ namespace FlyFlint
 #endif
         public static QueryContext Query<TParameters>(
             this DbConnection connection,
-            string sql, TParameters parameters) =>
+            string sql, TParameters parameters)
+            where TParameters : notnull =>
             new QueryContext(
                 connection,
                 null,
                 ConversionContext.Default,
                 sql,
-                DynamicQueryExecutorFacade.GetParameters(ref parameters, FlyFlint.Query.defaultParameterPrefix),
+                DynamicQueryExecutorFacade.GetParameters(
+                    ref parameters, FlyFlint.Query.defaultParameterPrefix),
                 FlyFlint.Query.defaultParameterPrefix);
 
 #if !NET40
@@ -38,13 +40,15 @@ namespace FlyFlint
 #endif
         public static QueryContext Query<TParameters>(
             this DbConnection connection, DbTransaction transaction,
-            string sql, TParameters parameters) =>
+            string sql, TParameters parameters)
+            where TParameters : notnull =>
             new QueryContext(
                 connection,
                 transaction,
                 ConversionContext.Default,
                 sql,
-                DynamicQueryExecutorFacade.GetParameters(ref parameters, FlyFlint.Query.defaultParameterPrefix),
+                DynamicQueryExecutorFacade.GetParameters(
+                    ref parameters, FlyFlint.Query.defaultParameterPrefix),
                 FlyFlint.Query.defaultParameterPrefix);
 
 #if !NET40
@@ -52,13 +56,15 @@ namespace FlyFlint
 #endif
         public static QueryContext Query<TParameters>(
             this DbConnection connection,
-            PreparedQueryContext prepared, TParameters parameters) =>
+            PreparedQueryContext prepared, TParameters parameters)
+            where TParameters : notnull =>
             new QueryContext(
                 connection,
                 null,
                 prepared.cc,
                 prepared.sql,
-                DynamicQueryExecutorFacade.GetParameters(ref parameters, prepared.parameterPrefix),
+                DynamicQueryExecutorFacade.GetParameters(
+                    ref parameters, FlyFlint.Query.defaultParameterPrefix),
                 prepared.parameterPrefix);
 
 #if !NET40
@@ -66,13 +72,15 @@ namespace FlyFlint
 #endif
         public static QueryContext Query<TParameters>(
             this DbConnection connection, DbTransaction transaction,
-            PreparedQueryContext prepared, TParameters parameters) =>
+            PreparedQueryContext prepared, TParameters parameters)
+            where TParameters : notnull =>
             new QueryContext(
                 connection,
                 transaction,
                 prepared.cc,
                 prepared.sql,
-                DynamicQueryExecutorFacade.GetParameters(ref parameters, prepared.parameterPrefix),
+                DynamicQueryExecutorFacade.GetParameters(
+                    ref parameters, FlyFlint.Query.defaultParameterPrefix),
                 prepared.parameterPrefix);
 
 #if !NET40
@@ -81,14 +89,16 @@ namespace FlyFlint
         public static QueryContext<T> Query<T, TParameters>(
             this DbConnection connection,
             PreparedQueryContext<T> prepared, TParameters parameters)
-            where T : new() =>
+            where T : new()
+            where TParameters : notnull =>
             new QueryContext<T>(
                 connection,
                 null,
                 prepared.cc,
                 prepared.fieldComparer,
                 prepared.sql,
-                DynamicQueryExecutorFacade.GetParameters(ref parameters, prepared.parameterPrefix),
+                DynamicQueryExecutorFacade.GetParameters(
+                    ref parameters, FlyFlint.Query.defaultParameterPrefix),
                 prepared.parameterPrefix);
 
 #if !NET40
@@ -97,14 +107,16 @@ namespace FlyFlint
         public static QueryContext<T> Query<T, TParameters>(
             this DbConnection connection, DbTransaction transaction,
             PreparedQueryContext<T> prepared, TParameters parameters)
-            where T : new() =>
+            where T : new()
+            where TParameters : notnull =>
             new QueryContext<T>(
                 connection,
                 transaction,
                 prepared.cc,
                 prepared.fieldComparer,
                 prepared.sql,
-                DynamicQueryExecutorFacade.GetParameters(ref parameters, prepared.parameterPrefix),
+                DynamicQueryExecutorFacade.GetParameters(
+                    ref parameters, FlyFlint.Query.defaultParameterPrefix),
                 prepared.parameterPrefix);
 
         /////////////////////////////////////////////////////////////////////////////
@@ -112,53 +124,61 @@ namespace FlyFlint
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static PreparedQueryContext Parameter<TParameter>(
-            this PreparedQueryContext prepared, TParameter parameters) =>
+        public static PreparedQueryContext Parameter<TParameters>(
+            this PreparedQueryContext prepared, Func<TParameters> getter)
+            where TParameters : notnull =>
             new PreparedQueryContext(
                 prepared.cc,
                 prepared.sql,
-                DynamicQueryExecutorFacade.GetParameters(ref parameters, prepared.parameterPrefix),
+                DynamicQueryExecutorFacade.GetConstructParameters(
+                    getter, prepared.parameterPrefix),
                 prepared.parameterPrefix);
 
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static QueryContext Parameter<TParameter>(
-            this QueryContext query, TParameter parameters) =>
+        public static PreparedQueryContext<T> Parameter<T, TParameters>(
+            this PreparedQueryContext<T> prepared, Func<TParameters> getter)
+            where T : new()
+            where TParameters : notnull =>
+            new PreparedQueryContext<T>(
+                prepared.cc,
+                prepared.fieldComparer,
+                prepared.sql,
+                DynamicQueryExecutorFacade.GetConstructParameters(
+                    getter, prepared.parameterPrefix),
+                prepared.parameterPrefix);
+
+#if !NET40
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public static QueryContext Parameter<TParameters>(
+            this QueryContext query, TParameters parameters)
+            where TParameters : notnull =>
             new QueryContext(
                 query.connection,
                 query.transaction,
                 query.cc,
                 query.sql,
-                DynamicQueryExecutorFacade.GetParameters(ref parameters, query.parameterPrefix),
+                DynamicQueryExecutorFacade.GetParameters(
+                    ref parameters, FlyFlint.Query.defaultParameterPrefix),
                 query.parameterPrefix);
 
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static PreparedQueryContext<T> Parameter<T, TParameter>(
-            this PreparedQueryContext<T> prepared, TParameter parameters)
-            where T : new() =>
-            new PreparedQueryContext<T>(
-                prepared.cc,
-                prepared.fieldComparer,
-                prepared.sql,
-                DynamicQueryExecutorFacade.GetParameters(ref parameters, prepared.parameterPrefix),
-                prepared.parameterPrefix);
-
-#if !NET40
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-        public static QueryContext<T> Parameter<T, TParameter>(
-            this QueryContext<T> query, TParameter parameters)
-            where T : new() =>
+        public static QueryContext<T> Parameter<T, TParameters>(
+            this QueryContext<T> query, TParameters parameters)
+            where T : new()
+            where TParameters : notnull =>
             new QueryContext<T>(
                 query.connection,
                 query.transaction,
                 query.cc,
                 query.fieldComparer,
                 query.sql,
-                DynamicQueryExecutorFacade.GetParameters(ref parameters, query.parameterPrefix),
+                DynamicQueryExecutorFacade.GetParameters(
+                    ref parameters, FlyFlint.Query.defaultParameterPrefix),
                 query.parameterPrefix);
 
         /////////////////////////////////////////////////////////////////////////////

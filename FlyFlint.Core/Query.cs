@@ -8,6 +8,7 @@
 ////////////////////////////////////////////////////////////////////////////
 
 using FlyFlint.Context;
+using FlyFlint.Internal;
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -18,6 +19,8 @@ namespace FlyFlint
     {
         internal static readonly IComparer<string> defaultFieldComparer =
             StringComparer.InvariantCultureIgnoreCase;
+        internal static readonly ConstructParameters constructDefaultParameters =
+            new(() => defaultParameters!);
         internal static readonly (string, object?)[] defaultParameters = { };
         internal static readonly string defaultParameterPrefix = "@";
         
@@ -28,7 +31,7 @@ namespace FlyFlint
             new PreparedQueryContext(
                 ConversionContext.Default,
                 sql,
-                defaultParameters,
+                constructDefaultParameters,
                 defaultParameterPrefix);
 
 #if !NET40
@@ -40,7 +43,7 @@ namespace FlyFlint
                 ConversionContext.Default,
                 defaultFieldComparer,
                 sql,
-                defaultParameters,
+                constructDefaultParameters,
                 defaultParameterPrefix);
     }
 }

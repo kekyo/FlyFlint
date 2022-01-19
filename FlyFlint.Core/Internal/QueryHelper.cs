@@ -15,6 +15,8 @@ using System.Threading.Tasks;
 
 namespace FlyFlint.Internal
 {
+    internal delegate (string name, object? value)[] ConstructParameters();
+
     internal static class QueryHelper
     {
         public static DbCommand CreateCommand(

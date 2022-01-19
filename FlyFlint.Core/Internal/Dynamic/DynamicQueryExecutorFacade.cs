@@ -22,8 +22,10 @@ namespace FlyFlint.Internal.Dynamic
 
         /////////////////////////////////////////////////////////////////////
 
-        (string name, object? value)[] GetParameters<TParameters>(
-            ref TParameters parameters, string parameterPrefix);
+        ConstructParameters GetConstructParameters<TParameters>(Func<TParameters> getter, string parameterPrefix)
+            where TParameters : notnull;
+        (string name, object? value)[] GetParameters<TParameters>(ref TParameters parameters, string parameterPrefix)
+            where TParameters : notnull;
 
         /////////////////////////////////////////////////////////////////////
 
@@ -78,12 +80,18 @@ namespace FlyFlint.Internal.Dynamic
 
         /////////////////////////////////////////////////////////////////////
 
+#if !NET40
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        internal static ConstructParameters GetConstructParameters<TParameters>(Func<TParameters> getter, string parameterPrefix)
+            where TParameters : notnull =>
+            GetDynamicQueryExecutor().GetConstructParameters(getter, parameterPrefix);
 
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        internal static (string name, object? value)[] GetParameters<TParameters>(
-            ref TParameters parameters, string parameterPrefix) =>
+        internal static (string name, object? value)[] GetParameters<TParameters>(ref TParameters parameters, string parameterPrefix)
+            where TParameters : notnull =>
             GetDynamicQueryExecutor().GetParameters(ref parameters, parameterPrefix);
 
         /////////////////////////////////////////////////////////////////////

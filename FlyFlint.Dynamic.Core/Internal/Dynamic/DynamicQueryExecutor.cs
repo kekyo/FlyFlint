@@ -32,11 +32,25 @@ namespace FlyFlint.Internal.Dynamic
 
         /////////////////////////////////////////////////////////////////////
 
-#if !NET40
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-        public (string name, object? value)[] GetParameters<TParameters>(
-            ref TParameters parameters, string parameterPrefix)
+        public ConstructParameters GetConstructParameters<TParameters>(Func<TParameters> getter, string parameterPrefix)
+            where TParameters : notnull
+        {
+            var members = DynamicHelper.GetGetterMetadataList<TParameters>();
+            return () =>
+            {
+                var parameters = getter();
+                var ps = new (string name, object? value)[members.Length];
+                for (var index = 0; index < ps.Length; index++)
+                {
+                    var m = members[index];
+                    ps[index] = (parameterPrefix + m.name, m.getter(ref parameters));
+                }
+                return ps;
+            };
+        }
+
+        public (string name, object? value)[] GetParameters<TParameters>(ref TParameters parameters, string parameterPrefix)
+            where TParameters : notnull
         {
             var members = DynamicHelper.GetGetterMetadataList<TParameters>();
             var ps = new (string name, object? value)[members.Length];
@@ -50,9 +64,6 @@ namespace FlyFlint.Internal.Dynamic
 
         /////////////////////////////////////////////////////////////////////
 
-#if !NET40
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
         public int ExecuteNonQuery(QueryContext query)
         {
             using (var command = QueryHelper.CreateCommand(
@@ -62,9 +73,6 @@ namespace FlyFlint.Internal.Dynamic
             }
         }
 
-#if !NET40
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
         public T ExecuteScalar<T>(QueryContext query)
         {
             using (var command = QueryHelper.CreateCommand(
@@ -75,9 +83,6 @@ namespace FlyFlint.Internal.Dynamic
             }
         }
 
-#if !NET40
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
         public IEnumerable<T> Execute<T>(QueryContext<T> query)
             where T : new()
         {
@@ -104,9 +109,6 @@ namespace FlyFlint.Internal.Dynamic
             }
         }
 
-#if !NET40
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
         public async Task<int> ExecuteNonQueryAsync(QueryContext query)
         {
             using (var command = QueryHelper.CreateCommand(
@@ -116,9 +118,6 @@ namespace FlyFlint.Internal.Dynamic
             }
         }
 
-#if !NET40
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
         public async Task<T> ExecuteScalarAsync<T>(QueryContext query)
         {
             using (var command = QueryHelper.CreateCommand(

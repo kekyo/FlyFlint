@@ -9,6 +9,7 @@
 
 using FlyFlint.Context;
 using FlyFlint.Internal.Converter;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -16,18 +17,29 @@ namespace FlyFlint.Internal.Static
 {
     internal static class StaticQueryExecutor
     {
+        public static ConstructParameters GetConstructParameters<TParameters>(Func<TParameters> getter, string parameterPrefix)
+            where TParameters : notnull, IParameterExtractable
+        {
+            return () =>
+            {
+                var parameters = getter();
+                return GetParameters(ref parameters, parameterPrefix);
+            };
+        }
+
         public static (string name, object? value)[] GetParameters<TParameters>(
             ref TParameters parameters, string parameterPrefix)
             where TParameters : IParameterExtractable
         {
             var extracted = parameters.Extract();
-            var ps = new (string name, object? value)[extracted.Length];
-            for (var index = 0; index < ps.Length; index++)
+            if (parameterPrefix.Length >= 1)
             {
-                var parameter = extracted[index];
-                ps[index] = (parameterPrefix + parameter.name, parameter.value);
+                for (var index = 0; index < extracted.Length; index++)
+                {
+                    extracted[index].name = parameterPrefix + extracted[index].name;
+                }
             }
-            return ps;
+            return extracted;
         }
 
         /////////////////////////////////////////////////////////////////////

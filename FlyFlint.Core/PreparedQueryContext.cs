@@ -8,6 +8,7 @@
 ////////////////////////////////////////////////////////////////////////////
 
 using FlyFlint.Context;
+using FlyFlint.Internal;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
@@ -17,7 +18,7 @@ namespace FlyFlint
     {
         internal readonly ConversionContext cc;
         internal readonly string sql;
-        internal readonly (string name, object? value)[] parameters;
+        internal readonly ConstructParameters constructParameters;
         internal readonly string parameterPrefix;
 
 #if !NET40
@@ -26,12 +27,12 @@ namespace FlyFlint
         internal PreparedQueryContext(
             ConversionContext cc,
             string sql,
-            (string name, object? value)[] parameters, 
+            ConstructParameters constructParameters, 
             string parameterPrefix)
         {
             this.cc = cc;
             this.sql = sql;
-            this.parameters = parameters;
+            this.constructParameters = constructParameters;
             this.parameterPrefix = parameterPrefix;
         }
 
@@ -42,7 +43,7 @@ namespace FlyFlint
             new PreparedQueryContext(
                 this.cc,
                 this.sql, 
-                this.parameters,
+                this.constructParameters,
                 parameterPrefix);
 
 #if !NET40
@@ -52,7 +53,7 @@ namespace FlyFlint
             new PreparedQueryContext(
                 cc,
                 this.sql,
-                this.parameters,
+                this.constructParameters,
                 this.parameterPrefix);
 
 #if !NET40
@@ -64,7 +65,7 @@ namespace FlyFlint
                 this.cc,
                 Query.defaultFieldComparer,
                 this.sql,
-                this.parameters,
+                this.constructParameters,
                 this.parameterPrefix);
     }
 
@@ -74,7 +75,7 @@ namespace FlyFlint
         internal readonly ConversionContext cc;
         internal readonly IComparer<string> fieldComparer;
         internal readonly string sql;
-        internal readonly (string name, object? value)[] parameters;
+        internal readonly ConstructParameters constructParameters;
         internal readonly string parameterPrefix;
 
 #if !NET40
@@ -84,13 +85,13 @@ namespace FlyFlint
             ConversionContext cc,
             IComparer<string> fieldComparer,
             string sql,
-            (string name, object? value)[] parameters, 
+            ConstructParameters constructParameters, 
             string parameterPrefix)
         {
             this.cc = cc;
             this.fieldComparer = fieldComparer;
             this.sql = sql;
-            this.parameters = parameters;
+            this.constructParameters = constructParameters;
             this.parameterPrefix = parameterPrefix;
         }
 
@@ -102,7 +103,7 @@ namespace FlyFlint
                 this.cc,
                 this.fieldComparer,
                 this.sql,
-                this.parameters,
+                this.constructParameters,
                 parameterPrefix);
 
 #if !NET40
@@ -113,7 +114,7 @@ namespace FlyFlint
                 cc,
                 this.fieldComparer,
                 this.sql,
-                this.parameters, 
+                this.constructParameters, 
                 this.parameterPrefix);
 
 #if !NET40
@@ -124,7 +125,7 @@ namespace FlyFlint
                 this.cc,
                 fieldComparer,
                 this.sql,
-                this.parameters,
+                this.constructParameters,
                 this.parameterPrefix);
     }
 }
