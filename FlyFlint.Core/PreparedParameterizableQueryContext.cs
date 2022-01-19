@@ -8,6 +8,7 @@
 ////////////////////////////////////////////////////////////////////////////
 
 using FlyFlint.Context;
+using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
@@ -22,9 +23,9 @@ namespace FlyFlint
 #endif
         internal PreparedParameterizableQueryContext(
             ConversionContext cc,
-            string sql,
+            Func<QueryBuilderResult> builder,
             string parameterPrefix) :
-            base(cc, sql, Query.constructDefaultParameters) =>
+            base(cc, builder) =>
             this.parameterPrefix = parameterPrefix;
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
@@ -33,7 +34,7 @@ namespace FlyFlint
         public PreparedParameterizableQueryContext Prefix(string parameterPrefix) =>
             new PreparedParameterizableQueryContext(
                 this.cc,
-                this.sql, 
+                this.builder, 
                 parameterPrefix);
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
@@ -42,23 +43,23 @@ namespace FlyFlint
         public PreparedParameterizableQueryContext Conversion(ConversionContext cc) =>
             new PreparedParameterizableQueryContext(
                 cc,
-                this.sql,
+                this.builder,
                 this.parameterPrefix);
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public PreparedParameterizableQueryContext<T> Typed<T>()
-            where T : new() =>
-            new PreparedParameterizableQueryContext<T>(
+        public PreparedParameterizableQueryContext<TElement> Typed<TElement>()
+            where TElement : new() =>
+            new PreparedParameterizableQueryContext<TElement>(
                 this.cc,
                 Query.defaultFieldComparer,
-                this.sql,
+                this.builder,
                 this.parameterPrefix);
     }
 
-    public sealed class PreparedParameterizableQueryContext<T> : PreparedQueryContext<T>
-        where T : new()
+    public sealed class PreparedParameterizableQueryContext<TElement> : PreparedQueryContext<TElement>
+        where TElement : new()
     {
         internal readonly string parameterPrefix;
 
@@ -68,39 +69,39 @@ namespace FlyFlint
         internal PreparedParameterizableQueryContext(
             ConversionContext cc,
             IComparer<string> fieldComparer,
-            string sql,
+            Func<QueryBuilderResult> builder,
             string parameterPrefix) :
-            base(cc, fieldComparer, sql, Query.constructDefaultParameters) =>
+            base(cc, fieldComparer, builder) =>
             this.parameterPrefix = parameterPrefix;
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public PreparedParameterizableQueryContext<T> Prefix(string parameterPrefix) =>
-            new PreparedParameterizableQueryContext<T>(
+        public PreparedParameterizableQueryContext<TElement> Prefix(string parameterPrefix) =>
+            new PreparedParameterizableQueryContext<TElement>(
                 this.cc,
                 this.fieldComparer,
-                this.sql,
+                this.builder,
                 parameterPrefix);
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public PreparedParameterizableQueryContext<T> Conversion(ConversionContext cc) =>
-            new PreparedParameterizableQueryContext<T>(
+        public PreparedParameterizableQueryContext<TElement> Conversion(ConversionContext cc) =>
+            new PreparedParameterizableQueryContext<TElement>(
                 cc,
                 this.fieldComparer,
-                this.sql,
+                this.builder,
                 this.parameterPrefix);
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public PreparedParameterizableQueryContext<T> FieldComparer(IComparer<string> fieldComparer) =>
-            new PreparedParameterizableQueryContext<T>(
+        public PreparedParameterizableQueryContext<TElement> FieldComparer(IComparer<string> fieldComparer) =>
+            new PreparedParameterizableQueryContext<TElement>(
                 this.cc,
                 fieldComparer,
-                this.sql,
+                this.builder,
                 this.parameterPrefix);
     }
 }

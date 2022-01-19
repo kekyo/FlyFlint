@@ -11,6 +11,7 @@ using FlyFlint.Context;
 using FlyFlint.Internal;
 using System;
 using System.Data.Common;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
 namespace FlyFlint
@@ -78,11 +79,11 @@ namespace FlyFlint
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static ParameterizableQueryContext<T> Query<T>(
+        public static ParameterizableQueryContext<TElement> Query<TElement>(
             this DbConnection connection,
             ParameterizableQueryString sql)
-            where T : new() =>
-            new ParameterizableQueryContext<T>(
+            where TElement : new() =>
+            new ParameterizableQueryContext<TElement>(
                 connection,
                 null,
                 ConversionContext.Default,
@@ -93,11 +94,11 @@ namespace FlyFlint
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static ParameterizedQueryContext<T> Query<T>(
+        public static ParameterizedQueryContext<TElement> Query<TElement>(
             this DbConnection connection,
             FormattableString sql)
-            where T : new() =>
-            new ParameterizedQueryContext<T>(
+            where TElement : new() =>
+            new ParameterizedQueryContext<TElement>(
                 connection,
                 null,
                 ConversionContext.Default,
@@ -110,12 +111,12 @@ namespace FlyFlint
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static ParameterizableQueryContext<T> Query<T>(
+        public static ParameterizableQueryContext<TElement> Query<TElement>(
             this DbConnection connection,
             DbTransaction transaction,
             ParameterizableQueryString sql)
-            where T : new() =>
-            new ParameterizableQueryContext<T>(
+            where TElement : new() =>
+            new ParameterizableQueryContext<TElement>(
                 connection,
                 transaction,
                 ConversionContext.Default,
@@ -126,12 +127,12 @@ namespace FlyFlint
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static ParameterizedQueryContext<T> Query<T>(
+        public static ParameterizedQueryContext<TElement> Query<TElement>(
             this DbConnection connection,
             DbTransaction transaction,
             FormattableString sql)
-            where T : new() =>
-            new ParameterizedQueryContext<T>(
+            where TElement : new() =>
+            new ParameterizedQueryContext<TElement>(
                 connection,
                 transaction,
                 ConversionContext.Default,
@@ -146,26 +147,33 @@ namespace FlyFlint
 #endif
         public static ParameterizedQueryContext Query(
             this DbConnection connection,
-            PreparedParameterizedQueryContext prepared) =>
-            new ParameterizedQueryContext(
+            PreparedParameterizedQueryContext prepared)
+        {
+            var built = prepared.builder();
+            return new ParameterizedQueryContext(
                 connection,
                 null,
                 prepared.cc,
-                prepared.sql,
-                prepared.constructParameters());
+                built.sql,
+                built.parameters);
+        }
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public static ParameterizableQueryContext Query(
             this DbConnection connection,
-            PreparedParameterizableQueryContext prepared) =>
-            new ParameterizableQueryContext(
+            PreparedParameterizableQueryContext prepared)
+        {
+            var built = prepared.builder();
+            Debug.Assert(object.ReferenceEquals(built.parameters, FlyFlint.Query.defaultParameters));
+            return new ParameterizableQueryContext(
                 connection,
                 null,
                 prepared.cc,
-                prepared.sql,
+                built.sql,
                 prepared.parameterPrefix);
+        }
 
         /////////////////////////////////////////////////////////////////////////////
 
@@ -175,13 +183,16 @@ namespace FlyFlint
         public static ParameterizedQueryContext Query(
             this DbConnection connection,
             DbTransaction transaction,
-            PreparedParameterizedQueryContext prepared) =>
-            new ParameterizedQueryContext(
+            PreparedParameterizedQueryContext prepared)
+        {
+            var built = prepared.builder();
+            return new ParameterizedQueryContext(
                 connection,
                 transaction,
                 prepared.cc,
-                prepared.sql,
-                prepared.constructParameters());
+                built.sql,
+                built.parameters);
+        }
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -189,78 +200,96 @@ namespace FlyFlint
         public static ParameterizableQueryContext Query(
             this DbConnection connection,
             DbTransaction transaction,
-            PreparedParameterizableQueryContext prepared) =>
-            new ParameterizableQueryContext(
+            PreparedParameterizableQueryContext prepared)
+        {
+            var built = prepared.builder();
+            Debug.Assert(object.ReferenceEquals(built.parameters, FlyFlint.Query.defaultParameters));
+            return new ParameterizableQueryContext(
                 connection,
                 transaction,
                 prepared.cc,
-                prepared.sql,
+                built.sql,
                 prepared.parameterPrefix);
+        }
 
         /////////////////////////////////////////////////////////////////////////////
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static ParameterizedQueryContext<T> Query<T>(
+        public static ParameterizedQueryContext<TElement> Query<TElement>(
             this DbConnection connection,
-            PreparedParameterizedQueryContext<T> prepared)
-            where T : new() =>
-            new ParameterizedQueryContext<T>(
+            PreparedParameterizedQueryContext<TElement> prepared)
+            where TElement : new()
+        {
+            var built = prepared.builder();
+            return new ParameterizedQueryContext<TElement>(
                 connection,
                 null,
                 prepared.cc,
                 prepared.fieldComparer,
-                prepared.sql,
-                prepared.constructParameters());
+                built.sql,
+                built.parameters);
+        }
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static ParameterizableQueryContext<T> Query<T>(
+        public static ParameterizableQueryContext<TElement> Query<TElement>(
             this DbConnection connection,
-            PreparedParameterizableQueryContext<T> prepared)
-            where T : new() =>
-            new ParameterizableQueryContext<T>(
+            PreparedParameterizableQueryContext<TElement> prepared)
+            where TElement : new()
+        {
+            var built = prepared.builder();
+            Debug.Assert(object.ReferenceEquals(built.parameters, FlyFlint.Query.defaultParameters));
+            return new ParameterizableQueryContext<TElement>(
                 connection,
                 null,
                 prepared.cc,
                 prepared.fieldComparer,
-                prepared.sql,
+                built.sql,
                 prepared.parameterPrefix);
+        }
 
         /////////////////////////////////////////////////////////////////////////////
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static ParameterizedQueryContext<T> Query<T>(
+        public static ParameterizedQueryContext<TElement> Query<TElement>(
             this DbConnection connection,
             DbTransaction transaction,
-            PreparedParameterizedQueryContext<T> prepared)
-            where T : new() =>
-            new ParameterizedQueryContext<T>(
+            PreparedParameterizedQueryContext<TElement> prepared)
+            where TElement : new()
+        {
+            var built = prepared.builder();
+            return new ParameterizedQueryContext<TElement>(
                 connection,
                 transaction,
                 prepared.cc,
                 prepared.fieldComparer,
-                prepared.sql,
-                prepared.constructParameters());
+                built.sql,
+                built.parameters);
+        }
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static ParameterizableQueryContext<T> Query<T>(
+        public static ParameterizableQueryContext<TElement> Query<TElement>(
             this DbConnection connection,
             DbTransaction transaction,
-            PreparedParameterizableQueryContext<T> prepared)
-            where T : new() =>
-            new ParameterizableQueryContext<T>(
+            PreparedParameterizableQueryContext<TElement> prepared)
+            where TElement : new()
+        {
+            var built = prepared.builder();
+            Debug.Assert(object.ReferenceEquals(built.parameters, FlyFlint.Query.defaultParameters));
+            return new ParameterizableQueryContext<TElement>(
                 connection,
                 transaction,
                 prepared.cc,
                 prepared.fieldComparer,
-                prepared.sql,
+                built.sql,
                 prepared.parameterPrefix);
+        }
     }
 }

@@ -12,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data.Common;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
@@ -28,7 +29,7 @@ namespace FlyFlint.Internal.Static
             DbConnection connection,
             string sql,
             TParameters parameters)
-            where TParameters : IParameterExtractable =>
+            where TParameters : notnull, IParameterExtractable =>
             new ParameterizedQueryContext(
                 connection,
                 null,
@@ -46,7 +47,7 @@ namespace FlyFlint.Internal.Static
             DbTransaction transaction,
             string sql,
             TParameters parameters)
-            where TParameters : IParameterExtractable =>
+            where TParameters : notnull, IParameterExtractable =>
             new ParameterizedQueryContext(
                 connection,
                 transaction,
@@ -55,6 +56,8 @@ namespace FlyFlint.Internal.Static
                 StaticQueryExecutor.GetParameters(
                     ref parameters, FlyFlint.Query.defaultParameterPrefix));
 
+        /////////////////////////////////////////////////////////////////////////////
+
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
@@ -63,14 +66,18 @@ namespace FlyFlint.Internal.Static
             DbConnection connection,
             PreparedParameterizableQueryContext prepared,
             TParameters parameters)
-            where TParameters : IParameterExtractable =>
-            new ParameterizedQueryContext(
+            where TParameters : notnull, IParameterExtractable
+        {
+            var built = prepared.builder();
+            Debug.Assert(object.ReferenceEquals(built.parameters, FlyFlint.Query.defaultParameters));
+            return new ParameterizedQueryContext(
                 connection,
                 null,
                 prepared.cc,
-                prepared.sql,
+                built.sql,
                 StaticQueryExecutor.GetParameters(
                     ref parameters, prepared.parameterPrefix));
+        }
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -81,53 +88,67 @@ namespace FlyFlint.Internal.Static
             DbTransaction transaction,
             PreparedParameterizableQueryContext prepared,
             TParameters parameters)
-            where TParameters : IParameterExtractable =>
-            new ParameterizedQueryContext(
+            where TParameters : notnull, IParameterExtractable
+        {
+            var built = prepared.builder();
+            Debug.Assert(object.ReferenceEquals(built.parameters, FlyFlint.Query.defaultParameters));
+            return new ParameterizedQueryContext(
                 connection,
                 transaction,
                 prepared.cc,
-                prepared.sql,
+                built.sql,
                 StaticQueryExecutor.GetParameters(
                     ref parameters, prepared.parameterPrefix));
+        }
+
+        /////////////////////////////////////////////////////////////////////////////
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static ParameterizedQueryContext<T> Query<T, TParameters>(
+        public static ParameterizedQueryContext<TElement> Query<TElement, TParameters>(
             DbConnection connection,
-            PreparedParameterizableQueryContext<T> prepared,
+            PreparedParameterizableQueryContext<TElement> prepared,
             TParameters parameters)
-            where T : new()
-            where TParameters : IParameterExtractable =>
-            new ParameterizedQueryContext<T>(
+            where TElement : new()
+            where TParameters : notnull, IParameterExtractable
+        {
+            var built = prepared.builder();
+            Debug.Assert(object.ReferenceEquals(built.parameters, FlyFlint.Query.defaultParameters));
+            return new ParameterizedQueryContext<TElement>(
                 connection,
                 null,
                 prepared.cc,
                 prepared.fieldComparer,
-                prepared.sql,
+                built.sql,
                 StaticQueryExecutor.GetParameters(
                     ref parameters, prepared.parameterPrefix));
+        }
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static ParameterizedQueryContext<T> Query<T, TParameters>(
+        public static ParameterizedQueryContext<TElement> Query<TElement, TParameters>(
             DbConnection connection,
             DbTransaction transaction,
-            PreparedParameterizableQueryContext<T> prepared,
+            PreparedParameterizableQueryContext<TElement> prepared,
             TParameters parameters)
-            where T : new()
-            where TParameters : IParameterExtractable =>
-            new ParameterizedQueryContext<T>(
+            where TElement : new()
+            where TParameters : notnull, IParameterExtractable
+        {
+            var built = prepared.builder();
+            Debug.Assert(object.ReferenceEquals(built.parameters, FlyFlint.Query.defaultParameters));
+            return new ParameterizedQueryContext<TElement>(
                 connection,
                 transaction,
                 prepared.cc,
                 prepared.fieldComparer,
-                prepared.sql,
+                built.sql,
                 StaticQueryExecutor.GetParameters(
                     ref parameters, prepared.parameterPrefix));
+        }
 
         /////////////////////////////////////////////////////////////////////////////
 
@@ -138,28 +159,38 @@ namespace FlyFlint.Internal.Static
         public static PreparedParameterizedQueryContext Parameter<TParameters>(
             PreparedParameterizableQueryContext prepared,
             Func<TParameters> getter)
-            where TParameters : notnull, IParameterExtractable =>
-            new PreparedParameterizedQueryContext(
+            where TParameters : notnull, IParameterExtractable
+        {
+            var (sql, parameters) = prepared.builder();
+            Debug.Assert(object.ReferenceEquals(parameters, FlyFlint.Query.defaultParameters));
+            var constructParameters = StaticQueryExecutor.GetConstructParameters(
+                getter, prepared.parameterPrefix);
+            return new PreparedParameterizedQueryContext(
                 prepared.cc,
-                prepared.sql,
-                StaticQueryExecutor.GetConstructParameters(
-                    getter, prepared.parameterPrefix));
+                () => new QueryBuilderResult(sql, constructParameters()));
+        }
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static PreparedParameterizedQueryContext<T> Parameter<T, TParameters>(
-            PreparedParameterizableQueryContext<T> prepared,
+        public static PreparedParameterizedQueryContext<TElement> Parameter<TElement, TParameters>(
+            PreparedParameterizableQueryContext<TElement> prepared,
             Func<TParameters> getter)
-            where T : new()
-            where TParameters : notnull, IParameterExtractable =>
-            new PreparedParameterizedQueryContext<T>(
+            where TElement : new()
+            where TParameters : notnull, IParameterExtractable
+        {
+            var (sql, parameters) = prepared.builder();
+            Debug.Assert(object.ReferenceEquals(parameters, FlyFlint.Query.defaultParameters));
+            var constructParameters = StaticQueryExecutor.GetConstructParameters(
+                getter, prepared.parameterPrefix);
+            return new PreparedParameterizedQueryContext<TElement>(
                 prepared.cc,
                 prepared.fieldComparer,
-                prepared.sql,
-                StaticQueryExecutor.GetConstructParameters(
-                    getter, prepared.parameterPrefix));
+                () => new QueryBuilderResult(sql, constructParameters()));
+        }
+
+        /////////////////////////////////////////////////////////////////////////////
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -181,12 +212,12 @@ namespace FlyFlint.Internal.Static
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static ParameterizedQueryContext<T> Parameter<T, TParameters>(
-            ParameterizableQueryContext<T> query,
+        public static ParameterizedQueryContext<TElement> Parameter<TElement, TParameters>(
+            ParameterizableQueryContext<TElement> query,
             TParameters parameters)
-            where T : new()
+            where TElement : new()
             where TParameters : IParameterExtractable =>
-            new ParameterizedQueryContext<T>(
+            new ParameterizedQueryContext<TElement>(
                 query.connection,
                 query.transaction,
                 query.cc,
@@ -208,15 +239,15 @@ namespace FlyFlint.Internal.Static
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static T ExecuteScalar<T>(QueryContext query) =>
-            StaticQueryExecutor.ExecuteScalar<T>(query);
+        public static TResult ExecuteScalar<TResult>(QueryContext query) =>
+            StaticQueryExecutor.ExecuteScalar<TResult>(query);
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static IEnumerable<T> Execute<T>(QueryContext<T> query)
-            where T : IDataInjectable, new() =>
+        public static IEnumerable<TElement> Execute<TElement>(QueryContext<TElement> query)
+            where TElement : IDataInjectable, new() =>
             StaticQueryExecutor.Execute(query);
 
         /////////////////////////////////////////////////////////////////////
@@ -232,19 +263,19 @@ namespace FlyFlint.Internal.Static
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static Task<T> ExecuteScalarAsync<T>(QueryContext query) =>
-            StaticQueryExecutor.ExecuteScalarAsync<T>(query);
+        public static Task<TResult> ExecuteScalarAsync<TResult>(QueryContext query) =>
+            StaticQueryExecutor.ExecuteScalarAsync<TResult>(query);
 
 #if NET461_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static IAsyncEnumerable<T> ExecuteAsync<T>(QueryContext<T> query)
-            where T : IDataInjectable, new() =>
+        public static IAsyncEnumerable<TElement> ExecuteAsync<TElement>(QueryContext<TElement> query)
+            where TElement : IDataInjectable, new() =>
             StaticQueryExecutor.ExecuteAsync(query);
 #else
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static void ExecuteAsync<T>(QueryContext<T> query)
-            where T : IDataInjectable, new() =>
+        public static void ExecuteAsync<TElement>(QueryContext<TElement> query)
+            where TElement : IDataInjectable, new() =>
             throw new InvalidOperationException();
 #endif
     }

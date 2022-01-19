@@ -12,6 +12,7 @@ using FlyFlint.Internal.Dynamic;
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
@@ -52,6 +53,8 @@ namespace FlyFlint
                 DynamicQueryExecutorFacade.GetParameters(
                     ref parameters, FlyFlint.Query.defaultParameterPrefix));
 
+        /////////////////////////////////////////////////////////////////////////////
+
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
@@ -59,14 +62,18 @@ namespace FlyFlint
             this DbConnection connection,
             PreparedParameterizableQueryContext prepared,
             TParameters parameters)
-            where TParameters : notnull =>
-            new ParameterizedQueryContext(
+            where TParameters : notnull
+        {
+            var built = prepared.builder();
+            Debug.Assert(object.ReferenceEquals(built.parameters, FlyFlint.Query.defaultParameters));
+            return new ParameterizedQueryContext(
                 connection,
                 null,
                 prepared.cc,
-                prepared.sql,
+                built.sql,
                 DynamicQueryExecutorFacade.GetParameters(
                     ref parameters, prepared.parameterPrefix));
+        }
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -76,51 +83,65 @@ namespace FlyFlint
             DbTransaction transaction,
             PreparedParameterizableQueryContext prepared,
             TParameters parameters)
-            where TParameters : notnull =>
-            new ParameterizedQueryContext(
+            where TParameters : notnull
+        {
+            var built = prepared.builder();
+            Debug.Assert(object.ReferenceEquals(built.parameters, FlyFlint.Query.defaultParameters));
+            return new ParameterizedQueryContext(
                 connection,
                 transaction,
                 prepared.cc,
-                prepared.sql,
+                built.sql,
                 DynamicQueryExecutorFacade.GetParameters(
                     ref parameters, prepared.parameterPrefix));
+        }
+
+        /////////////////////////////////////////////////////////////////////////////
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static ParameterizedQueryContext<T> Query<T, TParameters>(
+        public static ParameterizedQueryContext<TElement> Query<TElement, TParameters>(
             this DbConnection connection,
-            PreparedParameterizableQueryContext<T> prepared,
+            PreparedParameterizableQueryContext<TElement> prepared,
             TParameters parameters)
-            where T : new()
-            where TParameters : notnull =>
-            new ParameterizedQueryContext<T>(
+            where TElement : new()
+            where TParameters : notnull
+        {
+            var built = prepared.builder();
+            Debug.Assert(object.ReferenceEquals(built.parameters, FlyFlint.Query.defaultParameters));
+            return new ParameterizedQueryContext<TElement>(
                 connection,
                 null,
                 prepared.cc,
                 prepared.fieldComparer,
-                prepared.sql,
+                built.sql,
                 DynamicQueryExecutorFacade.GetParameters(
                     ref parameters, prepared.parameterPrefix));
+        }
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static ParameterizedQueryContext<T> Query<T, TParameters>(
+        public static ParameterizedQueryContext<TElement> Query<TElement, TParameters>(
             this DbConnection connection,
             DbTransaction transaction,
-            PreparedParameterizableQueryContext<T> prepared,
+            PreparedParameterizableQueryContext<TElement> prepared,
             TParameters parameters)
-            where T : new()
-            where TParameters : notnull =>
-            new ParameterizedQueryContext<T>(
+            where TElement : new()
+            where TParameters : notnull
+        {
+            var built = prepared.builder();
+            Debug.Assert(object.ReferenceEquals(built.parameters, FlyFlint.Query.defaultParameters));
+            return new ParameterizedQueryContext<TElement>(
                 connection,
                 transaction,
                 prepared.cc,
                 prepared.fieldComparer,
-                prepared.sql,
+                built.sql,
                 DynamicQueryExecutorFacade.GetParameters(
                     ref parameters, prepared.parameterPrefix));
+        }
 
         /////////////////////////////////////////////////////////////////////////////
 
@@ -130,27 +151,37 @@ namespace FlyFlint
         public static PreparedParameterizedQueryContext Parameter<TParameters>(
             this PreparedParameterizableQueryContext prepared,
             Func<TParameters> getter)
-            where TParameters : notnull =>
-            new PreparedParameterizedQueryContext(
+            where TParameters : notnull
+        {
+            var (sql, parameters) = prepared.builder();
+            Debug.Assert(object.ReferenceEquals(parameters, FlyFlint.Query.defaultParameters));
+            var constructParameters = DynamicQueryExecutorFacade.GetConstructParameters(
+                getter, prepared.parameterPrefix);
+            return new PreparedParameterizedQueryContext(
                 prepared.cc,
-                prepared.sql,
-                DynamicQueryExecutorFacade.GetConstructParameters(
-                    getter, prepared.parameterPrefix));
+                () => new QueryBuilderResult(sql, constructParameters()));
+        }
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static PreparedParameterizedQueryContext<T> Parameter<T, TParameters>(
-            this PreparedParameterizableQueryContext<T> prepared,
+        public static PreparedParameterizedQueryContext<TElement> Parameter<TElement, TParameters>(
+            this PreparedParameterizableQueryContext<TElement> prepared,
             Func<TParameters> getter)
-            where T : new()
-            where TParameters : notnull =>
-            new PreparedParameterizedQueryContext<T>(
+            where TElement : new()
+            where TParameters : notnull
+        {
+            var (sql, parameters) = prepared.builder();
+            Debug.Assert(object.ReferenceEquals(parameters, FlyFlint.Query.defaultParameters));
+            var constructParameters = DynamicQueryExecutorFacade.GetConstructParameters(
+                getter, prepared.parameterPrefix);
+            return new PreparedParameterizedQueryContext<TElement>(
                 prepared.cc,
                 prepared.fieldComparer,
-                prepared.sql,
-                DynamicQueryExecutorFacade.GetConstructParameters(
-                    getter, prepared.parameterPrefix));
+                () => new QueryBuilderResult(sql, constructParameters()));
+        }
+
+        /////////////////////////////////////////////////////////////////////////////
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -170,12 +201,12 @@ namespace FlyFlint
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static ParameterizedQueryContext<T> Parameter<T, TParameters>(
-            this ParameterizableQueryContext<T> query,
+        public static ParameterizedQueryContext<TElement> Parameter<TElement, TParameters>(
+            this ParameterizableQueryContext<TElement> query,
             TParameters parameters)
-            where T : new()
+            where TElement : new()
             where TParameters : notnull =>
-            new ParameterizedQueryContext<T>(
+            new ParameterizedQueryContext<TElement>(
                 query.connection,
                 query.transaction,
                 query.cc,
@@ -195,18 +226,18 @@ namespace FlyFlint
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static Task<T> ExecuteScalarAsync<T>(this QueryContext query) =>
-            DynamicQueryExecutorFacade.ExecuteScalarAsync<T>(query);
+        public static Task<TResult> ExecuteScalarAsync<TResult>(this QueryContext query) =>
+            DynamicQueryExecutorFacade.ExecuteScalarAsync<TResult>(query);
 
 #if NET461_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IAsyncEnumerable<T> ExecuteAsync<T>(this QueryContext<T> query)
-            where T : new() =>
+        public static IAsyncEnumerable<TElement> ExecuteAsync<TElement>(this QueryContext<TElement> query)
+            where TElement : new() =>
             DynamicQueryExecutorFacade.ExecuteAsync(query);
 #else
         [Obsolete("Before net461 platform, it is not supported async enumeration. Consider upgrades to net461 or upper, or `Execute()` method with `FlyFlint.Synchronized` namespace instead.", true)]
-        public static void ExecuteAsync<T>(this QueryContext<T> query)
-            where T : new() =>
+        public static void ExecuteAsync<TElement>(this QueryContext<TElement> query)
+            where TElement : new() =>
             throw new InvalidOperationException();
 #endif
     }

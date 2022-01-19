@@ -66,9 +66,9 @@ namespace FlyFlint
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public ParameterizableQueryContext<T> Typed<T>()
-            where T : new() =>
-            new ParameterizableQueryContext<T>(
+        public ParameterizableQueryContext<TElement> Typed<TElement>()
+            where TElement : new() =>
+            new ParameterizableQueryContext<TElement>(
                 this.connection,
                 this.transaction,
                 this.cc,
@@ -77,7 +77,7 @@ namespace FlyFlint
                 this.parameterPrefix);
     }
 
-    public sealed class ParameterizableQueryContext<T> : QueryContext<T>
+    public sealed class ParameterizableQueryContext<TElement> : QueryContext<TElement>
     {
         internal readonly string parameterPrefix;
 
@@ -97,8 +97,8 @@ namespace FlyFlint
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public ParameterizableQueryContext<T> Prefix(string parameterPrefix) =>
-            new ParameterizableQueryContext<T>(
+        public ParameterizableQueryContext<TElement> Prefix(string parameterPrefix) =>
+            new ParameterizableQueryContext<TElement>(
                 this.connection,
                 this.transaction,
                 this.cc,
@@ -109,8 +109,8 @@ namespace FlyFlint
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public ParameterizableQueryContext<T> Conversion(ConversionContext cc) =>
-            new ParameterizableQueryContext<T>(
+        public ParameterizableQueryContext<TElement> Conversion(ConversionContext cc) =>
+            new ParameterizableQueryContext<TElement>(
                 this.connection,
                 this.transaction,
                 cc,
@@ -121,8 +121,8 @@ namespace FlyFlint
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public ParameterizableQueryContext<T> FieldComparer(IComparer<string> fieldComparer) =>
-            new ParameterizableQueryContext<T>(
+        public ParameterizableQueryContext<TElement> FieldComparer(IComparer<string> fieldComparer) =>
+            new ParameterizableQueryContext<TElement>(
                 this.connection,
                 this.transaction,
                 this.cc,
@@ -133,8 +133,8 @@ namespace FlyFlint
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public ParameterizableQueryContext<T> Transaction(DbTransaction transaction) =>
-            new ParameterizableQueryContext<T>(
+        public ParameterizableQueryContext<TElement> Transaction(DbTransaction transaction) =>
+            new ParameterizableQueryContext<TElement>(
                 this.connection,
                 transaction,
                 this.cc,

@@ -30,7 +30,7 @@ namespace FlyFlint
         public static PreparedParameterizableQueryContext Prepare(ParameterizableQueryString sql) =>
             new PreparedParameterizableQueryContext(
                 ConversionContext.Default,
-                sql.Sql,
+                () => new QueryBuilderResult(sql.Sql, defaultParameters),
                 defaultParameterPrefix);
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
@@ -41,7 +41,7 @@ namespace FlyFlint
             new PreparedParameterizableQueryContext<T>(
                 ConversionContext.Default,
                 defaultFieldComparer,
-                sql.Sql,
+                () => new QueryBuilderResult(sql.Sql, defaultParameters),
                 defaultParameterPrefix);
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
@@ -50,8 +50,9 @@ namespace FlyFlint
         public static PreparedParameterizedQueryContext Prepare(FormattableString sql) =>
             new PreparedParameterizedQueryContext(
                 ConversionContext.Default,
-                QueryHelper.GetFormattedSqlString(sql, defaultParameterPrefix),
-                () => QueryHelper.GetSqlParameters(sql, defaultParameterPrefix));   // TODO: too late
+                () => new QueryBuilderResult(
+                    QueryHelper.GetFormattedSqlString(sql, defaultParameterPrefix),
+                    QueryHelper.GetSqlParameters(sql, defaultParameterPrefix)));
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -61,7 +62,38 @@ namespace FlyFlint
             new PreparedParameterizedQueryContext<T>(
                 ConversionContext.Default,
                 defaultFieldComparer,
-                QueryHelper.GetFormattedSqlString(sql, defaultParameterPrefix),
-                () => QueryHelper.GetSqlParameters(sql, defaultParameterPrefix));   // TODO: too late
+                () => new QueryBuilderResult(
+                    QueryHelper.GetFormattedSqlString(sql, defaultParameterPrefix),
+                    QueryHelper.GetSqlParameters(sql, defaultParameterPrefix)));
+
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public static PreparedParameterizedQueryContext Prepare(Func<FormattableString> sqlBuilder) =>
+            new PreparedParameterizedQueryContext(
+                ConversionContext.Default,
+                () =>
+                {
+                    var sql = sqlBuilder();
+                    return new QueryBuilderResult(
+                        QueryHelper.GetFormattedSqlString(sql, defaultParameterPrefix),
+                        QueryHelper.GetSqlParameters(sql, defaultParameterPrefix));
+                });
+
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public static PreparedParameterizedQueryContext<T> Prepare<T>(Func<FormattableString> sqlBuilder)
+            where T : new() =>
+            new PreparedParameterizedQueryContext<T>(
+                ConversionContext.Default,
+                defaultFieldComparer,
+                () =>
+                {
+                    var sql = sqlBuilder();
+                    return new QueryBuilderResult(
+                        QueryHelper.GetFormattedSqlString(sql, defaultParameterPrefix),
+                        QueryHelper.GetSqlParameters(sql, defaultParameterPrefix));
+                });
     }
 }

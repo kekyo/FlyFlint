@@ -40,7 +40,7 @@ namespace FlyFlint
         }
     }
 
-    public abstract class QueryContext<T>
+    public abstract class QueryContext<TElement>
     {
         internal readonly DbConnection connection;
         internal readonly DbTransaction? transaction;
