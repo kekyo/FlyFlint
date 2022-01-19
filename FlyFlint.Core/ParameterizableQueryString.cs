@@ -12,27 +12,28 @@ using System.Runtime.CompilerServices;
 
 namespace FlyFlint
 {
-    public struct QueryString
+    public struct ParameterizableQueryString
     {
         public readonly string Sql;
 
 #if NET45
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public QueryString(string sql) =>
+        public ParameterizableQueryString(string sql) =>
             this.Sql = sql;
 
 #if NET45
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static implicit operator QueryString(string sql) =>
-            new QueryString(sql);
+        public static implicit operator ParameterizableQueryString(string sql) =>
+            new ParameterizableQueryString(sql);
 
         // HACK: Fixing overload resolution between string type and FormattableString type.
+        // https://ufcpp.net/study/csharp/st_string.html  (in japanese)
 #if NET45
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static implicit operator QueryString(FormattableString str) =>
+        public static implicit operator ParameterizableQueryString(FormattableString str) =>
             throw new InvalidCastException();
     }
 }

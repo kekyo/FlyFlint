@@ -27,45 +27,41 @@ namespace FlyFlint
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static PreparedQueryContext Prepare(QueryString sql) =>
-            new PreparedQueryContext(
+        public static PreparedParameterizableQueryContext Prepare(ParameterizableQueryString sql) =>
+            new PreparedParameterizableQueryContext(
                 ConversionContext.Default,
                 sql.Sql,
-                constructDefaultParameters,
                 defaultParameterPrefix);
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static PreparedQueryContext<T> Prepare<T>(QueryString sql)
+        public static PreparedParameterizableQueryContext<T> Prepare<T>(ParameterizableQueryString sql)
             where T : new() =>
-            new PreparedQueryContext<T>(
+            new PreparedParameterizableQueryContext<T>(
                 ConversionContext.Default,
                 defaultFieldComparer,
                 sql.Sql,
-                constructDefaultParameters,
                 defaultParameterPrefix);
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static PreparedQueryContext Prepare(FormattableString sql) =>
-            new PreparedQueryContext(
+        public static PreparedParameterizedQueryContext Prepare(FormattableString sql) =>
+            new PreparedParameterizedQueryContext(
                 ConversionContext.Default,
                 QueryHelper.GetFormattedSqlString(sql, defaultParameterPrefix),
-                () => QueryHelper.GetSqlParameters(sql, defaultParameterPrefix),   // TODO: too late
-                defaultParameterPrefix);
+                () => QueryHelper.GetSqlParameters(sql, defaultParameterPrefix));   // TODO: too late
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static PreparedQueryContext<T> Prepare<T>(FormattableString sql)
+        public static PreparedParameterizedQueryContext<T> Prepare<T>(FormattableString sql)
             where T : new() =>
-            new PreparedQueryContext<T>(
+            new PreparedParameterizedQueryContext<T>(
                 ConversionContext.Default,
                 defaultFieldComparer,
                 QueryHelper.GetFormattedSqlString(sql, defaultParameterPrefix),
-                () => QueryHelper.GetSqlParameters(sql, defaultParameterPrefix),   // TODO: too late
-                defaultParameterPrefix);
+                () => QueryHelper.GetSqlParameters(sql, defaultParameterPrefix));   // TODO: too late
     }
 }

@@ -22,164 +22,167 @@ namespace FlyFlint
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static QueryContext Query<TParameters>(
+        public static ParameterizedQueryContext Query<TParameters>(
             this DbConnection connection,
-            QueryString sql, TParameters parameters)
+            ParameterizableQueryString sql,
+            TParameters parameters)
             where TParameters : notnull =>
-            new QueryContext(
+            new ParameterizedQueryContext(
                 connection,
                 null,
                 ConversionContext.Default,
                 sql.Sql,
                 DynamicQueryExecutorFacade.GetParameters(
-                    ref parameters, FlyFlint.Query.defaultParameterPrefix),
-                FlyFlint.Query.defaultParameterPrefix);
+                    ref parameters, FlyFlint.Query.defaultParameterPrefix));
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static QueryContext Query<TParameters>(
-            this DbConnection connection, DbTransaction transaction,
-            QueryString sql, TParameters parameters)
+        public static ParameterizedQueryContext Query<TParameters>(
+            this DbConnection connection,
+            DbTransaction transaction,
+            ParameterizableQueryString sql,
+            TParameters parameters)
             where TParameters : notnull =>
-            new QueryContext(
+            new ParameterizedQueryContext(
                 connection,
                 transaction,
                 ConversionContext.Default,
                 sql.Sql,
                 DynamicQueryExecutorFacade.GetParameters(
-                    ref parameters, FlyFlint.Query.defaultParameterPrefix),
-                FlyFlint.Query.defaultParameterPrefix);
+                    ref parameters, FlyFlint.Query.defaultParameterPrefix));
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static QueryContext Query<TParameters>(
+        public static ParameterizedQueryContext Query<TParameters>(
             this DbConnection connection,
-            PreparedQueryContext prepared, TParameters parameters)
+            PreparedParameterizableQueryContext prepared,
+            TParameters parameters)
             where TParameters : notnull =>
-            new QueryContext(
+            new ParameterizedQueryContext(
                 connection,
                 null,
                 prepared.cc,
                 prepared.sql,
                 DynamicQueryExecutorFacade.GetParameters(
-                    ref parameters, prepared.parameterPrefix),
-                prepared.parameterPrefix);
+                    ref parameters, prepared.parameterPrefix));
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static QueryContext Query<TParameters>(
-            this DbConnection connection, DbTransaction transaction,
-            PreparedQueryContext prepared, TParameters parameters)
+        public static ParameterizedQueryContext Query<TParameters>(
+            this DbConnection connection,
+            DbTransaction transaction,
+            PreparedParameterizableQueryContext prepared,
+            TParameters parameters)
             where TParameters : notnull =>
-            new QueryContext(
+            new ParameterizedQueryContext(
                 connection,
                 transaction,
                 prepared.cc,
                 prepared.sql,
                 DynamicQueryExecutorFacade.GetParameters(
-                    ref parameters, prepared.parameterPrefix),
-                prepared.parameterPrefix);
+                    ref parameters, prepared.parameterPrefix));
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static QueryContext<T> Query<T, TParameters>(
+        public static ParameterizedQueryContext<T> Query<T, TParameters>(
             this DbConnection connection,
-            PreparedQueryContext<T> prepared, TParameters parameters)
+            PreparedParameterizableQueryContext<T> prepared,
+            TParameters parameters)
             where T : new()
             where TParameters : notnull =>
-            new QueryContext<T>(
+            new ParameterizedQueryContext<T>(
                 connection,
                 null,
                 prepared.cc,
                 prepared.fieldComparer,
                 prepared.sql,
                 DynamicQueryExecutorFacade.GetParameters(
-                    ref parameters, prepared.parameterPrefix),
-                prepared.parameterPrefix);
+                    ref parameters, prepared.parameterPrefix));
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static QueryContext<T> Query<T, TParameters>(
-            this DbConnection connection, DbTransaction transaction,
-            PreparedQueryContext<T> prepared, TParameters parameters)
+        public static ParameterizedQueryContext<T> Query<T, TParameters>(
+            this DbConnection connection,
+            DbTransaction transaction,
+            PreparedParameterizableQueryContext<T> prepared,
+            TParameters parameters)
             where T : new()
             where TParameters : notnull =>
-            new QueryContext<T>(
+            new ParameterizedQueryContext<T>(
                 connection,
                 transaction,
                 prepared.cc,
                 prepared.fieldComparer,
                 prepared.sql,
                 DynamicQueryExecutorFacade.GetParameters(
-                    ref parameters, prepared.parameterPrefix),
-                prepared.parameterPrefix);
+                    ref parameters, prepared.parameterPrefix));
 
         /////////////////////////////////////////////////////////////////////////////
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static PreparedQueryContext Parameter<TParameters>(
-            this PreparedQueryContext prepared, Func<TParameters> getter)
+        public static PreparedParameterizedQueryContext Parameter<TParameters>(
+            this PreparedParameterizableQueryContext prepared,
+            Func<TParameters> getter)
             where TParameters : notnull =>
-            new PreparedQueryContext(
+            new PreparedParameterizedQueryContext(
                 prepared.cc,
                 prepared.sql,
                 DynamicQueryExecutorFacade.GetConstructParameters(
-                    getter, prepared.parameterPrefix),
-                prepared.parameterPrefix);
+                    getter, prepared.parameterPrefix));
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static PreparedQueryContext<T> Parameter<T, TParameters>(
-            this PreparedQueryContext<T> prepared, Func<TParameters> getter)
+        public static PreparedParameterizedQueryContext<T> Parameter<T, TParameters>(
+            this PreparedParameterizableQueryContext<T> prepared,
+            Func<TParameters> getter)
             where T : new()
             where TParameters : notnull =>
-            new PreparedQueryContext<T>(
+            new PreparedParameterizedQueryContext<T>(
                 prepared.cc,
                 prepared.fieldComparer,
                 prepared.sql,
                 DynamicQueryExecutorFacade.GetConstructParameters(
-                    getter, prepared.parameterPrefix),
-                prepared.parameterPrefix);
+                    getter, prepared.parameterPrefix));
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static QueryContext Parameter<TParameters>(
-            this QueryContext query, TParameters parameters)
+        public static ParameterizedQueryContext Parameter<TParameters>(
+            this ParameterizableQueryContext query,
+            TParameters parameters)
             where TParameters : notnull =>
-            new QueryContext(
+            new ParameterizedQueryContext(
                 query.connection,
                 query.transaction,
                 query.cc,
                 query.sql,
                 DynamicQueryExecutorFacade.GetParameters(
-                    ref parameters, query.parameterPrefix),
-                query.parameterPrefix);
+                    ref parameters, query.parameterPrefix));
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static QueryContext<T> Parameter<T, TParameters>(
-            this QueryContext<T> query, TParameters parameters)
+        public static ParameterizedQueryContext<T> Parameter<T, TParameters>(
+            this ParameterizableQueryContext<T> query,
+            TParameters parameters)
             where T : new()
             where TParameters : notnull =>
-            new QueryContext<T>(
+            new ParameterizedQueryContext<T>(
                 query.connection,
                 query.transaction,
                 query.cc,
                 query.fieldComparer,
                 query.sql,
                 DynamicQueryExecutorFacade.GetParameters(
-                    ref parameters, query.parameterPrefix),
-                query.parameterPrefix);
+                    ref parameters, query.parameterPrefix));
 
         /////////////////////////////////////////////////////////////////////////////
 
