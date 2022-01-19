@@ -20,9 +20,27 @@ namespace FlyFlint.Internal.Dynamic
         public delegate object? MemberGetter<T>(ref T element);
         public delegate void MemberSetter<T>(ref T element, object? value);
 
+        public struct Metadata<TAccessor>
+            where TAccessor : Delegate
+        {
+            public readonly string FieldName;
+            public readonly Type FieldType;
+            public readonly TAccessor Accessor;
+
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+            public Metadata(string fieldName, Type fieldType, TAccessor accessor)
+            {
+                this.FieldName = fieldName;
+                this.FieldType = fieldType;
+                this.Accessor = accessor;
+            }
+        }
+
         private static class GetterMetadata<T>
         {
-            public static readonly (string name, Type type, MemberGetter<T> getter)[] Members;
+            public static readonly Metadata<MemberGetter<T>>[] Members;
 
             static GetterMetadata()
             {
@@ -36,7 +54,7 @@ namespace FlyFlint.Internal.Dynamic
                     ToArray()!;
             }
 
-            private static (string name, Type type, MemberGetter<T> getter)? GetTargetMember(
+            private static Metadata<MemberGetter<T>>? GetTargetMember(
                 MemberInfo member, bool requiredDataMemberAttribute)
             {
                 if (member is FieldInfo fi)
@@ -45,14 +63,16 @@ namespace FlyFlint.Internal.Dynamic
                         attributes.Length >= 1)
                     {
                         var name = attributes[0].Name;
-                        return (QueryHelper.IsNullOrWhiteSpace(name) ? fi.Name : name!,
+                        return new Metadata<MemberGetter<T>>(
+                            QueryHelper.IsNullOrWhiteSpace(name) ? fi.Name : name!,
                             fi.FieldType,
                             (MemberGetter<T>)DynamicMemberAccessor.CreateDirectGetter(fi).
                                 CreateDelegate(typeof(MemberGetter<T>)));
                     }
                     else if (!requiredDataMemberAttribute && fi.IsPublic)
                     {
-                        return (fi.Name,
+                        return new Metadata<MemberGetter<T>>(
+                            fi.Name,
                             fi.FieldType,
                             (MemberGetter<T>)DynamicMemberAccessor.CreateDirectGetter(fi).
                                 CreateDelegate(typeof(MemberGetter<T>)));
@@ -67,14 +87,16 @@ namespace FlyFlint.Internal.Dynamic
                             attributes.Length >= 1)
                         {
                             var name = attributes[0].Name;
-                            return (QueryHelper.IsNullOrWhiteSpace(name) ? pi.Name : name!,
+                            return new Metadata<MemberGetter<T>>(
+                                QueryHelper.IsNullOrWhiteSpace(name) ? pi.Name : name!,
                                 pi.PropertyType,
                                 (MemberGetter<T>)DynamicMemberAccessor.CreateDirectGetter(pi).
                                     CreateDelegate(typeof(MemberGetter<T>)));
                         }
                         else if (!requiredDataMemberAttribute && getter.IsPublic)
                         {
-                            return (pi.Name,
+                            return new Metadata<MemberGetter<T>>(
+                                pi.Name,
                                 pi.PropertyType,
                                 (MemberGetter<T>)DynamicMemberAccessor.CreateDirectGetter(pi).
                                     CreateDelegate(typeof(MemberGetter<T>)));
@@ -88,7 +110,7 @@ namespace FlyFlint.Internal.Dynamic
 
         private static class SetterMetadata<T>
         {
-            public static readonly (string name, Type type, MemberSetter<T> setter)[] Members;
+            public static readonly Metadata<MemberSetter<T>>[] Members;
 
             static SetterMetadata()
             {
@@ -102,7 +124,7 @@ namespace FlyFlint.Internal.Dynamic
                     ToArray()!;
             }
 
-            private static (string name, Type type, MemberSetter<T> setter)? GetTargetMember(
+            private static Metadata<MemberSetter<T>>? GetTargetMember(
                 MemberInfo member, bool requiredDataMemberAttribute)
             {
                 if (member is FieldInfo fi)
@@ -113,14 +135,16 @@ namespace FlyFlint.Internal.Dynamic
                             attributes.Length >= 1)
                         {
                             var name = attributes[0].Name;
-                            return (QueryHelper.IsNullOrWhiteSpace(name) ? fi.Name : name!,
+                            return new Metadata<MemberSetter<T>>(
+                                QueryHelper.IsNullOrWhiteSpace(name) ? fi.Name : name!,
                                 fi.FieldType,
                                 (MemberSetter<T>)DynamicMemberAccessor.CreateDirectSetter(fi).
                                     CreateDelegate(typeof(MemberSetter<T>)));
                         }
                         else if (!requiredDataMemberAttribute && fi.IsPublic)
                         {
-                            return (fi.Name,
+                            return new Metadata<MemberSetter<T>>(
+                                fi.Name,
                                 fi.FieldType,
                                 (MemberSetter<T>)DynamicMemberAccessor.CreateDirectSetter(fi).
                                     CreateDelegate(typeof(MemberSetter<T>)));
@@ -136,14 +160,16 @@ namespace FlyFlint.Internal.Dynamic
                             attributes.Length >= 1)
                         {
                             var name = attributes[0].Name;
-                            return (QueryHelper.IsNullOrWhiteSpace(name) ? pi.Name : name!,
+                            return new Metadata<MemberSetter<T>>(
+                                QueryHelper.IsNullOrWhiteSpace(name) ? pi.Name : name!,
                                 pi.PropertyType,
                                 (MemberSetter<T>)DynamicMemberAccessor.CreateDirectSetter(pi).
                                     CreateDelegate(typeof(MemberSetter<T>)));
                         }
                         else if (!requiredDataMemberAttribute && setter.IsPublic)
                         {
-                            return (pi.Name,
+                            return new Metadata<MemberSetter<T>>(
+                                pi.Name,
                                 pi.PropertyType,
                                 (MemberSetter<T>)DynamicMemberAccessor.CreateDirectSetter(pi).
                                     CreateDelegate(typeof(MemberSetter<T>)));
@@ -158,13 +184,13 @@ namespace FlyFlint.Internal.Dynamic
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static (string name, Type type, MemberGetter<T> getter)[] GetGetterMetadataList<T>() =>
+        public static Metadata<MemberGetter<T>>[] GetGetterMetadataList<T>() =>
             GetterMetadata<T>.Members;
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static (string name, Type type, MemberSetter<T> setter)[] GetSetterMetadataList<T>() =>
+        public static Metadata<MemberSetter<T>>[] GetSetterMetadataList<T>() =>
             SetterMetadata<T>.Members;
     }
 }

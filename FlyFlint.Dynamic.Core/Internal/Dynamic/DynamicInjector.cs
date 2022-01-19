@@ -21,7 +21,7 @@ namespace FlyFlint.Internal.Dynamic
 
         public DynamicInjector(DynamicDataInjectionContext context)
         {
-            var (dbFieldNames, dbFieldMetadataList) =
+            var metadataMap =
                 QueryHelper.CreateSortedMetadataMap(context.reader, context.fieldComparer);
             var members =
                 DynamicHelper.GetSetterMetadataList<T>();
@@ -30,16 +30,16 @@ namespace FlyFlint.Internal.Dynamic
             for (var index = 0; index < members.Length; index++)
             {
                 var member = members[index];
-                var dbFieldNameIndiciesIndex = Array.BinarySearch(dbFieldNames, member.name);
+                var dbFieldNameIndiciesIndex = Array.BinarySearch(metadataMap.FieldNames, member.FieldName);
                 if (dbFieldNameIndiciesIndex >= 0)
                 {
-                    var dbFieldMetadata = dbFieldMetadataList[dbFieldNameIndiciesIndex];
+                    var dbFieldMetadata = metadataMap.MetadataList[dbFieldNameIndiciesIndex];
 
-                    var ut = Nullable.GetUnderlyingType(member.type) ?? member.type;
+                    var ut = Nullable.GetUnderlyingType(member.FieldType) ?? member.FieldType;
                     dbFieldMetadata.StoreDirect = ut == dbFieldMetadata.Type;
 
                     candidates.Add((ref T element) =>
-                        member.setter(ref element, context.GetValue(dbFieldMetadata, member.type)));
+                        member.Accessor(ref element, context.GetValue(dbFieldMetadata, member.FieldType)));
                 }
             }
 

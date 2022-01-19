@@ -49,7 +49,8 @@ namespace FlyFlint.Internal.Dynamic
                 for (var index = 0; index < ps.Length; index++)
                 {
                     var m = members[index];
-                    ps[index] = new KeyValuePair<string, object?>(parameterPrefix + m.name, m.getter(ref parameters));
+                    ps[index] = new KeyValuePair<string, object?>(
+                        parameterPrefix + m.FieldName, m.Accessor(ref parameters));
                 }
                 return ps;
             };
@@ -63,7 +64,8 @@ namespace FlyFlint.Internal.Dynamic
             for (var index = 0; index < ps.Length; index++)
             {
                 var m = members[index];
-                ps[index] = new KeyValuePair<string, object?>(parameterPrefix + m.name, m.getter(ref parameters));
+                ps[index] = new KeyValuePair<string, object?>(
+                    parameterPrefix + m.FieldName, m.Accessor(ref parameters));
             }
             return ps;
         }

@@ -57,7 +57,22 @@ namespace FlyFlint.Internal
 
         /////////////////////////////////////////////////////////////////////
 
-        public static (string[], DataInjectionMetadata[]) CreateSortedMetadataMap(
+        public struct MetadataMap
+        {
+            public readonly string[] FieldNames;
+            public readonly DataInjectionMetadata[] MetadataList;
+
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+            public MetadataMap(string[] fieldNames, DataInjectionMetadata[] metadataList)
+            {
+                this.FieldNames = fieldNames;
+                this.MetadataList = metadataList;
+            }
+        }
+
+        public static MetadataMap CreateSortedMetadataMap(
             DbDataReader reader, IComparer<string> fieldComparer)
         {
             var dbFieldCount = reader.FieldCount;
@@ -74,7 +89,7 @@ namespace FlyFlint.Internal
 
             Array.Sort(dbFieldNames, dbFieldMetadataList, fieldComparer);
 
-            return (dbFieldNames, dbFieldMetadataList);
+            return new MetadataMap(dbFieldNames, dbFieldMetadataList);
         }
     }
 }

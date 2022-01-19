@@ -37,7 +37,7 @@ namespace FlyFlint.Context
         [EditorBrowsable(EditorBrowsableState.Never)]
         public DataInjectionMetadata[] Prepare(KeyValuePair<string, Type>[] members)
         {
-            var (dbFieldNames, dbFieldMetadataList) =
+            var metadataMap =
                 QueryHelper.CreateSortedMetadataMap(this.reader, this.fieldComparer);
 
             var candidates = new List<DataInjectionMetadata>(members.Length);
@@ -45,10 +45,10 @@ namespace FlyFlint.Context
             {
                 var member = members[index];
                 var dbFieldNameIndiciesIndex =
-                    Array.BinarySearch(dbFieldNames, member.Key, this.fieldComparer);
+                    Array.BinarySearch(metadataMap.FieldNames, member.Key, this.fieldComparer);
                 if (dbFieldNameIndiciesIndex >= 0)
                 {
-                    var dbFieldMetadata = dbFieldMetadataList[dbFieldNameIndiciesIndex];
+                    var dbFieldMetadata = metadataMap.MetadataList[dbFieldNameIndiciesIndex];
 
                     var ut = Nullable.GetUnderlyingType(member.Value) ?? member.Value;
                     dbFieldMetadata.StoreDirect = ut == dbFieldMetadata.Type;
