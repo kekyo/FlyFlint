@@ -27,23 +27,45 @@ namespace FlyFlint
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static PreparedQueryContext Prepare(string sql) =>
+        public static PreparedQueryContext Prepare(QueryString sql) =>
             new PreparedQueryContext(
                 ConversionContext.Default,
-                sql,
+                sql.Sql,
                 constructDefaultParameters,
                 defaultParameterPrefix);
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static PreparedQueryContext<T> Prepare<T>(string sql)
+        public static PreparedQueryContext<T> Prepare<T>(QueryString sql)
             where T : new() =>
             new PreparedQueryContext<T>(
                 ConversionContext.Default,
                 defaultFieldComparer,
-                sql,
+                sql.Sql,
                 constructDefaultParameters,
+                defaultParameterPrefix);
+
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public static PreparedQueryContext Prepare(FormattableString sql) =>
+            new PreparedQueryContext(
+                ConversionContext.Default,
+                QueryHelper.GetFormattedSqlString(sql, defaultParameterPrefix),
+                () => QueryHelper.GetSqlParameters(sql, defaultParameterPrefix),   // TODO: too late
+                defaultParameterPrefix);
+
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public static PreparedQueryContext<T> Prepare<T>(FormattableString sql)
+            where T : new() =>
+            new PreparedQueryContext<T>(
+                ConversionContext.Default,
+                defaultFieldComparer,
+                QueryHelper.GetFormattedSqlString(sql, defaultParameterPrefix),
+                () => QueryHelper.GetSqlParameters(sql, defaultParameterPrefix),   // TODO: too late
                 defaultParameterPrefix);
     }
 }

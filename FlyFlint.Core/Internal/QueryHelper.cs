@@ -34,6 +34,20 @@ namespace FlyFlint.Internal
 
         /////////////////////////////////////////////////////////////////////
 
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public static string GetFormattedSqlString(FormattableString fs, string parameterPrefix) =>
+            string.Format(fs.Format, fs.GetArguments().Select((arg, index) => parameterPrefix + "arg" + index).ToArray());
+
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public static KeyValuePair<string, object?>[] GetSqlParameters(FormattableString fs, string parameterPrefix) =>
+            fs.GetArguments().Select((arg, index) => new KeyValuePair<string, object?>(parameterPrefix + "arg" + index, arg)).ToArray();
+
+        /////////////////////////////////////////////////////////////////////
+
         public static DbCommand CreateCommand(
             DbConnection connection, DbTransaction? transaction,
             string sql, KeyValuePair<string, object?>[] parameters)

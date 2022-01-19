@@ -81,5 +81,33 @@ namespace FlyFlint
 
             await Verify(targets.Select(element => $"{element.Id},{element.Name},{element.Birth.ToString(CultureInfo.InvariantCulture)}"));
         }
+
+        [Test]
+        public async Task QueryWithInlinedParameter()
+        {
+            DynamicQuery.Enable();
+
+            using var connection = new SQLiteConnection("Data Source=:memory:");
+            await connection.OpenAsync();
+
+            var c = connection.CreateCommand();
+            c.CommandType = CommandType.Text;
+            c.CommandText = "CREATE TABLE target (Id INTEGER PRIMARY KEY,Name TEXT,Birth TEXT)";
+            await c.ExecuteNonQueryAsync();
+
+            c.CommandText = "INSERT INTO target VALUES (1,'AAAAA','2022/01/23 12:34:56.789')";
+            await c.ExecuteNonQueryAsync();
+            c.CommandText = "INSERT INTO target VALUES (2,'BBBBB','2022/01/23 12:34:57.789')";
+            await c.ExecuteNonQueryAsync();
+            c.CommandText = "INSERT INTO target VALUES (3,'CCCCC','2022/01/23 12:34:58.789')";
+            await c.ExecuteNonQueryAsync();
+
+            var idparam = 2;
+            var qc = QueryExtension.Query<Target>(
+                connection, $"SELECT * FROM target WHERE Id = {idparam}");
+            var targets = await QueryFacadeExtension.ExecuteAsync(qc).ToArrayAsync();
+
+            await Verify(targets.Select(element => $"{element.Id},{element.Name},{element.Birth.ToString(CultureInfo.InvariantCulture)}"));
+        }
     }
 }

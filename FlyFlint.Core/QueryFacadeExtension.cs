@@ -24,13 +24,13 @@ namespace FlyFlint
 #endif
         public static QueryContext Query<TParameters>(
             this DbConnection connection,
-            string sql, TParameters parameters)
+            QueryString sql, TParameters parameters)
             where TParameters : notnull =>
             new QueryContext(
                 connection,
                 null,
                 ConversionContext.Default,
-                sql,
+                sql.Sql,
                 DynamicQueryExecutorFacade.GetParameters(
                     ref parameters, FlyFlint.Query.defaultParameterPrefix),
                 FlyFlint.Query.defaultParameterPrefix);
@@ -40,13 +40,13 @@ namespace FlyFlint
 #endif
         public static QueryContext Query<TParameters>(
             this DbConnection connection, DbTransaction transaction,
-            string sql, TParameters parameters)
+            QueryString sql, TParameters parameters)
             where TParameters : notnull =>
             new QueryContext(
                 connection,
                 transaction,
                 ConversionContext.Default,
-                sql,
+                sql.Sql,
                 DynamicQueryExecutorFacade.GetParameters(
                     ref parameters, FlyFlint.Query.defaultParameterPrefix),
                 FlyFlint.Query.defaultParameterPrefix);

@@ -8,6 +8,7 @@
 ////////////////////////////////////////////////////////////////////////////
 
 using FlyFlint.Context;
+using FlyFlint.Internal;
 using System;
 using System.Data.Common;
 using System.Runtime.CompilerServices;
@@ -21,12 +22,43 @@ namespace FlyFlint
 #endif
         public static QueryContext Query(
             this DbConnection connection,
-            string sql) =>
+            QueryString sql) =>
             new QueryContext(
                 connection,
                 null,
                 ConversionContext.Default,
-                sql,
+                sql.Sql,
+                FlyFlint.Query.defaultParameters,
+                FlyFlint.Query.defaultParameterPrefix);
+
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public static QueryContext Query(
+            this DbConnection connection,
+            FormattableString sql) =>
+            new QueryContext(
+                connection,
+                null,
+                ConversionContext.Default,
+                QueryHelper.GetFormattedSqlString(sql, FlyFlint.Query.defaultParameterPrefix),
+                QueryHelper.GetSqlParameters(sql, FlyFlint.Query.defaultParameterPrefix),
+                FlyFlint.Query.defaultParameterPrefix);
+
+        /////////////////////////////////////////////////////////////////////////////
+
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public static QueryContext Query(
+            this DbConnection connection,
+            DbTransaction transaction,
+            QueryString sql) =>
+            new QueryContext(
+                connection,
+                transaction,
+                ConversionContext.Default,
+                sql.Sql,
                 FlyFlint.Query.defaultParameters,
                 FlyFlint.Query.defaultParameterPrefix);
 
@@ -36,12 +68,30 @@ namespace FlyFlint
         public static QueryContext Query(
             this DbConnection connection,
             DbTransaction transaction,
-            string sql) =>
+            FormattableString sql) =>
             new QueryContext(
                 connection,
                 transaction,
                 ConversionContext.Default,
-                sql,
+                QueryHelper.GetFormattedSqlString(sql, FlyFlint.Query.defaultParameterPrefix),
+                QueryHelper.GetSqlParameters(sql, FlyFlint.Query.defaultParameterPrefix),
+                FlyFlint.Query.defaultParameterPrefix);
+
+        /////////////////////////////////////////////////////////////////////////////
+
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public static QueryContext<T> Query<T>(
+            this DbConnection connection,
+            QueryString sql)
+            where T : new() =>
+            new QueryContext<T>(
+                connection,
+                null,
+                ConversionContext.Default,
+                FlyFlint.Query.defaultFieldComparer,
+                sql.Sql,
                 FlyFlint.Query.defaultParameters,
                 FlyFlint.Query.defaultParameterPrefix);
 
@@ -50,14 +100,33 @@ namespace FlyFlint
 #endif
         public static QueryContext<T> Query<T>(
             this DbConnection connection,
-            string sql)
+            FormattableString sql)
             where T : new() =>
             new QueryContext<T>(
                 connection,
                 null,
                 ConversionContext.Default,
                 FlyFlint.Query.defaultFieldComparer,
-                sql,
+                QueryHelper.GetFormattedSqlString(sql, FlyFlint.Query.defaultParameterPrefix),
+                QueryHelper.GetSqlParameters(sql, FlyFlint.Query.defaultParameterPrefix),
+                FlyFlint.Query.defaultParameterPrefix);
+
+        /////////////////////////////////////////////////////////////////////////////
+
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public static QueryContext<T> Query<T>(
+            this DbConnection connection,
+            DbTransaction transaction,
+            QueryString sql)
+            where T : new() =>
+            new QueryContext<T>(
+                connection,
+                transaction,
+                ConversionContext.Default,
+                FlyFlint.Query.defaultFieldComparer,
+                sql.Sql,
                 FlyFlint.Query.defaultParameters,
                 FlyFlint.Query.defaultParameterPrefix);
 
@@ -67,16 +136,18 @@ namespace FlyFlint
         public static QueryContext<T> Query<T>(
             this DbConnection connection,
             DbTransaction transaction,
-            string sql)
+            FormattableString sql)
             where T : new() =>
             new QueryContext<T>(
                 connection,
                 transaction,
                 ConversionContext.Default,
                 FlyFlint.Query.defaultFieldComparer,
-                sql,
-                FlyFlint.Query.defaultParameters,
+                QueryHelper.GetFormattedSqlString(sql, FlyFlint.Query.defaultParameterPrefix),
+                QueryHelper.GetSqlParameters(sql, FlyFlint.Query.defaultParameterPrefix),
                 FlyFlint.Query.defaultParameterPrefix);
+
+        /////////////////////////////////////////////////////////////////////////////
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -92,11 +163,14 @@ namespace FlyFlint
                 prepared.constructParameters(),
                 prepared.parameterPrefix);
 
+        /////////////////////////////////////////////////////////////////////////////
+
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public static QueryContext Query(
-            this DbConnection connection, DbTransaction transaction,
+            this DbConnection connection,
+            DbTransaction transaction,
             PreparedQueryContext prepared) =>
             new QueryContext(
                 connection,
@@ -105,6 +179,8 @@ namespace FlyFlint
                 prepared.sql,
                 prepared.constructParameters(),
                 prepared.parameterPrefix);
+
+        /////////////////////////////////////////////////////////////////////////////
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -122,11 +198,14 @@ namespace FlyFlint
                 prepared.constructParameters(),
                 prepared.parameterPrefix);
 
+        /////////////////////////////////////////////////////////////////////////////
+
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public static QueryContext<T> Query<T>(
-            this DbConnection connection, DbTransaction transaction,
+            this DbConnection connection,
+            DbTransaction transaction,
             PreparedQueryContext<T> prepared)
             where T : new() =>
             new QueryContext<T>(
