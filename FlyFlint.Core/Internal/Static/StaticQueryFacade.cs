@@ -27,14 +27,14 @@ namespace FlyFlint.Internal.Static
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static ParameterizedQueryContext Query<TParameters>(
             DbConnection connection,
-            string sql,
+            PartialQueryString sql,
             TParameters parameters)
             where TParameters : notnull, IParameterExtractable =>
             new ParameterizedQueryContext(
                 connection,
                 null,
                 ConversionContext.Default,
-                sql,
+                sql.Sql,
                 StaticQueryExecutor.GetParameters(
                     ref parameters, FlyFlint.Query.defaultParameterPrefix));
 
@@ -45,14 +45,14 @@ namespace FlyFlint.Internal.Static
         public static ParameterizedQueryContext Query<TParameters>(
             DbConnection connection,
             DbTransaction transaction,
-            string sql,
+            PartialQueryString sql,
             TParameters parameters)
             where TParameters : notnull, IParameterExtractable =>
             new ParameterizedQueryContext(
                 connection,
                 transaction,
                 ConversionContext.Default,
-                sql,
+                sql.Sql,
                 StaticQueryExecutor.GetParameters(
                     ref parameters, FlyFlint.Query.defaultParameterPrefix));
 
@@ -111,7 +111,7 @@ namespace FlyFlint.Internal.Static
             DbConnection connection,
             PreparedPartialQueryContext<TElement> prepared,
             TParameters parameters)
-            where TElement : new()
+            where TElement : IDataInjectable, new()
             where TParameters : notnull, IParameterExtractable
         {
             var built = prepared.builder();
@@ -135,7 +135,7 @@ namespace FlyFlint.Internal.Static
             DbTransaction transaction,
             PreparedPartialQueryContext<TElement> prepared,
             TParameters parameters)
-            where TElement : new()
+            where TElement : IDataInjectable, new()
             where TParameters : notnull, IParameterExtractable
         {
             var built = prepared.builder();
@@ -148,6 +148,84 @@ namespace FlyFlint.Internal.Static
                 built.sql,
                 StaticQueryExecutor.GetParameters(
                     ref parameters, prepared.parameterPrefix));
+        }
+
+        /////////////////////////////////////////////////////////////////////////////
+
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static ParameterizedQueryContext Query(
+            DbConnection connection,
+            PreparedParameterizedQueryContext prepared)
+        {
+            var built = prepared.builder();
+            return new ParameterizedQueryContext(
+                connection,
+                null,
+                prepared.cc,
+                built.sql,
+                built.parameters);
+        }
+
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static ParameterizedQueryContext Query(
+            DbConnection connection,
+            DbTransaction transaction,
+            PreparedParameterizedQueryContext prepared)
+        {
+            var built = prepared.builder();
+            return new ParameterizedQueryContext(
+                connection,
+                transaction,
+                prepared.cc,
+                built.sql,
+                built.parameters);
+        }
+
+        /////////////////////////////////////////////////////////////////////////////
+
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static ParameterizedQueryContext<TElement> Query<TElement>(
+            DbConnection connection,
+            PreparedParameterizedQueryContext<TElement> prepared)
+            where TElement : IDataInjectable, new()
+        {
+            var built = prepared.builder();
+            return new ParameterizedQueryContext<TElement>(
+                connection,
+                null,
+                prepared.cc,
+                prepared.fieldComparer,
+                built.sql,
+                built.parameters);
+        }
+
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static ParameterizedQueryContext<TElement> Query<TElement>(
+            DbConnection connection,
+            DbTransaction transaction,
+            PreparedParameterizedQueryContext<TElement> prepared)
+            where TElement : IDataInjectable, new()
+        {
+            var built = prepared.builder();
+            return new ParameterizedQueryContext<TElement>(
+                connection,
+                transaction,
+                prepared.cc,
+                prepared.fieldComparer,
+                built.sql,
+                built.parameters);
         }
 
         /////////////////////////////////////////////////////////////////////////////
@@ -177,7 +255,7 @@ namespace FlyFlint.Internal.Static
         public static PreparedParameterizedQueryContext<TElement> Parameter<TElement, TParameters>(
             PreparedPartialQueryContext<TElement> prepared,
             Func<TParameters> getter)
-            where TElement : new()
+            where TElement : IDataInjectable, new()
             where TParameters : notnull, IParameterExtractable
         {
             var (sql, parameters) = prepared.builder();
@@ -215,8 +293,8 @@ namespace FlyFlint.Internal.Static
         public static ParameterizedQueryContext<TElement> Parameter<TElement, TParameters>(
             PartialQueryContext<TElement> query,
             TParameters parameters)
-            where TElement : new()
-            where TParameters : IParameterExtractable =>
+            where TElement : IDataInjectable, new()
+            where TParameters : notnull, IParameterExtractable =>
             new ParameterizedQueryContext<TElement>(
                 query.connection,
                 query.transaction,

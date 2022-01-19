@@ -25,7 +25,7 @@ namespace FlyFlint
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static PreparedPartialQueryContext Prepare(ParameterizableQueryString sql) =>
+        public static PreparedPartialQueryContext Prepare(PartialQueryString sql) =>
             new PreparedPartialQueryContext(
                 ConversionContext.Default,
                 () => new QueryParameterBuilderResult(sql.Sql, defaultParameters),
@@ -34,7 +34,7 @@ namespace FlyFlint
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static PreparedPartialQueryContext<T> Prepare<T>(ParameterizableQueryString sql)
+        public static PreparedPartialQueryContext<T> Prepare<T>(PartialQueryString sql)
             where T : new() =>
             new PreparedPartialQueryContext<T>(
                 ConversionContext.Default,
