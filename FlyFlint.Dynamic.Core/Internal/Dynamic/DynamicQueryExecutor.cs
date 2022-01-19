@@ -9,15 +9,13 @@
 
 using FlyFlint.Context;
 using FlyFlint.Internal.Converter;
-#if NET40
+#if NET35 || NET40
 using FlyFlint.Utilities;
 #endif
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-#if NET40_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
 using System.Threading.Tasks;
-#endif
 
 namespace FlyFlint.Internal.Dynamic
 {
@@ -119,7 +117,6 @@ namespace FlyFlint.Internal.Dynamic
 
         /////////////////////////////////////////////////////////////////////
 
-#if NET40_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         public async Task<int> ExecuteNonQueryAsync(QueryContext query)
         {
             using (var command = QueryHelper.CreateCommand(
@@ -166,7 +163,6 @@ namespace FlyFlint.Internal.Dynamic
                 }
             }
         }
-#endif
 #endif
     }
 }

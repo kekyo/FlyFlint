@@ -9,14 +9,12 @@
 
 using FlyFlint.Context;
 using FlyFlint.Internal.Converter;
-#if NET40
+#if NET35 || NET40
 using FlyFlint.Utilities;
 #endif
 using System;
 using System.Collections.Generic;
-#if NET40_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
 using System.Threading.Tasks;
-#endif
 
 namespace FlyFlint.Internal.Static
 {
@@ -102,7 +100,6 @@ namespace FlyFlint.Internal.Static
 
         /////////////////////////////////////////////////////////////////////
 
-#if NET40_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         public static async Task<int> ExecuteNonQueryAsync(QueryContext query)
         {
             using (var command = QueryHelper.CreateCommand(
@@ -121,7 +118,6 @@ namespace FlyFlint.Internal.Static
                     query.cc, await command.ExecuteScalarAsync().ConfigureAwait(false));
             }
         }
-#endif
 
 #if NET461_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         public static async IAsyncEnumerable<T> ExecuteAsync<T>(QueryContext<T> query)

@@ -13,9 +13,7 @@ using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Runtime.CompilerServices;
-#if NET40_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
 using System.Threading.Tasks;
-#endif
 
 namespace FlyFlint
 {
@@ -185,7 +183,6 @@ namespace FlyFlint
 
         /////////////////////////////////////////////////////////////////////////////
 
-#if NET40_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
@@ -205,20 +202,6 @@ namespace FlyFlint
             DynamicQueryExecutorFacade.ExecuteAsync(query);
 #else
         [Obsolete("Before net461 platform, it is not supported async enumeration. Consider upgrades to net461 or upper, or `Execute()` method with `FlyFlint.Synchronized` namespace instead.", true)]
-        public static void ExecuteAsync<T>(this QueryContext<T> query)
-            where T : new() =>
-            throw new InvalidOperationException();
-#endif
-#else
-        [Obsolete("Before net40 platform, it is not supported async operation. Consider upgrades to net40 or upper, or `ExecuteNonQuery()` method with `FlyFlint.Synchronized` namespace instead.", true)]
-        public static void ExecuteNonQueryAsync(this QueryContext query) =>
-            throw new InvalidOperationException();
-
-        [Obsolete("Before net461 platform, it is not supported async operation. Consider upgrades to net40 or upper, or `ExecuteScalar()` method with `FlyFlint.Synchronized` namespace instead.", true)]
-        public static void ExecuteScalarAsync<T>(this QueryContext query) =>
-            throw new InvalidOperationException();
-
-        [Obsolete("Before net461 platform, it is not supported async operation. Consider upgrades to net461 or upper, or `Execute()` method with `FlyFlint.Synchronized` namespace instead.", true)]
         public static void ExecuteAsync<T>(this QueryContext<T> query)
             where T : new() =>
             throw new InvalidOperationException();

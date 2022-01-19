@@ -13,9 +13,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data.Common;
 using System.Runtime.CompilerServices;
-#if NET40_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
 using System.Threading.Tasks;
-#endif
 
 namespace FlyFlint.Internal.Static
 {
@@ -210,7 +208,6 @@ namespace FlyFlint.Internal.Static
 
         /////////////////////////////////////////////////////////////////////
 
-#if NET40_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
@@ -232,20 +229,6 @@ namespace FlyFlint.Internal.Static
             where T : IDataInjectable, new() =>
             StaticQueryExecutor.ExecuteAsync(query);
 #else
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public static void ExecuteAsync<T>(QueryContext<T> query)
-            where T : IDataInjectable, new() =>
-            throw new InvalidOperationException();
-#endif
-#else
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public static void ExecuteNonQueryAsync(QueryContext query) =>
-            throw new InvalidOperationException();
-
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public static void ExecuteScalarAsync<T>(QueryContext query) =>
-            throw new InvalidOperationException();
-
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static void ExecuteAsync<T>(QueryContext<T> query)
             where T : IDataInjectable, new() =>
