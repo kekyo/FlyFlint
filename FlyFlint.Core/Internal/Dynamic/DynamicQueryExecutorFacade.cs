@@ -11,7 +11,9 @@ using FlyFlint.Context;
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+#if NET40_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
 using System.Threading.Tasks;
+#endif
 
 namespace FlyFlint.Internal.Dynamic
 {
@@ -36,14 +38,16 @@ namespace FlyFlint.Internal.Dynamic
 
         /////////////////////////////////////////////////////////////////////
 
+#if NET40_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         Task<int> ExecuteNonQueryAsync(QueryContext query);
         Task<T> ExecuteScalarAsync<T>(QueryContext query);
 #if NET461_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         IAsyncEnumerable<T> ExecuteAsync<T>(QueryContext<T> query)
             where T : new();
 #endif
+#endif
     }
-    
+
     internal static class DynamicQueryExecutorFacade
     {
         private static volatile IDynamicQueryExecutor? executor;
@@ -54,6 +58,9 @@ namespace FlyFlint.Internal.Dynamic
         public static void SetDynamicQueryExecutor(IDynamicQueryExecutor executor) =>
             DynamicQueryExecutorFacade.executor = executor;
         
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
         private static IDynamicQueryExecutor GetDynamicQueryExecutor()
         {
             if (executor == null)
@@ -117,6 +124,7 @@ namespace FlyFlint.Internal.Dynamic
 
         /////////////////////////////////////////////////////////////////////
 
+#if NET40_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
@@ -134,6 +142,7 @@ namespace FlyFlint.Internal.Dynamic
         internal static IAsyncEnumerable<T> ExecuteAsync<T>(QueryContext<T> query)
             where T : new() =>
             GetDynamicQueryExecutor().ExecuteAsync(query);
+#endif
 #endif
     }
 }

@@ -13,7 +13,9 @@ using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Runtime.CompilerServices;
+#if NET40_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
 using System.Threading.Tasks;
+#endif
 
 namespace FlyFlint
 {
@@ -64,7 +66,7 @@ namespace FlyFlint
                 prepared.cc,
                 prepared.sql,
                 DynamicQueryExecutorFacade.GetParameters(
-                    ref parameters, FlyFlint.Query.defaultParameterPrefix),
+                    ref parameters, prepared.parameterPrefix),
                 prepared.parameterPrefix);
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
@@ -80,7 +82,7 @@ namespace FlyFlint
                 prepared.cc,
                 prepared.sql,
                 DynamicQueryExecutorFacade.GetParameters(
-                    ref parameters, FlyFlint.Query.defaultParameterPrefix),
+                    ref parameters, prepared.parameterPrefix),
                 prepared.parameterPrefix);
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
@@ -98,7 +100,7 @@ namespace FlyFlint
                 prepared.fieldComparer,
                 prepared.sql,
                 DynamicQueryExecutorFacade.GetParameters(
-                    ref parameters, FlyFlint.Query.defaultParameterPrefix),
+                    ref parameters, prepared.parameterPrefix),
                 prepared.parameterPrefix);
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
@@ -116,7 +118,7 @@ namespace FlyFlint
                 prepared.fieldComparer,
                 prepared.sql,
                 DynamicQueryExecutorFacade.GetParameters(
-                    ref parameters, FlyFlint.Query.defaultParameterPrefix),
+                    ref parameters, prepared.parameterPrefix),
                 prepared.parameterPrefix);
 
         /////////////////////////////////////////////////////////////////////////////
@@ -161,7 +163,7 @@ namespace FlyFlint
                 query.cc,
                 query.sql,
                 DynamicQueryExecutorFacade.GetParameters(
-                    ref parameters, FlyFlint.Query.defaultParameterPrefix),
+                    ref parameters, query.parameterPrefix),
                 query.parameterPrefix);
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
@@ -178,11 +180,12 @@ namespace FlyFlint
                 query.fieldComparer,
                 query.sql,
                 DynamicQueryExecutorFacade.GetParameters(
-                    ref parameters, FlyFlint.Query.defaultParameterPrefix),
+                    ref parameters, query.parameterPrefix),
                 query.parameterPrefix);
 
         /////////////////////////////////////////////////////////////////////////////
 
+#if NET40_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
@@ -204,7 +207,21 @@ namespace FlyFlint
         [Obsolete("Before net461 platform, it is not supported async enumeration. Consider upgrades to net461 or upper, or `Execute()` method with `FlyFlint.Synchronized` namespace instead.", true)]
         public static void ExecuteAsync<T>(this QueryContext<T> query)
             where T : new() =>
-            throw new InvalidOperationException("Before net461 platform, it is not supported async enumeration. Consider upgrades to net461 or upper, or `Execute()` method with `FlyFlint.Synchronized` namespace instead.");
+            throw new InvalidOperationException();
+#endif
+#else
+        [Obsolete("Before net40 platform, it is not supported async operation. Consider upgrades to net40 or upper, or `ExecuteNonQuery()` method with `FlyFlint.Synchronized` namespace instead.", true)]
+        public static void ExecuteNonQueryAsync(this QueryContext query) =>
+            throw new InvalidOperationException();
+
+        [Obsolete("Before net461 platform, it is not supported async operation. Consider upgrades to net40 or upper, or `ExecuteScalar()` method with `FlyFlint.Synchronized` namespace instead.", true)]
+        public static void ExecuteScalarAsync<T>(this QueryContext query) =>
+            throw new InvalidOperationException();
+
+        [Obsolete("Before net461 platform, it is not supported async operation. Consider upgrades to net461 or upper, or `Execute()` method with `FlyFlint.Synchronized` namespace instead.", true)]
+        public static void ExecuteAsync<T>(this QueryContext<T> query)
+            where T : new() =>
+            throw new InvalidOperationException();
 #endif
     }
 }

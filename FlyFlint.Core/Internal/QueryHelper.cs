@@ -12,12 +12,28 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Linq;
+using System.Runtime.CompilerServices;
+#if NET40_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
 using System.Threading.Tasks;
+#endif
 
 namespace FlyFlint.Internal
 {
     internal static class QueryHelper
     {
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public static bool IsNullOrWhiteSpace(string? str) =>
+#if NET35
+            string.IsNullOrEmpty(str) || str.All(char.IsWhiteSpace);
+#else
+            string.IsNullOrWhiteSpace(str);
+#endif
+
+        /////////////////////////////////////////////////////////////////////
+
         public static DbCommand CreateCommand(
             DbConnection connection, DbTransaction? transaction,
             string sql, KeyValuePair<string, object?>[] parameters)
@@ -60,14 +76,5 @@ namespace FlyFlint.Internal
 
             return (dbFieldNames, dbFieldMetadataList);
         }
-        
-        /////////////////////////////////////////////////////////////////////
-
-#if NET40
-        public static Task<int> ExecuteNonQueryAsync(this DbCommand command) =>
-            Task.Factory.StartNew(command.ExecuteNonQuery);
-        public static Task<object?> ExecuteScalarAsync(this DbCommand command) =>
-            Task.Factory.StartNew(command.ExecuteScalar);
-#endif
     }
 }

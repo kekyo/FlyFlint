@@ -7,13 +7,13 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
+#if NET461_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace FlyFlint.Utilities
 {
-#if NET461_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
     // Simple and fun staff for easy usable async LINQ.
     // If you need for more complex usage, please use `System.Linq.Async` NuGet package instead.
     public static class AsyncEnumerableExtension
@@ -189,5 +189,5 @@ namespace FlyFlint.Utilities
             return defaultValue;
         }
     }
-#endif
 }
+#endif

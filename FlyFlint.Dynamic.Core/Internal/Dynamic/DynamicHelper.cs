@@ -45,7 +45,7 @@ namespace FlyFlint.Internal.Dynamic
                         attributes.Length >= 1)
                     {
                         var name = attributes[0].Name;
-                        return (string.IsNullOrWhiteSpace(name) ? fi.Name : name,
+                        return (QueryHelper.IsNullOrWhiteSpace(name) ? fi.Name : name!,
                             fi.FieldType,
                             (MemberGetter<T>)DynamicMemberAccessor.CreateDirectGetter(fi).
                                 CreateDelegate(typeof(MemberGetter<T>)));
@@ -67,7 +67,7 @@ namespace FlyFlint.Internal.Dynamic
                             attributes.Length >= 1)
                         {
                             var name = attributes[0].Name;
-                            return (string.IsNullOrWhiteSpace(name) ? pi.Name : name,
+                            return (QueryHelper.IsNullOrWhiteSpace(name) ? pi.Name : name!,
                                 pi.PropertyType,
                                 (MemberGetter<T>)DynamicMemberAccessor.CreateDirectGetter(pi).
                                     CreateDelegate(typeof(MemberGetter<T>)));
@@ -113,7 +113,7 @@ namespace FlyFlint.Internal.Dynamic
                             attributes.Length >= 1)
                         {
                             var name = attributes[0].Name;
-                            return (string.IsNullOrWhiteSpace(name) ? fi.Name : name,
+                            return (QueryHelper.IsNullOrWhiteSpace(name) ? fi.Name : name!,
                                 fi.FieldType,
                                 (MemberSetter<T>)DynamicMemberAccessor.CreateDirectSetter(fi).
                                     CreateDelegate(typeof(MemberSetter<T>)));
@@ -136,7 +136,7 @@ namespace FlyFlint.Internal.Dynamic
                             attributes.Length >= 1)
                         {
                             var name = attributes[0].Name;
-                            return (string.IsNullOrWhiteSpace(name) ? pi.Name : name,
+                            return (QueryHelper.IsNullOrWhiteSpace(name) ? pi.Name : name!,
                                 pi.PropertyType,
                                 (MemberSetter<T>)DynamicMemberAccessor.CreateDirectSetter(pi).
                                     CreateDelegate(typeof(MemberSetter<T>)));
