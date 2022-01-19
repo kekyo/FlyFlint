@@ -32,32 +32,33 @@ namespace FlyFlint.Internal.Dynamic
 
         /////////////////////////////////////////////////////////////////////
 
-        public ConstructParameters GetConstructParameters<TParameters>(Func<TParameters> getter, string parameterPrefix)
+        public Func<KeyValuePair<string, object?>[]> GetConstructParameters<TParameters>(
+            Func<TParameters> getter, string parameterPrefix)
             where TParameters : notnull
         {
             var members = DynamicHelper.GetGetterMetadataList<TParameters>();
             return () =>
             {
                 var parameters = getter();
-                var ps = new (string name, object? value)[members.Length];
+                var ps = new KeyValuePair<string, object?>[members.Length];
                 for (var index = 0; index < ps.Length; index++)
                 {
                     var m = members[index];
-                    ps[index] = (parameterPrefix + m.name, m.getter(ref parameters));
+                    ps[index] = new KeyValuePair<string, object?>(parameterPrefix + m.name, m.getter(ref parameters));
                 }
                 return ps;
             };
         }
 
-        public (string name, object? value)[] GetParameters<TParameters>(ref TParameters parameters, string parameterPrefix)
+        public KeyValuePair<string, object?>[] GetParameters<TParameters>(ref TParameters parameters, string parameterPrefix)
             where TParameters : notnull
         {
             var members = DynamicHelper.GetGetterMetadataList<TParameters>();
-            var ps = new (string name, object? value)[members.Length];
+            var ps = new KeyValuePair<string, object?>[members.Length];
             for (var index = 0; index < ps.Length; index++)
             {
                 var m = members[index];
-                ps[index] = (parameterPrefix + m.name, m.getter(ref parameters));
+                ps[index] = new KeyValuePair<string, object?>(parameterPrefix + m.name, m.getter(ref parameters));
             }
             return ps;
         }

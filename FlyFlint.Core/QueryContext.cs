@@ -20,7 +20,7 @@ namespace FlyFlint
         internal readonly DbTransaction? transaction;
         internal readonly ConversionContext cc;
         internal readonly string sql;
-        internal readonly (string name, object? value)[] parameters;
+        internal readonly KeyValuePair<string, object?>[] parameters;
         internal readonly string parameterPrefix;
 
 #if !NET40
@@ -29,7 +29,7 @@ namespace FlyFlint
         internal QueryContext(
             DbConnection connection, DbTransaction? transaction,
             ConversionContext cc,
-            string sql, (string name, object? value)[] parameters, string parameterPrefix)
+            string sql, KeyValuePair<string, object?>[] parameters, string parameterPrefix)
         {
             this.connection = connection;
             this.transaction = transaction;
@@ -98,7 +98,7 @@ namespace FlyFlint
         internal readonly ConversionContext cc;
         internal readonly IComparer<string> fieldComparer;
         internal readonly string sql;
-        internal readonly (string name, object? value)[] parameters;
+        internal readonly KeyValuePair<string, object?>[] parameters;
         internal readonly string parameterPrefix;
 
 #if !NET40
@@ -107,7 +107,7 @@ namespace FlyFlint
         internal QueryContext(
             DbConnection connection, DbTransaction? transaction,
             ConversionContext cc, IComparer<string> fieldComparer,
-            string sql, (string name, object? value)[] parameters, string parameterPrefix)
+            string sql, KeyValuePair<string, object?>[] parameters, string parameterPrefix)
         {
             this.connection = connection;
             this.transaction = transaction;

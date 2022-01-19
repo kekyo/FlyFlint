@@ -17,7 +17,8 @@ namespace FlyFlint.Internal.Static
 {
     internal static class StaticQueryExecutor
     {
-        public static ConstructParameters GetConstructParameters<TParameters>(Func<TParameters> getter, string parameterPrefix)
+        public static Func<KeyValuePair<string, object?>[]> GetConstructParameters<TParameters>(
+            Func<TParameters> getter, string parameterPrefix)
             where TParameters : notnull, IParameterExtractable
         {
             return () =>
@@ -27,7 +28,7 @@ namespace FlyFlint.Internal.Static
             };
         }
 
-        public static (string name, object? value)[] GetParameters<TParameters>(
+        public static KeyValuePair<string, object?>[] GetParameters<TParameters>(
             ref TParameters parameters, string parameterPrefix)
             where TParameters : IParameterExtractable
         {
@@ -36,7 +37,8 @@ namespace FlyFlint.Internal.Static
             {
                 for (var index = 0; index < extracted.Length; index++)
                 {
-                    extracted[index].name = parameterPrefix + extracted[index].name;
+                    extracted[index] = new KeyValuePair<string, object?>(
+                        parameterPrefix + extracted[index].Key, extracted[index].Value);
                 }
             }
             return extracted;

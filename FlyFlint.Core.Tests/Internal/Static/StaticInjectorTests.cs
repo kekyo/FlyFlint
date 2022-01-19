@@ -10,6 +10,7 @@
 using FlyFlint.Context;
 using NUnit.Framework;
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
 using System.Threading.Tasks;
@@ -25,11 +26,11 @@ namespace FlyFlint.Internal.Static
             public string? Name;
             public DateTime Birth;
 
-            private static readonly (string, Type)[] members = new[]
+            private static readonly KeyValuePair<string, Type>[] members = new[]
             {
-                (nameof(Id), typeof(int)),
-                (nameof(Name), typeof(string)),
-                (nameof(Birth), typeof(DateTime)),
+                new KeyValuePair<string, Type>(nameof(Id), typeof(int)),
+                new KeyValuePair<string, Type>(nameof(Name), typeof(string)),
+                new KeyValuePair<string, Type>(nameof(Birth), typeof(DateTime)),
             };
 
             public DataInjectionMetadata[] Prepare(DataInjectionContext context) =>
@@ -72,11 +73,11 @@ namespace FlyFlint.Internal.Static
             public string? Name;
             public DateTime Birth;
 
-            private static readonly (string, Type)[] members = new[]
+            private static readonly KeyValuePair<string, Type>[] members = new[]
             {
-                (nameof(Id), typeof(int)),
-                (nameof(Name), typeof(string)),
-                (nameof(Birth), typeof(DateTime)),
+                new KeyValuePair<string, Type>(nameof(Id), typeof(int)),
+                new KeyValuePair<string, Type>(nameof(Name), typeof(string)),
+                new KeyValuePair<string, Type>(nameof(Birth), typeof(DateTime)),
             };
 
             public DataInjectionMetadata[] Prepare(DataInjectionContext context) =>

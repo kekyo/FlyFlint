@@ -8,7 +8,7 @@
 ////////////////////////////////////////////////////////////////////////////
 
 using FlyFlint.Context;
-using FlyFlint.Internal;
+using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
@@ -18,7 +18,7 @@ namespace FlyFlint
     {
         internal readonly ConversionContext cc;
         internal readonly string sql;
-        internal readonly ConstructParameters constructParameters;
+        internal readonly Func<KeyValuePair<string, object?>[]> constructParameters;
         internal readonly string parameterPrefix;
 
 #if !NET40
@@ -27,7 +27,7 @@ namespace FlyFlint
         internal PreparedQueryContext(
             ConversionContext cc,
             string sql,
-            ConstructParameters constructParameters, 
+            Func<KeyValuePair<string, object?>[]> constructParameters, 
             string parameterPrefix)
         {
             this.cc = cc;
@@ -75,7 +75,7 @@ namespace FlyFlint
         internal readonly ConversionContext cc;
         internal readonly IComparer<string> fieldComparer;
         internal readonly string sql;
-        internal readonly ConstructParameters constructParameters;
+        internal readonly Func<KeyValuePair<string, object?>[]> constructParameters;
         internal readonly string parameterPrefix;
 
 #if !NET40
@@ -85,7 +85,7 @@ namespace FlyFlint
             ConversionContext cc,
             IComparer<string> fieldComparer,
             string sql,
-            ConstructParameters constructParameters, 
+            Func<KeyValuePair<string, object?>[]> constructParameters, 
             string parameterPrefix)
         {
             this.cc = cc;

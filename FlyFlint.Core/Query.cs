@@ -19,9 +19,9 @@ namespace FlyFlint
     {
         internal static readonly IComparer<string> defaultFieldComparer =
             StringComparer.InvariantCultureIgnoreCase;
-        internal static readonly ConstructParameters constructDefaultParameters =
+        internal static readonly Func<KeyValuePair<string, object?>[]> constructDefaultParameters =
             new(() => defaultParameters!);
-        internal static readonly (string, object?)[] defaultParameters = { };
+        internal static readonly KeyValuePair<string, object?>[] defaultParameters = { };
         internal static readonly string defaultParameterPrefix = "@";
         
 #if !NET40

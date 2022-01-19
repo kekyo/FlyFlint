@@ -7,6 +7,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
+using FlyFlint.Context;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -15,13 +16,11 @@ using System.Threading.Tasks;
 
 namespace FlyFlint.Internal
 {
-    internal delegate (string name, object? value)[] ConstructParameters();
-
     internal static class QueryHelper
     {
         public static DbCommand CreateCommand(
             DbConnection connection, DbTransaction? transaction,
-            string sql, (string name, object? value)[] parameters)
+            string sql, KeyValuePair<string, object?>[] parameters)
         {
             var command = connection.CreateCommand();
             command.CommandType = CommandType.Text;
@@ -32,8 +31,8 @@ namespace FlyFlint.Internal
             foreach (var parameter in parameters)
             {
                 var p = command.CreateParameter();
-                p.ParameterName = parameter.name;
-                p.Value = parameter.value;
+                p.ParameterName = parameter.Key;
+                p.Value = parameter.Value;
                 pc.Add(p);
             }
 

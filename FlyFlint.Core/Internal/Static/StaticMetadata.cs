@@ -8,6 +8,7 @@
 ////////////////////////////////////////////////////////////////////////////
 
 using FlyFlint.Context;
+using System.Collections.Generic;
 using System.ComponentModel;
 
 namespace FlyFlint.Internal.Static
@@ -16,7 +17,7 @@ namespace FlyFlint.Internal.Static
     public interface IParameterExtractable
     {
         [EditorBrowsable(EditorBrowsableState.Never)]
-        (string name, object? value)[] Extract();
+        KeyValuePair<string, object?>[] Extract();
     }
 
     [EditorBrowsable(EditorBrowsableState.Never)]
