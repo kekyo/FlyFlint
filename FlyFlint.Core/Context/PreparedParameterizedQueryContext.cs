@@ -9,7 +9,6 @@
 
 using FlyFlint.Internal;
 using System;
-using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
 namespace FlyFlint.Context
@@ -20,19 +19,11 @@ namespace FlyFlint.Context
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         internal PreparedParameterizedQueryContext(
-            ConversionContext cc,
+            DatabaseTrait trait,
             Func<QueryParameterBuilderResult> builder) :
-            base(cc, builder)
+            base(trait, builder)
         {
         }
-
-#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-        public PreparedParameterizedQueryContext Conversion(ConversionContext cc) =>
-            new PreparedParameterizedQueryContext(
-                cc,
-                this.builder);
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -40,8 +31,7 @@ namespace FlyFlint.Context
         public PreparedParameterizedQueryContext<TElement> Typed<TElement>()
             where TElement : new() =>
             new PreparedParameterizedQueryContext<TElement>(
-                this.cc,
-                Query.defaultFieldComparer,
+                this.trait,
                 this.builder);
     }
 
@@ -52,29 +42,10 @@ namespace FlyFlint.Context
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         internal PreparedParameterizedQueryContext(
-            ConversionContext cc,
-            IComparer<string> fieldComparer,
+            DatabaseTrait trait,
             Func<QueryParameterBuilderResult> builder) :
-            base(cc, fieldComparer, builder)
+            base(trait, builder)
         {
         }
-
-#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-        public PreparedParameterizedQueryContext<TElement> Conversion(ConversionContext cc) =>
-            new PreparedParameterizedQueryContext<TElement>(
-                cc,
-                this.fieldComparer,
-                this.builder);
-
-#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-        public PreparedParameterizedQueryContext<TElement> FieldComparer(IComparer<string> fieldComparer) =>
-            new PreparedParameterizedQueryContext<TElement>(
-                this.cc,
-                fieldComparer,
-                this.builder);
     }
 }

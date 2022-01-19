@@ -15,41 +15,17 @@ namespace FlyFlint.Context
 {
     public sealed class PartialQueryContext : QueryContext
     {
-        internal readonly string parameterPrefix;
-
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         internal PartialQueryContext(
             DbConnection connection,
             DbTransaction? transaction,
-            ConversionContext cc,
-            string sql,
-            string parameterPrefix) :
-            base(connection, transaction, cc, sql, Query.defaultParameters) =>
-            this.parameterPrefix = parameterPrefix;
-
-#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-        public PartialQueryContext Prefix(string parameterPrefix) =>
-            new PartialQueryContext(
-                this.connection,
-                this.transaction,
-                this.cc,
-                this.sql,
-                parameterPrefix);
-
-#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-        public PartialQueryContext Conversion(ConversionContext cc) =>
-            new PartialQueryContext(
-                this.connection,
-                this.transaction,
-                cc,
-                this.sql,
-                this.parameterPrefix);
+            DatabaseTrait trait,
+            string sql) :
+            base(connection, transaction, trait, sql, DatabaseTrait.defaultParameters)
+        {
+        }
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -58,9 +34,8 @@ namespace FlyFlint.Context
             new PartialQueryContext(
                 this.connection,
                 transaction,
-                this.cc,
-                this.sql,
-                this.parameterPrefix);
+                this.trait,
+                this.sql);
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -70,64 +45,23 @@ namespace FlyFlint.Context
             new PartialQueryContext<TElement>(
                 this.connection,
                 this.transaction,
-                this.cc,
-                FlyFlint.Query.defaultFieldComparer,
-                this.sql,
-                this.parameterPrefix);
+                this.trait,
+                this.sql);
     }
 
     public sealed class PartialQueryContext<TElement> : QueryContext<TElement>
     {
-        internal readonly string parameterPrefix;
-
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         internal PartialQueryContext(
             DbConnection connection,
             DbTransaction? transaction,
-            ConversionContext cc,
-            IComparer<string> fieldComparer,
-            string sql,
-            string parameterPrefix) :
-            base(connection, transaction, cc, fieldComparer, sql, Query.defaultParameters) =>
-            this.parameterPrefix = parameterPrefix;
-
-#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-        public PartialQueryContext<TElement> Prefix(string parameterPrefix) =>
-            new PartialQueryContext<TElement>(
-                this.connection,
-                this.transaction,
-                this.cc,
-                this.fieldComparer,
-                this.sql,
-                parameterPrefix);
-
-#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-        public PartialQueryContext<TElement> Conversion(ConversionContext cc) =>
-            new PartialQueryContext<TElement>(
-                this.connection,
-                this.transaction,
-                cc,
-                this.fieldComparer,
-                this.sql,
-                this.parameterPrefix);
-
-#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-        public PartialQueryContext<TElement> FieldComparer(IComparer<string> fieldComparer) =>
-            new PartialQueryContext<TElement>(
-                this.connection,
-                this.transaction,
-                this.cc,
-                fieldComparer,
-                this.sql,
-                this.parameterPrefix);
+            DatabaseTrait trait,
+            string sql) :
+            base(connection, transaction, trait, sql, DatabaseTrait.defaultParameters)
+        {
+        }
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -136,9 +70,7 @@ namespace FlyFlint.Context
             new PartialQueryContext<TElement>(
                 this.connection,
                 transaction,
-                this.cc,
-                this.fieldComparer,
-                this.sql,
-                this.parameterPrefix);
+                this.trait,
+                this.sql);
     }
 }

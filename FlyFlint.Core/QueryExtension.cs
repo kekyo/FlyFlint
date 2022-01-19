@@ -8,7 +8,6 @@
 ////////////////////////////////////////////////////////////////////////////
 
 using FlyFlint.Context;
-using FlyFlint.Internal;
 using System;
 using System.Data.Common;
 using System.Diagnostics;
@@ -24,12 +23,7 @@ namespace FlyFlint
         public static PartialQueryContext Query(
             this DbConnection connection,
             PartialQueryString sql) =>
-            new PartialQueryContext(
-                connection,
-                null,
-                ConversionContext.Default,
-                sql.Sql,
-                FlyFlint.Query.defaultParameterPrefix);
+            FlyFlint.Query.DefaultTrait.Query(connection, sql);
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -37,12 +31,7 @@ namespace FlyFlint
         public static ParameterizedQueryContext Query(
             this DbConnection connection,
             FormattableString sql) =>
-            new ParameterizedQueryContext(
-                connection,
-                null,
-                ConversionContext.Default,
-                QueryHelper.GetFormattedSqlString(sql, FlyFlint.Query.defaultParameterPrefix),
-                QueryHelper.GetSqlParameters(sql, FlyFlint.Query.defaultParameterPrefix));
+            FlyFlint.Query.DefaultTrait.Query(connection, sql);
 
         /////////////////////////////////////////////////////////////////////////////
 
@@ -53,12 +42,7 @@ namespace FlyFlint
             this DbConnection connection,
             DbTransaction transaction,
             PartialQueryString sql) =>
-            new PartialQueryContext(
-                connection,
-                transaction,
-                ConversionContext.Default,
-                sql.Sql,
-                FlyFlint.Query.defaultParameterPrefix);
+            FlyFlint.Query.DefaultTrait.Query(connection, transaction, sql);
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -67,12 +51,7 @@ namespace FlyFlint
             this DbConnection connection,
             DbTransaction transaction,
             FormattableString sql) =>
-            new ParameterizedQueryContext(
-                connection,
-                transaction,
-                ConversionContext.Default,
-                QueryHelper.GetFormattedSqlString(sql, FlyFlint.Query.defaultParameterPrefix),
-                QueryHelper.GetSqlParameters(sql, FlyFlint.Query.defaultParameterPrefix));
+            FlyFlint.Query.DefaultTrait.Query(connection, transaction, sql);
 
         /////////////////////////////////////////////////////////////////////////////
 
@@ -83,13 +62,7 @@ namespace FlyFlint
             this DbConnection connection,
             PartialQueryString sql)
             where TElement : new() =>
-            new PartialQueryContext<TElement>(
-                connection,
-                null,
-                ConversionContext.Default,
-                FlyFlint.Query.defaultFieldComparer,
-                sql.Sql,
-                FlyFlint.Query.defaultParameterPrefix);
+            FlyFlint.Query.DefaultTrait.Query<TElement>(connection, sql);
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -98,13 +71,7 @@ namespace FlyFlint
             this DbConnection connection,
             FormattableString sql)
             where TElement : new() =>
-            new ParameterizedQueryContext<TElement>(
-                connection,
-                null,
-                ConversionContext.Default,
-                FlyFlint.Query.defaultFieldComparer,
-                QueryHelper.GetFormattedSqlString(sql, FlyFlint.Query.defaultParameterPrefix),
-                QueryHelper.GetSqlParameters(sql, FlyFlint.Query.defaultParameterPrefix));
+            FlyFlint.Query.DefaultTrait.Query<TElement>(connection, sql);
 
         /////////////////////////////////////////////////////////////////////////////
 
@@ -116,13 +83,7 @@ namespace FlyFlint
             DbTransaction transaction,
             PartialQueryString sql)
             where TElement : new() =>
-            new PartialQueryContext<TElement>(
-                connection,
-                transaction,
-                ConversionContext.Default,
-                FlyFlint.Query.defaultFieldComparer,
-                sql.Sql,
-                FlyFlint.Query.defaultParameterPrefix);
+            FlyFlint.Query.DefaultTrait.Query<TElement>(connection, transaction, sql);
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -132,13 +93,7 @@ namespace FlyFlint
             DbTransaction transaction,
             FormattableString sql)
             where TElement : new() =>
-            new ParameterizedQueryContext<TElement>(
-                connection,
-                transaction,
-                ConversionContext.Default,
-                FlyFlint.Query.defaultFieldComparer,
-                QueryHelper.GetFormattedSqlString(sql, FlyFlint.Query.defaultParameterPrefix),
-                QueryHelper.GetSqlParameters(sql, FlyFlint.Query.defaultParameterPrefix));
+            FlyFlint.Query.DefaultTrait.Query<TElement>(connection, transaction, sql);
 
         /////////////////////////////////////////////////////////////////////////////
 
@@ -153,7 +108,7 @@ namespace FlyFlint
             return new ParameterizedQueryContext(
                 connection,
                 null,
-                prepared.cc,
+                prepared.trait,
                 built.sql,
                 built.parameters);
         }
@@ -166,13 +121,12 @@ namespace FlyFlint
             PreparedPartialQueryContext prepared)
         {
             var built = prepared.builder();
-            Debug.Assert(object.ReferenceEquals(built.parameters, FlyFlint.Query.defaultParameters));
+            Debug.Assert(object.ReferenceEquals(built.parameters, DatabaseTrait.defaultParameters));
             return new PartialQueryContext(
                 connection,
                 null,
-                prepared.cc,
-                built.sql,
-                prepared.parameterPrefix);
+                prepared.trait,
+                built.sql);
         }
 
         /////////////////////////////////////////////////////////////////////////////
@@ -189,7 +143,7 @@ namespace FlyFlint
             return new ParameterizedQueryContext(
                 connection,
                 transaction,
-                prepared.cc,
+                prepared.trait,
                 built.sql,
                 built.parameters);
         }
@@ -203,13 +157,12 @@ namespace FlyFlint
             PreparedPartialQueryContext prepared)
         {
             var built = prepared.builder();
-            Debug.Assert(object.ReferenceEquals(built.parameters, FlyFlint.Query.defaultParameters));
+            Debug.Assert(object.ReferenceEquals(built.parameters, DatabaseTrait.defaultParameters));
             return new PartialQueryContext(
                 connection,
                 transaction,
-                prepared.cc,
-                built.sql,
-                prepared.parameterPrefix);
+                prepared.trait,
+                built.sql);
         }
 
         /////////////////////////////////////////////////////////////////////////////
@@ -226,8 +179,7 @@ namespace FlyFlint
             return new ParameterizedQueryContext<TElement>(
                 connection,
                 null,
-                prepared.cc,
-                prepared.fieldComparer,
+                prepared.trait,
                 built.sql,
                 built.parameters);
         }
@@ -241,14 +193,12 @@ namespace FlyFlint
             where TElement : new()
         {
             var built = prepared.builder();
-            Debug.Assert(object.ReferenceEquals(built.parameters, FlyFlint.Query.defaultParameters));
+            Debug.Assert(object.ReferenceEquals(built.parameters, DatabaseTrait.defaultParameters));
             return new PartialQueryContext<TElement>(
                 connection,
                 null,
-                prepared.cc,
-                prepared.fieldComparer,
-                built.sql,
-                prepared.parameterPrefix);
+                prepared.trait,
+                built.sql);
         }
 
         /////////////////////////////////////////////////////////////////////////////
@@ -266,8 +216,7 @@ namespace FlyFlint
             return new ParameterizedQueryContext<TElement>(
                 connection,
                 transaction,
-                prepared.cc,
-                prepared.fieldComparer,
+                prepared.trait,
                 built.sql,
                 built.parameters);
         }
@@ -282,14 +231,12 @@ namespace FlyFlint
             where TElement : new()
         {
             var built = prepared.builder();
-            Debug.Assert(object.ReferenceEquals(built.parameters, FlyFlint.Query.defaultParameters));
+            Debug.Assert(object.ReferenceEquals(built.parameters, DatabaseTrait.defaultParameters));
             return new PartialQueryContext<TElement>(
                 connection,
                 transaction,
-                prepared.cc,
-                prepared.fieldComparer,
-                built.sql,
-                prepared.parameterPrefix);
+                prepared.trait,
+                built.sql);
         }
     }
 }

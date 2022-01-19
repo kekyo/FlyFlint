@@ -64,7 +64,7 @@ namespace FlyFlint.Internal.Static
                 query.connection, query.transaction, query.sql, query.parameters))
             {
                 return InternalValueConverter<T>.converter.Convert(
-                    query.cc, command.ExecuteScalar());
+                    query.trait.cc, command.ExecuteScalar());
             }
         }
 
@@ -79,7 +79,7 @@ namespace FlyFlint.Internal.Static
                     if (reader.Read())
                     {
                         var context = new DataInjectionContext(
-                            query.cc, query.fieldComparer, reader);
+                            query.trait.cc, query.trait.fieldComparer, reader);
 
                         var element = new T();
                         var metadataList = element.Prepare(context);
@@ -115,7 +115,7 @@ namespace FlyFlint.Internal.Static
                 query.connection, query.transaction, query.sql, query.parameters))
             {
                 return InternalValueConverter<T>.converter.Convert(
-                    query.cc, await command.ExecuteScalarAsync().ConfigureAwait(false));
+                    query.trait.cc, await command.ExecuteScalarAsync().ConfigureAwait(false));
             }
         }
 
@@ -131,7 +131,7 @@ namespace FlyFlint.Internal.Static
                     if (await reader.ReadAsync().ConfigureAwait(false))
                     {
                         var context = new DataInjectionContext(
-                            query.cc, query.fieldComparer, reader);
+                            query.trait.cc, query.trait.fieldComparer, reader);
 
                         var element = new T();
                         var metadataList = element.Prepare(context);

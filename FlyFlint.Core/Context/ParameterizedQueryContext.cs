@@ -21,23 +21,12 @@ namespace FlyFlint.Context
         internal ParameterizedQueryContext(
             DbConnection connection,
             DbTransaction? transaction,
-            ConversionContext cc,
+            DatabaseTrait trait,
             string sql,
             KeyValuePair<string, object?>[] parameters) :
-            base(connection, transaction, cc, sql, parameters)
+            base(connection, transaction, trait, sql, parameters)
         {
         }
-
-#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-        public ParameterizedQueryContext Conversion(ConversionContext cc) =>
-            new ParameterizedQueryContext(
-                this.connection,
-                this.transaction,
-                cc,
-                this.sql,
-                this.parameters);
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -46,7 +35,7 @@ namespace FlyFlint.Context
             new ParameterizedQueryContext(
                 this.connection,
                 transaction,
-                this.cc,
+                this.trait,
                 this.sql,
                 this.parameters);
 
@@ -58,8 +47,7 @@ namespace FlyFlint.Context
             new ParameterizedQueryContext<TElement>(
                 this.connection,
                 this.transaction,
-                this.cc,
-                FlyFlint.Query.defaultFieldComparer,
+                this.trait,
                 this.sql,
                 this.parameters);
     }
@@ -72,37 +60,12 @@ namespace FlyFlint.Context
         internal ParameterizedQueryContext(
             DbConnection connection,
             DbTransaction? transaction,
-            ConversionContext cc,
-            IComparer<string> fieldComparer,
+            DatabaseTrait trait,
             string sql,
             KeyValuePair<string, object?>[] parameters) :
-            base(connection, transaction, cc, fieldComparer, sql, parameters)
+            base(connection, transaction, trait, sql, parameters)
         {
         }
-
-#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-        public ParameterizedQueryContext<TElement> Conversion(ConversionContext cc) =>
-            new ParameterizedQueryContext<TElement>(
-                this.connection,
-                this.transaction,
-                cc,
-                this.fieldComparer,
-                this.sql,
-                this.parameters);
-
-#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-        public ParameterizedQueryContext<TElement> FieldComparer(IComparer<string> fieldComparer) =>
-            new ParameterizedQueryContext<TElement>(
-                this.connection,
-                this.transaction,
-                this.cc,
-                fieldComparer,
-                this.sql,
-                this.parameters);
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -111,8 +74,7 @@ namespace FlyFlint.Context
             new ParameterizedQueryContext<TElement>(
                 this.connection,
                 transaction,
-                this.cc,
-                this.fieldComparer,
+                this.trait,
                 this.sql,
                 this.parameters);
     }

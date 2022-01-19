@@ -85,7 +85,7 @@ namespace FlyFlint.Internal.Dynamic
                 query.connection, query.transaction, query.sql, query.parameters))
             {
                 return InternalValueConverter<T>.converter.Convert(
-                    query.cc, command.ExecuteScalar());
+                    query.trait.cc, command.ExecuteScalar());
             }
         }
 
@@ -100,7 +100,7 @@ namespace FlyFlint.Internal.Dynamic
                     if (reader.Read())
                     {
                         var context = new DynamicDataInjectionContext(
-                            query.cc, query.fieldComparer, reader);
+                            query.trait.cc, query.trait.fieldComparer, reader);
 
                         var injector = new DynamicInjector<T>(context);
                         do
@@ -132,7 +132,7 @@ namespace FlyFlint.Internal.Dynamic
                 query.connection, query.transaction, query.sql, query.parameters))
             {
                 return InternalValueConverter<T>.converter.Convert(
-                    query.cc, await command.ExecuteScalarAsync().ConfigureAwait(false));
+                    query.trait.cc, await command.ExecuteScalarAsync().ConfigureAwait(false));
             }
         }
 
@@ -149,7 +149,7 @@ namespace FlyFlint.Internal.Dynamic
                     if (await reader.ReadAsync().ConfigureAwait(false))
                     {
                         var context = new DynamicDataInjectionContext(
-                            query.cc, query.fieldComparer, reader);
+                            query.trait.cc, query.trait.fieldComparer, reader);
 
                         var injector = new DynamicInjector<T>(context);
                         do

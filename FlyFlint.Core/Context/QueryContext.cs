@@ -17,7 +17,7 @@ namespace FlyFlint.Context
     {
         internal readonly DbConnection connection;
         internal readonly DbTransaction? transaction;
-        internal readonly ConversionContext cc;
+        internal readonly DatabaseTrait trait;
         internal readonly string sql;
         internal readonly KeyValuePair<string, object?>[] parameters;
 
@@ -27,13 +27,13 @@ namespace FlyFlint.Context
         private protected QueryContext(
             DbConnection connection,
             DbTransaction? transaction,
-            ConversionContext cc,
+            DatabaseTrait trait,
             string sql,
             KeyValuePair<string, object?>[] parameters)
         {
             this.connection = connection;
             this.transaction = transaction;
-            this.cc = cc;
+            this.trait = trait;
             this.sql = sql;
             this.parameters = parameters;
         }
@@ -43,8 +43,7 @@ namespace FlyFlint.Context
     {
         internal readonly DbConnection connection;
         internal readonly DbTransaction? transaction;
-        internal readonly ConversionContext cc;
-        internal readonly IComparer<string> fieldComparer;
+        internal readonly DatabaseTrait trait;
         internal readonly string sql;
         internal readonly KeyValuePair<string, object?>[] parameters;
 
@@ -54,15 +53,13 @@ namespace FlyFlint.Context
         private protected QueryContext(
             DbConnection connection,
             DbTransaction? transaction,
-            ConversionContext cc,
-            IComparer<string> fieldComparer,
+            DatabaseTrait trait,
             string sql,
             KeyValuePair<string, object?>[] parameters)
         {
             this.connection = connection;
             this.transaction = transaction;
-            this.cc = cc;
-            this.fieldComparer = fieldComparer;
+            this.trait = trait;
             this.sql = sql;
             this.parameters = parameters;
         }

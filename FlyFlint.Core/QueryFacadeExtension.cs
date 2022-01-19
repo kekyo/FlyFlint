@@ -32,10 +32,10 @@ namespace FlyFlint
             new ParameterizedQueryContext(
                 connection,
                 null,
-                ConversionContext.Default,
+                FlyFlint.Query.DefaultTrait,
                 sql.Sql,
                 DynamicQueryExecutorFacade.GetParameters(
-                    ref parameters, FlyFlint.Query.defaultParameterPrefix));
+                    ref parameters, FlyFlint.Query.DefaultTrait.parameterPrefix));
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -49,10 +49,10 @@ namespace FlyFlint
             new ParameterizedQueryContext(
                 connection,
                 transaction,
-                ConversionContext.Default,
+                FlyFlint.Query.DefaultTrait,
                 sql.Sql,
                 DynamicQueryExecutorFacade.GetParameters(
-                    ref parameters, FlyFlint.Query.defaultParameterPrefix));
+                    ref parameters, FlyFlint.Query.DefaultTrait.parameterPrefix));
 
         /////////////////////////////////////////////////////////////////////////////
 
@@ -66,14 +66,14 @@ namespace FlyFlint
             where TParameters : notnull
         {
             var built = prepared.builder();
-            Debug.Assert(object.ReferenceEquals(built.parameters, FlyFlint.Query.defaultParameters));
+            Debug.Assert(object.ReferenceEquals(built.parameters, DatabaseTrait.defaultParameters));
             return new ParameterizedQueryContext(
                 connection,
                 null,
-                prepared.cc,
+                prepared.trait,
                 built.sql,
                 DynamicQueryExecutorFacade.GetParameters(
-                    ref parameters, prepared.parameterPrefix));
+                    ref parameters, prepared.trait.parameterPrefix));
         }
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
@@ -87,14 +87,14 @@ namespace FlyFlint
             where TParameters : notnull
         {
             var built = prepared.builder();
-            Debug.Assert(object.ReferenceEquals(built.parameters, FlyFlint.Query.defaultParameters));
+            Debug.Assert(object.ReferenceEquals(built.parameters, DatabaseTrait.defaultParameters));
             return new ParameterizedQueryContext(
                 connection,
                 transaction,
-                prepared.cc,
+                prepared.trait,
                 built.sql,
                 DynamicQueryExecutorFacade.GetParameters(
-                    ref parameters, prepared.parameterPrefix));
+                    ref parameters, prepared.trait.parameterPrefix));
         }
 
         /////////////////////////////////////////////////////////////////////////////
@@ -110,15 +110,14 @@ namespace FlyFlint
             where TParameters : notnull
         {
             var built = prepared.builder();
-            Debug.Assert(object.ReferenceEquals(built.parameters, FlyFlint.Query.defaultParameters));
+            Debug.Assert(object.ReferenceEquals(built.parameters, DatabaseTrait.defaultParameters));
             return new ParameterizedQueryContext<TElement>(
                 connection,
                 null,
-                prepared.cc,
-                prepared.fieldComparer,
+                prepared.trait,
                 built.sql,
                 DynamicQueryExecutorFacade.GetParameters(
-                    ref parameters, prepared.parameterPrefix));
+                    ref parameters, prepared.trait.parameterPrefix));
         }
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
@@ -133,15 +132,14 @@ namespace FlyFlint
             where TParameters : notnull
         {
             var built = prepared.builder();
-            Debug.Assert(object.ReferenceEquals(built.parameters, FlyFlint.Query.defaultParameters));
+            Debug.Assert(object.ReferenceEquals(built.parameters, DatabaseTrait.defaultParameters));
             return new ParameterizedQueryContext<TElement>(
                 connection,
                 transaction,
-                prepared.cc,
-                prepared.fieldComparer,
+                prepared.trait,
                 built.sql,
                 DynamicQueryExecutorFacade.GetParameters(
-                    ref parameters, prepared.parameterPrefix));
+                    ref parameters, prepared.trait.parameterPrefix));
         }
 
         /////////////////////////////////////////////////////////////////////////////
@@ -157,7 +155,7 @@ namespace FlyFlint
             return new ParameterizedQueryContext(
                 connection,
                 null,
-                prepared.cc,
+                prepared.trait,
                 built.sql,
                 built.parameters);
         }
@@ -174,7 +172,7 @@ namespace FlyFlint
             return new ParameterizedQueryContext(
                 connection,
                 transaction,
-                prepared.cc,
+                prepared.trait,
                 built.sql,
                 built.parameters);
         }
@@ -193,8 +191,7 @@ namespace FlyFlint
             return new ParameterizedQueryContext<TElement>(
                 connection,
                 null,
-                prepared.cc,
-                prepared.fieldComparer,
+                prepared.trait,
                 built.sql,
                 built.parameters);
         }
@@ -212,8 +209,7 @@ namespace FlyFlint
             return new ParameterizedQueryContext<TElement>(
                 connection,
                 transaction,
-                prepared.cc,
-                prepared.fieldComparer,
+                prepared.trait,
                 built.sql,
                 built.parameters);
         }
@@ -229,11 +225,11 @@ namespace FlyFlint
             where TParameters : notnull
         {
             var (sql, parameters) = prepared.builder();
-            Debug.Assert(object.ReferenceEquals(parameters, FlyFlint.Query.defaultParameters));
+            Debug.Assert(object.ReferenceEquals(parameters, DatabaseTrait.defaultParameters));
             var constructParameters = DynamicQueryExecutorFacade.GetConstructParameters(
-                getter, prepared.parameterPrefix);
+                getter, prepared.trait.parameterPrefix);
             return new PreparedParameterizedQueryContext(
-                prepared.cc,
+                prepared.trait,
                 () => new QueryParameterBuilderResult(sql, constructParameters()));
         }
 
@@ -247,12 +243,11 @@ namespace FlyFlint
             where TParameters : notnull
         {
             var (sql, parameters) = prepared.builder();
-            Debug.Assert(object.ReferenceEquals(parameters, FlyFlint.Query.defaultParameters));
+            Debug.Assert(object.ReferenceEquals(parameters, DatabaseTrait.defaultParameters));
             var constructParameters = DynamicQueryExecutorFacade.GetConstructParameters(
-                getter, prepared.parameterPrefix);
+                getter, prepared.trait.parameterPrefix);
             return new PreparedParameterizedQueryContext<TElement>(
-                prepared.cc,
-                prepared.fieldComparer,
+                prepared.trait,
                 () => new QueryParameterBuilderResult(sql, constructParameters()));
         }
 
@@ -268,10 +263,10 @@ namespace FlyFlint
             new ParameterizedQueryContext(
                 query.connection,
                 query.transaction,
-                query.cc,
+                query.trait,
                 query.sql,
                 DynamicQueryExecutorFacade.GetParameters(
-                    ref parameters, query.parameterPrefix));
+                    ref parameters, query.trait.parameterPrefix));
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -284,11 +279,10 @@ namespace FlyFlint
             new ParameterizedQueryContext<TElement>(
                 query.connection,
                 query.transaction,
-                query.cc,
-                query.fieldComparer,
+                query.trait,
                 query.sql,
                 DynamicQueryExecutorFacade.GetParameters(
-                    ref parameters, query.parameterPrefix));
+                    ref parameters, query.trait.parameterPrefix));
 
         /////////////////////////////////////////////////////////////////////////////
 

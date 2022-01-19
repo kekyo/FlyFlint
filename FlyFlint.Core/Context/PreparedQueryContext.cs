@@ -16,17 +16,17 @@ namespace FlyFlint.Context
 {
     public abstract class PreparedQueryContext
     {
-        internal readonly ConversionContext cc;
+        internal readonly DatabaseTrait trait;
         internal readonly Func<QueryParameterBuilderResult> builder;
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         private protected PreparedQueryContext(
-            ConversionContext cc,
+            DatabaseTrait trait,
             Func<QueryParameterBuilderResult> builder)
         {
-            this.cc = cc;
+            this.trait = trait;
             this.builder = builder;
         }
     }
@@ -34,20 +34,17 @@ namespace FlyFlint.Context
     public abstract class PreparedQueryContext<TElement>
         where TElement : new()
     {
-        internal readonly ConversionContext cc;
-        internal readonly IComparer<string> fieldComparer;
+        internal readonly DatabaseTrait trait;
         internal readonly Func<QueryParameterBuilderResult> builder;
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         private protected PreparedQueryContext(
-            ConversionContext cc,
-            IComparer<string> fieldComparer,
+            DatabaseTrait trait,
             Func<QueryParameterBuilderResult> builder)
         {
-            this.cc = cc;
-            this.fieldComparer = fieldComparer;
+            this.trait = trait;
             this.builder = builder;
         }
     }
