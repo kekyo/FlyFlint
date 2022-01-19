@@ -20,7 +20,7 @@ namespace FlyFlint.Internal.Static
     [EditorBrowsable(EditorBrowsableState.Never)]
     public static class StaticQueryFacade
     {
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -36,7 +36,7 @@ namespace FlyFlint.Internal.Static
                 StaticQueryExecutor.GetParameters(ref parameters, FlyFlint.Query.defaultParameterPrefix),
                 FlyFlint.Query.defaultParameterPrefix);
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -52,7 +52,7 @@ namespace FlyFlint.Internal.Static
                 StaticQueryExecutor.GetParameters(ref parameters, FlyFlint.Query.defaultParameterPrefix),
                 FlyFlint.Query.defaultParameterPrefix);
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -68,7 +68,7 @@ namespace FlyFlint.Internal.Static
                 StaticQueryExecutor.GetParameters(ref parameters, prepared.parameterPrefix),
                 prepared.parameterPrefix);
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -84,7 +84,7 @@ namespace FlyFlint.Internal.Static
                 StaticQueryExecutor.GetParameters(ref parameters, prepared.parameterPrefix),
                 prepared.parameterPrefix);
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -102,7 +102,7 @@ namespace FlyFlint.Internal.Static
                 StaticQueryExecutor.GetParameters(ref parameters, prepared.parameterPrefix),
                 prepared.parameterPrefix);
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -122,7 +122,7 @@ namespace FlyFlint.Internal.Static
 
         /////////////////////////////////////////////////////////////////////////////
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -135,7 +135,7 @@ namespace FlyFlint.Internal.Static
                 StaticQueryExecutor.GetConstructParameters(getter, prepared.parameterPrefix),
                 prepared.parameterPrefix);
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -150,7 +150,7 @@ namespace FlyFlint.Internal.Static
                 StaticQueryExecutor.GetConstructParameters(getter, prepared.parameterPrefix),
                 prepared.parameterPrefix);
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -165,7 +165,7 @@ namespace FlyFlint.Internal.Static
                 StaticQueryExecutor.GetParameters(ref parameters, query.parameterPrefix),
                 query.parameterPrefix);
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -184,21 +184,21 @@ namespace FlyFlint.Internal.Static
 
         /////////////////////////////////////////////////////////////////////////////
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static void ExecuteNonQuery(QueryContext query) =>
             StaticQueryExecutor.ExecuteNonQuery(query);
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static T ExecuteScalar<T>(QueryContext query) =>
             StaticQueryExecutor.ExecuteScalar<T>(query);
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -208,21 +208,21 @@ namespace FlyFlint.Internal.Static
 
         /////////////////////////////////////////////////////////////////////
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static Task ExecuteNonQueryAsync(QueryContext query) =>
             StaticQueryExecutor.ExecuteNonQueryAsync(query);
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static Task<T> ExecuteScalarAsync<T>(QueryContext query) =>
             StaticQueryExecutor.ExecuteScalarAsync<T>(query);
 
-#if !NET40 && !NET45
+#if NET461_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static IAsyncEnumerable<T> ExecuteAsync<T>(QueryContext<T> query)

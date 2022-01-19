@@ -18,13 +18,13 @@ namespace FlyFlint
 {
     public static class ValueConverter
     {
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public static T Convert<T>(IFormatProvider fp, Encoding encoding, object? value) =>
             InternalValueConverter<T>.converter.Convert(new ConversionContext(fp, encoding), value);
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public static object? Convert(IFormatProvider fp, Encoding encoding, object? value, Type targetType) =>

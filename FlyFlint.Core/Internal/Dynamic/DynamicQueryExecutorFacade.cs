@@ -38,7 +38,7 @@ namespace FlyFlint.Internal.Dynamic
 
         Task<int> ExecuteNonQueryAsync(QueryContext query);
         Task<T> ExecuteScalarAsync<T>(QueryContext query);
-#if !NET40 && !NET45
+#if NET461_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         IAsyncEnumerable<T> ExecuteAsync<T>(QueryContext<T> query)
             where T : new();
 #endif
@@ -48,7 +48,7 @@ namespace FlyFlint.Internal.Dynamic
     {
         private static volatile IDynamicQueryExecutor? executor;
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public static void SetDynamicQueryExecutor(IDynamicQueryExecutor executor) =>
@@ -66,13 +66,13 @@ namespace FlyFlint.Internal.Dynamic
 
         /////////////////////////////////////////////////////////////////////
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         internal static object? Convert(ConversionContext context, object? value, Type targetType) =>
             GetDynamicQueryExecutor().Convert(context, value, targetType);
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         internal static object? UnsafeConvert(ConversionContext context, object value, Type targetType) =>
@@ -80,14 +80,14 @@ namespace FlyFlint.Internal.Dynamic
 
         /////////////////////////////////////////////////////////////////////
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         internal static Func<KeyValuePair<string, object?>[]> GetConstructParameters<TParameters>(Func<TParameters> getter, string parameterPrefix)
             where TParameters : notnull =>
             GetDynamicQueryExecutor().GetConstructParameters(getter, parameterPrefix);
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         internal static KeyValuePair<string, object?>[] GetParameters<TParameters>(ref TParameters parameters, string parameterPrefix)
@@ -96,19 +96,19 @@ namespace FlyFlint.Internal.Dynamic
 
         /////////////////////////////////////////////////////////////////////
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         internal static int ExecuteNonQuery(QueryContext query) =>
             GetDynamicQueryExecutor().ExecuteNonQuery(query);
         
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         internal static T ExecuteScalar<T>(QueryContext query) =>
             GetDynamicQueryExecutor().ExecuteScalar<T>(query);
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         internal static IEnumerable<T> Execute<T>(QueryContext<T> query)
@@ -117,19 +117,19 @@ namespace FlyFlint.Internal.Dynamic
 
         /////////////////////////////////////////////////////////////////////
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         internal static Task<int> ExecuteNonQueryAsync(QueryContext query) =>
             GetDynamicQueryExecutor().ExecuteNonQueryAsync(query);
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         internal static Task<T> ExecuteScalarAsync<T>(QueryContext query) =>
             GetDynamicQueryExecutor().ExecuteScalarAsync<T>(query);
 
-#if !NET40 && !NET45
+#if NET461_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static IAsyncEnumerable<T> ExecuteAsync<T>(QueryContext<T> query)
             where T : new() =>

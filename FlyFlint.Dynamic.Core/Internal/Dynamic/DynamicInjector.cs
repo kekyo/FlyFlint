@@ -46,7 +46,7 @@ namespace FlyFlint.Internal.Dynamic
             this.setters = candidates.ToArray();
         }
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public void Inject(ref T element)

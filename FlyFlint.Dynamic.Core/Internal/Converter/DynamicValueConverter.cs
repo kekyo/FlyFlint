@@ -38,12 +38,12 @@ namespace FlyFlint.Internal.Converter
 
     internal sealed class DynamicValueConverter<T> : DynamicValueConverter
     {
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public override object? Convert(ConversionContext context, object? value) =>
             InternalValueConverter<T>.converter.Convert(context, value);
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public override object? UnsafeConvert(ConversionContext context, object value) =>

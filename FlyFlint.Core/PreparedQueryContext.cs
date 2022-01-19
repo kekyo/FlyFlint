@@ -21,7 +21,7 @@ namespace FlyFlint
         internal readonly Func<KeyValuePair<string, object?>[]> constructParameters;
         internal readonly string parameterPrefix;
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         internal PreparedQueryContext(
@@ -36,7 +36,7 @@ namespace FlyFlint
             this.parameterPrefix = parameterPrefix;
         }
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public PreparedQueryContext Prefix(string parameterPrefix) =>
@@ -46,7 +46,7 @@ namespace FlyFlint
                 this.constructParameters,
                 parameterPrefix);
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public PreparedQueryContext Conversion(ConversionContext cc) =>
@@ -56,7 +56,7 @@ namespace FlyFlint
                 this.constructParameters,
                 this.parameterPrefix);
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public PreparedQueryContext<T> Typed<T>()
@@ -78,7 +78,7 @@ namespace FlyFlint
         internal readonly Func<KeyValuePair<string, object?>[]> constructParameters;
         internal readonly string parameterPrefix;
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         internal PreparedQueryContext(
@@ -95,7 +95,7 @@ namespace FlyFlint
             this.parameterPrefix = parameterPrefix;
         }
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public PreparedQueryContext<T> Prefix(string parameterPrefix) =>
@@ -106,7 +106,7 @@ namespace FlyFlint
                 this.constructParameters,
                 parameterPrefix);
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public PreparedQueryContext<T> Conversion(ConversionContext cc) =>
@@ -117,7 +117,7 @@ namespace FlyFlint
                 this.constructParameters, 
                 this.parameterPrefix);
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public PreparedQueryContext<T> FieldComparer(IComparer<string> fieldComparer) =>

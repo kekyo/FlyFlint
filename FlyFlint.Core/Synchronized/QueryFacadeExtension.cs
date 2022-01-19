@@ -15,19 +15,19 @@ namespace FlyFlint.Synchronized
 {
     public static class QueryFacadeExtension
     {
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public static int ExecuteNonQuery(this QueryContext query) =>
             DynamicQueryExecutorFacade.ExecuteNonQuery(query);
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public static T ExecuteScalar<T>(this QueryContext query) =>
             DynamicQueryExecutorFacade.ExecuteScalar<T>(query);
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public static IEnumerable<T> Execute<T>(this QueryContext<T> query)

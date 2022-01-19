@@ -24,7 +24,7 @@ namespace FlyFlint
         internal static readonly KeyValuePair<string, object?>[] defaultParameters = { };
         internal static readonly string defaultParameterPrefix = "@";
         
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public static PreparedQueryContext Prepare(string sql) =>
@@ -34,7 +34,7 @@ namespace FlyFlint
                 constructDefaultParameters,
                 defaultParameterPrefix);
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public static PreparedQueryContext<T> Prepare<T>(string sql)

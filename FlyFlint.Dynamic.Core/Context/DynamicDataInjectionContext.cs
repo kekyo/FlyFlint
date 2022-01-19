@@ -51,7 +51,7 @@ namespace FlyFlint.Context
         internal readonly IComparer<string> fieldComparer;
         internal readonly DbDataReader reader;
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         internal DynamicDataInjectionContext(
@@ -62,7 +62,7 @@ namespace FlyFlint.Context
             this.reader = reader;
         }
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         [EditorBrowsable(EditorBrowsableState.Never)]

@@ -23,7 +23,7 @@ namespace FlyFlint
         internal readonly KeyValuePair<string, object?>[] parameters;
         internal readonly string parameterPrefix;
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         internal QueryContext(
@@ -40,7 +40,7 @@ namespace FlyFlint
             this.parameterPrefix = parameterPrefix;
         }
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public QueryContext Prefix(string parameterPrefix) =>
@@ -52,7 +52,7 @@ namespace FlyFlint
                 this.parameters,
                 parameterPrefix);
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public QueryContext Conversion(ConversionContext cc) =>
@@ -64,7 +64,7 @@ namespace FlyFlint
                 this.parameters,
                 this.parameterPrefix);
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public QueryContext Transaction(DbTransaction transaction) =>
@@ -76,7 +76,7 @@ namespace FlyFlint
                 this.parameters,
                 this.parameterPrefix);
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public QueryContext<T> Typed<T>()
@@ -101,7 +101,7 @@ namespace FlyFlint
         internal readonly KeyValuePair<string, object?>[] parameters;
         internal readonly string parameterPrefix;
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         internal QueryContext(
@@ -119,7 +119,7 @@ namespace FlyFlint
             this.parameterPrefix = parameterPrefix;
         }
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public QueryContext<T> Prefix(string parameterPrefix) =>
@@ -132,7 +132,7 @@ namespace FlyFlint
                 this.parameters,
                 parameterPrefix);
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public QueryContext<T> Conversion(ConversionContext cc) =>
@@ -145,7 +145,7 @@ namespace FlyFlint
                 this.parameters,
                 this.parameterPrefix);
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public QueryContext<T> FieldComparer(IComparer<string> fieldComparer) =>
@@ -158,7 +158,7 @@ namespace FlyFlint
                 this.parameters,
                 this.parameterPrefix);
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public QueryContext<T> Transaction(DbTransaction transaction) =>

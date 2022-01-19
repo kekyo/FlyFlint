@@ -18,13 +18,13 @@ namespace FlyFlint.Internal.Dynamic
 {
     internal sealed class DynamicQueryExecutor : IDynamicQueryExecutor
     {
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public object? Convert(ConversionContext context, object? value, Type targetType) =>
             DynamicValueConverter.GetConverter(targetType).Convert(context, value);
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public object? UnsafeConvert(ConversionContext context, object value, Type targetType) =>
@@ -129,7 +129,7 @@ namespace FlyFlint.Internal.Dynamic
             }
         }
 
-#if !NET40 && !NET45
+#if NET461_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public async IAsyncEnumerable<T> ExecuteAsync<T>(QueryContext<T> query)
             where T : new()

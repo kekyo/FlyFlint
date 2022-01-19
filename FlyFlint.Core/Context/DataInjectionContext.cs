@@ -23,7 +23,7 @@ namespace FlyFlint.Context
         internal readonly IComparer<string> fieldComparer;
         internal readonly DbDataReader reader;
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         internal DataInjectionContext(
@@ -60,7 +60,7 @@ namespace FlyFlint.Context
             return candidates.ToArray();
         }
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -68,7 +68,7 @@ namespace FlyFlint.Context
             metadata.StoreDirect ? this.reader.GetBoolean(metadata.Index) :
                 this.cc.Convert<bool>(this.reader.GetValue(metadata.Index));
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -76,7 +76,7 @@ namespace FlyFlint.Context
             metadata.StoreDirect ? this.reader.GetByte(metadata.Index) :
                 this.cc.Convert<byte>(this.reader.GetValue(metadata.Index));
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -84,7 +84,7 @@ namespace FlyFlint.Context
             metadata.StoreDirect ? this.reader.GetInt16(metadata.Index) :
                 this.cc.Convert<short>(this.reader.GetValue(metadata.Index));
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -92,7 +92,7 @@ namespace FlyFlint.Context
             metadata.StoreDirect ? this.reader.GetInt32(metadata.Index) :
                 this.cc.Convert<int>(this.reader.GetValue(metadata.Index));
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -100,7 +100,7 @@ namespace FlyFlint.Context
             metadata.StoreDirect ? this.reader.GetInt64(metadata.Index) :
                 this.cc.Convert<long>(this.reader.GetValue(metadata.Index));
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -108,7 +108,7 @@ namespace FlyFlint.Context
             metadata.StoreDirect ? this.reader.GetFloat(metadata.Index) :
                 this.cc.Convert<float>(this.reader.GetValue(metadata.Index));
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -116,7 +116,7 @@ namespace FlyFlint.Context
             metadata.StoreDirect ? this.reader.GetDouble(metadata.Index) :
                 this.cc.Convert<double>(this.reader.GetValue(metadata.Index));
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -124,7 +124,7 @@ namespace FlyFlint.Context
             metadata.StoreDirect ? this.reader.GetDecimal(metadata.Index) :
                 this.cc.Convert<decimal>(this.reader.GetValue(metadata.Index));
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -132,7 +132,7 @@ namespace FlyFlint.Context
             metadata.StoreDirect ? this.reader.GetChar(metadata.Index) :
                 this.cc.Convert<char>(this.reader.GetValue(metadata.Index));
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -140,7 +140,7 @@ namespace FlyFlint.Context
             metadata.StoreDirect ? this.reader.GetGuid(metadata.Index) :
                 this.cc.Convert<Guid>(this.reader.GetValue(metadata.Index));
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -148,7 +148,7 @@ namespace FlyFlint.Context
             metadata.StoreDirect ? this.reader.GetDateTime(metadata.Index) :
                 this.cc.Convert<DateTime>(this.reader.GetValue(metadata.Index));
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -157,7 +157,7 @@ namespace FlyFlint.Context
             metadata.StoreDirect ? (TEnum)this.reader.GetValue(metadata.Index) :
                 this.cc.Convert<TEnum>(this.reader.GetValue(metadata.Index));
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -165,7 +165,7 @@ namespace FlyFlint.Context
             metadata.StoreDirect ? this.reader.GetString(metadata.Index) :
                 this.cc.Convert<string>(this.reader.GetValue(metadata.Index));
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -175,7 +175,7 @@ namespace FlyFlint.Context
 
         /////////////////////////////////////////////////////////////////////////////
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -184,7 +184,7 @@ namespace FlyFlint.Context
                 metadata.StoreDirect ? this.reader.GetBoolean(metadata.Index) :
                     this.cc.Convert<bool?>(this.reader.GetValue(metadata.Index));
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -193,7 +193,7 @@ namespace FlyFlint.Context
                 metadata.StoreDirect ? this.reader.GetByte(metadata.Index) :
                     this.cc.Convert<byte?>(this.reader.GetValue(metadata.Index));
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -202,7 +202,7 @@ namespace FlyFlint.Context
                 metadata.StoreDirect ? this.reader.GetInt16(metadata.Index) :
                     this.cc.Convert<short?>(this.reader.GetValue(metadata.Index));
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -211,7 +211,7 @@ namespace FlyFlint.Context
                 metadata.StoreDirect ? this.reader.GetInt32(metadata.Index) :
                     this.cc.Convert<int?>(this.reader.GetValue(metadata.Index));
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -220,7 +220,7 @@ namespace FlyFlint.Context
                 metadata.StoreDirect ? this.reader.GetInt64(metadata.Index) :
                     this.cc.Convert<long?>(this.reader.GetValue(metadata.Index));
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -229,7 +229,7 @@ namespace FlyFlint.Context
                 metadata.StoreDirect ? this.reader.GetFloat(metadata.Index) :
                     this.cc.Convert<float?>(this.reader.GetValue(metadata.Index));
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -238,7 +238,7 @@ namespace FlyFlint.Context
                 metadata.StoreDirect ? this.reader.GetDouble(metadata.Index) :
                     this.cc.Convert<double?>(this.reader.GetValue(metadata.Index));
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -247,7 +247,7 @@ namespace FlyFlint.Context
                 metadata.StoreDirect ? this.reader.GetDecimal(metadata.Index) :
                     this.cc.Convert<decimal?>(this.reader.GetValue(metadata.Index));
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -256,7 +256,7 @@ namespace FlyFlint.Context
                 metadata.StoreDirect ? this.reader.GetChar(metadata.Index) :
                     this.cc.Convert<char?>(this.reader.GetValue(metadata.Index));
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -265,7 +265,7 @@ namespace FlyFlint.Context
                 metadata.StoreDirect ? this.reader.GetGuid(metadata.Index) :
                     this.cc.Convert<Guid?>(this.reader.GetValue(metadata.Index));
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -274,7 +274,7 @@ namespace FlyFlint.Context
                 metadata.StoreDirect ? this.reader.GetDateTime(metadata.Index) :
                     this.cc.Convert<DateTime?>(this.reader.GetValue(metadata.Index));
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -284,7 +284,7 @@ namespace FlyFlint.Context
                 metadata.StoreDirect ? (TEnum)this.reader.GetValue(metadata.Index) :
                     this.cc.Convert<TEnum?>(this.reader.GetValue(metadata.Index));
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -293,7 +293,7 @@ namespace FlyFlint.Context
                 metadata.StoreDirect ? this.reader.GetString(metadata.Index) :
                     this.cc.Convert<string?>(this.reader.GetValue(metadata.Index));
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         [EditorBrowsable(EditorBrowsableState.Never)]

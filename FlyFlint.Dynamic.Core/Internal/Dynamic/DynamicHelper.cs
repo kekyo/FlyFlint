@@ -155,13 +155,13 @@ namespace FlyFlint.Internal.Dynamic
             }
         }
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public static (string name, Type type, MemberGetter<T> getter)[] GetGetterMetadataList<T>() =>
             GetterMetadata<T>.Members;
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public static (string name, Type type, MemberSetter<T> setter)[] GetSetterMetadataList<T>() =>

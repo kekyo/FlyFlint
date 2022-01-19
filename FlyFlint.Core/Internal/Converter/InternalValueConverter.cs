@@ -137,12 +137,12 @@ namespace FlyFlint.Internal.Converter
 
     internal sealed class InvalidOperationExceptionConverter<T> : InternalValueConverter<T>
     {
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public override T Convert(ConversionContext context, object? value) =>
             throw new InvalidOperationException($"Could not convert to {typeof(T).FullName}");
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public override T UnsafeConvert(ConversionContext context, object value) =>
@@ -161,7 +161,7 @@ namespace FlyFlint.Internal.Converter
         protected InternalValueConverterBase(Func<object, IFormatProvider, TR> convert) =>
             this.convert = (Func<object, IFormatProvider, T>)(Delegate)convert;
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public override sealed T Convert(ConversionContext context, object? value) =>
@@ -170,7 +170,7 @@ namespace FlyFlint.Internal.Converter
             value is T v ? v :
             convert(value, context.FormatProvider);
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public override sealed T UnsafeConvert(ConversionContext context, object value) =>
@@ -236,7 +236,7 @@ namespace FlyFlint.Internal.Converter
 
     internal sealed class GuidValueConverter<T> : InternalValueConverterBase<T, Guid>
     {
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         private static Guid ToGuid(object value, IFormatProvider fp) =>
@@ -294,7 +294,7 @@ namespace FlyFlint.Internal.Converter
             this.convert = (Func<object, IFormatProvider, T>)(Delegate)convert;
         }
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public override sealed T Convert(ConversionContext context, object? value) =>
@@ -303,7 +303,7 @@ namespace FlyFlint.Internal.Converter
             value is TUnderlying v ? cast(v) :
             convert(value, context.FormatProvider);
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public override sealed T UnsafeConvert(ConversionContext context, object value) =>
@@ -314,7 +314,7 @@ namespace FlyFlint.Internal.Converter
     internal sealed class NullableBooleanValueConverter<T> :
         InternalNullableValueConverterBase<T, bool?, bool>
     {
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         private static bool? ToBoolean(object? value, IFormatProvider fp) =>
@@ -328,7 +328,7 @@ namespace FlyFlint.Internal.Converter
     internal sealed class NullableByteValueConverter<T> :
         InternalNullableValueConverterBase<T, byte?, byte>
     {
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         private static byte? ToByte(object? value, IFormatProvider fp) =>
@@ -342,7 +342,7 @@ namespace FlyFlint.Internal.Converter
     internal sealed class NullableInt16ValueConverter<T> :
         InternalNullableValueConverterBase<T, short?, short>
     {
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         private static short? ToInt16(object? value, IFormatProvider fp) =>
@@ -356,7 +356,7 @@ namespace FlyFlint.Internal.Converter
     internal sealed class NullableInt32ValueConverter<T> :
         InternalNullableValueConverterBase<T, int?, int>
     {
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         private static int? ToInt32(object? value, IFormatProvider fp) =>
@@ -370,7 +370,7 @@ namespace FlyFlint.Internal.Converter
     internal sealed class NullableInt64ValueConverter<T> :
         InternalNullableValueConverterBase<T, long?, long>
     {
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         private static long? ToInt64(object? value, IFormatProvider fp) =>
@@ -384,7 +384,7 @@ namespace FlyFlint.Internal.Converter
     internal sealed class NullableSingleValueConverter<T> :
         InternalNullableValueConverterBase<T, float?, float>
     {
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         private static float? ToSingle(object? value, IFormatProvider fp) =>
@@ -398,7 +398,7 @@ namespace FlyFlint.Internal.Converter
     internal sealed class NullableDoubleValueConverter<T> :
         InternalNullableValueConverterBase<T, double?, double>
     {
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         private static double? ToDouble(object? value, IFormatProvider fp) =>
@@ -412,7 +412,7 @@ namespace FlyFlint.Internal.Converter
     internal sealed class NullableDecimalValueConverter<T> :
         InternalNullableValueConverterBase<T, decimal?, decimal>
     {
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         private static decimal? ToDecimal(object? value, IFormatProvider fp) =>
@@ -426,7 +426,7 @@ namespace FlyFlint.Internal.Converter
     internal sealed class NullableGuidValueConverter<T> :
         InternalNullableValueConverterBase<T, Guid?, Guid>
     {
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         private static Guid? ToGuid(object value, IFormatProvider fp) =>
@@ -440,7 +440,7 @@ namespace FlyFlint.Internal.Converter
     internal sealed class NullableDateTimeValueConverter<T> :
         InternalNullableValueConverterBase<T, DateTime?, DateTime>
     {
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         private static DateTime? ToDateTime(object value, IFormatProvider fp) =>
@@ -454,7 +454,7 @@ namespace FlyFlint.Internal.Converter
     internal sealed class NullableCharValueConverter<T> :
         InternalNullableValueConverterBase<T, char?, char>
     {
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         private static char? ToChar(object value, IFormatProvider fp) =>
@@ -472,7 +472,7 @@ namespace FlyFlint.Internal.Converter
             (Func<object, IFormatProvider, T>)(Delegate)
             new Func<object, IFormatProvider, string>(System.Convert.ToString!);
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public override T Convert(ConversionContext context, object? value) =>
@@ -481,7 +481,7 @@ namespace FlyFlint.Internal.Converter
             value is T v ? v :
             convert(value!, context.FormatProvider);
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public override T UnsafeConvert(ConversionContext context, object value) =>
@@ -492,7 +492,7 @@ namespace FlyFlint.Internal.Converter
     internal sealed class NullableEnumValueConverter<T> :
         InternalValueConverter<T>
     {
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public override T Convert(ConversionContext context, object? value) =>
@@ -501,7 +501,7 @@ namespace FlyFlint.Internal.Converter
             value is T v ? v :
             EnumConverter<T>.convert(value!, context.FormatProvider);
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public override T UnsafeConvert(ConversionContext context, object value) =>
@@ -516,7 +516,7 @@ namespace FlyFlint.Internal.Converter
             (Func<ConversionContext, object, T>)(Delegate)
             new Func<ConversionContext, object, byte[]>(ByteArrayConverter.Convert);
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public override T Convert(ConversionContext context, object? value) =>
@@ -525,7 +525,7 @@ namespace FlyFlint.Internal.Converter
             value is T v ? v :
             convert(context, value!);
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public override T UnsafeConvert(ConversionContext context, object value) =>

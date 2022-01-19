@@ -116,7 +116,7 @@ namespace FlyFlint.Internal.Static
             }
         }
 
-#if !NET40 && !NET45
+#if NET461_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         public static async IAsyncEnumerable<T> ExecuteAsync<T>(QueryContext<T> query)
             where T : IDataInjectable, new()
         {

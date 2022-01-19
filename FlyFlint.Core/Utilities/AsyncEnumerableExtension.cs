@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace FlyFlint.Utilities
 {
-#if !NET40 && !NET45
+#if NET461_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
     // Simple and fun staff for easy usable async LINQ.
     // If you need for more complex usage, please use `System.Linq.Async` NuGet package instead.
     public static class AsyncEnumerableExtension

@@ -21,7 +21,7 @@ namespace FlyFlint.Context
         public readonly IFormatProvider FormatProvider;
         public readonly Encoding Encoding;
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public ConversionContext(IFormatProvider fp, Encoding encoding)
@@ -30,7 +30,7 @@ namespace FlyFlint.Context
             this.Encoding = encoding;
         }
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public virtual T Convert<T>(object value)

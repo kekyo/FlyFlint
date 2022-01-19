@@ -16,7 +16,7 @@ namespace FlyFlint
 {
     public static class QueryExtension
     {
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public static QueryContext Query(
@@ -30,7 +30,7 @@ namespace FlyFlint
                 FlyFlint.Query.defaultParameters,
                 FlyFlint.Query.defaultParameterPrefix);
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public static QueryContext Query(
@@ -45,7 +45,7 @@ namespace FlyFlint
                 FlyFlint.Query.defaultParameters,
                 FlyFlint.Query.defaultParameterPrefix);
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public static QueryContext<T> Query<T>(
@@ -61,7 +61,7 @@ namespace FlyFlint
                 FlyFlint.Query.defaultParameters,
                 FlyFlint.Query.defaultParameterPrefix);
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public static QueryContext<T> Query<T>(
@@ -78,7 +78,7 @@ namespace FlyFlint
                 FlyFlint.Query.defaultParameters,
                 FlyFlint.Query.defaultParameterPrefix);
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public static QueryContext Query(
@@ -92,7 +92,7 @@ namespace FlyFlint
                 prepared.constructParameters(),
                 prepared.parameterPrefix);
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public static QueryContext Query(
@@ -106,7 +106,7 @@ namespace FlyFlint
                 prepared.constructParameters(),
                 prepared.parameterPrefix);
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public static QueryContext<T> Query<T>(
@@ -122,7 +122,7 @@ namespace FlyFlint
                 prepared.constructParameters(),
                 prepared.parameterPrefix);
 
-#if !NET40
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public static QueryContext<T> Query<T>(
