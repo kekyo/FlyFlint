@@ -19,8 +19,6 @@ namespace FlyFlint
     {
         internal static readonly IComparer<string> defaultFieldComparer =
             StringComparer.OrdinalIgnoreCase;
-        internal static readonly Func<KeyValuePair<string, object?>[]> constructDefaultParameters =
-            new(() => defaultParameters!);
         internal static readonly KeyValuePair<string, object?>[] defaultParameters = { };
         internal static readonly string defaultParameterPrefix = "@";
         
@@ -30,7 +28,7 @@ namespace FlyFlint
         public static PreparedParameterizableQueryContext Prepare(ParameterizableQueryString sql) =>
             new PreparedParameterizableQueryContext(
                 ConversionContext.Default,
-                () => new QueryBuilderResult(sql.Sql, defaultParameters),
+                () => new QueryParameterBuilderResult(sql.Sql, defaultParameters),
                 defaultParameterPrefix);
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
@@ -41,7 +39,7 @@ namespace FlyFlint
             new PreparedParameterizableQueryContext<T>(
                 ConversionContext.Default,
                 defaultFieldComparer,
-                () => new QueryBuilderResult(sql.Sql, defaultParameters),
+                () => new QueryParameterBuilderResult(sql.Sql, defaultParameters),
                 defaultParameterPrefix);
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
@@ -50,7 +48,7 @@ namespace FlyFlint
         public static PreparedParameterizedQueryContext Prepare(FormattableString sql) =>
             new PreparedParameterizedQueryContext(
                 ConversionContext.Default,
-                () => new QueryBuilderResult(
+                () => new QueryParameterBuilderResult(
                     QueryHelper.GetFormattedSqlString(sql, defaultParameterPrefix),
                     QueryHelper.GetSqlParameters(sql, defaultParameterPrefix)));
 
@@ -62,7 +60,7 @@ namespace FlyFlint
             new PreparedParameterizedQueryContext<T>(
                 ConversionContext.Default,
                 defaultFieldComparer,
-                () => new QueryBuilderResult(
+                () => new QueryParameterBuilderResult(
                     QueryHelper.GetFormattedSqlString(sql, defaultParameterPrefix),
                     QueryHelper.GetSqlParameters(sql, defaultParameterPrefix)));
 
@@ -75,7 +73,7 @@ namespace FlyFlint
                 () =>
                 {
                     var sql = sqlBuilder();
-                    return new QueryBuilderResult(
+                    return new QueryParameterBuilderResult(
                         QueryHelper.GetFormattedSqlString(sql, defaultParameterPrefix),
                         QueryHelper.GetSqlParameters(sql, defaultParameterPrefix));
                 });
@@ -91,7 +89,7 @@ namespace FlyFlint
                 () =>
                 {
                     var sql = sqlBuilder();
-                    return new QueryBuilderResult(
+                    return new QueryParameterBuilderResult(
                         QueryHelper.GetFormattedSqlString(sql, defaultParameterPrefix),
                         QueryHelper.GetSqlParameters(sql, defaultParameterPrefix));
                 });

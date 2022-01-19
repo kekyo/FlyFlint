@@ -8,31 +8,33 @@
 ////////////////////////////////////////////////////////////////////////////
 
 using FlyFlint.Context;
-using FlyFlint.Internal.Dynamic;
+using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
-namespace FlyFlint.Synchronized
+namespace FlyFlint.Internal
 {
-    public static class QueryFacadeExtension
+    internal struct QueryParameterBuilderResult
     {
-#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-        public static int ExecuteNonQuery(this QueryContext query) =>
-            DynamicQueryExecutorFacade.ExecuteNonQuery(query);
+        public readonly string sql;
+        public readonly KeyValuePair<string, object?>[] parameters;
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static T ExecuteScalar<T>(this QueryContext query) =>
-            DynamicQueryExecutorFacade.ExecuteScalar<T>(query);
+        public QueryParameterBuilderResult(string sql, KeyValuePair<string, object?>[] parameters)
+        {
+            this.sql = sql;
+            this.parameters = parameters;
+        }
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static IEnumerable<T> Execute<T>(this QueryContext<T> query)
-            where T : new() =>
-            DynamicQueryExecutorFacade.Execute(query);
+        public void Deconstruct(out string sql, out KeyValuePair<string, object?>[] parameters)
+        {
+            sql = this.sql;
+            parameters = this.parameters;
+        }
     }
 }

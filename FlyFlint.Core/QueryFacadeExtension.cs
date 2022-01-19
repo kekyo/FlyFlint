@@ -8,6 +8,7 @@
 ////////////////////////////////////////////////////////////////////////////
 
 using FlyFlint.Context;
+using FlyFlint.Internal;
 using FlyFlint.Internal.Dynamic;
 using System;
 using System.Collections.Generic;
@@ -159,7 +160,7 @@ namespace FlyFlint
                 getter, prepared.parameterPrefix);
             return new PreparedParameterizedQueryContext(
                 prepared.cc,
-                () => new QueryBuilderResult(sql, constructParameters()));
+                () => new QueryParameterBuilderResult(sql, constructParameters()));
         }
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
@@ -178,7 +179,7 @@ namespace FlyFlint
             return new PreparedParameterizedQueryContext<TElement>(
                 prepared.cc,
                 prepared.fieldComparer,
-                () => new QueryBuilderResult(sql, constructParameters()));
+                () => new QueryParameterBuilderResult(sql, constructParameters()));
         }
 
         /////////////////////////////////////////////////////////////////////////////

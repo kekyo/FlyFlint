@@ -7,48 +7,24 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
-using FlyFlint.Context;
+using FlyFlint.Internal;
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
-namespace FlyFlint
+namespace FlyFlint.Context
 {
-    internal struct QueryBuilderResult
-    {
-        public readonly string sql;
-        public readonly KeyValuePair<string, object?>[] parameters;
-
-#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-        public QueryBuilderResult(string sql, KeyValuePair<string, object?>[] parameters)
-        {
-            this.sql = sql;
-            this.parameters = parameters;
-        }
-
-#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-        public void Deconstruct(out string sql, out KeyValuePair<string, object?>[] parameters)
-        {
-            sql = this.sql;
-            parameters = this.parameters;
-        }
-    }
-
     public abstract class PreparedQueryContext
     {
         internal readonly ConversionContext cc;
-        internal readonly Func<QueryBuilderResult> builder;
+        internal readonly Func<QueryParameterBuilderResult> builder;
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         private protected PreparedQueryContext(
             ConversionContext cc,
-            Func<QueryBuilderResult> builder)
+            Func<QueryParameterBuilderResult> builder)
         {
             this.cc = cc;
             this.builder = builder;
@@ -60,7 +36,7 @@ namespace FlyFlint
     {
         internal readonly ConversionContext cc;
         internal readonly IComparer<string> fieldComparer;
-        internal readonly Func<QueryBuilderResult> builder;
+        internal readonly Func<QueryParameterBuilderResult> builder;
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -68,7 +44,7 @@ namespace FlyFlint
         private protected PreparedQueryContext(
             ConversionContext cc,
             IComparer<string> fieldComparer,
-            Func<QueryBuilderResult> builder)
+            Func<QueryParameterBuilderResult> builder)
         {
             this.cc = cc;
             this.fieldComparer = fieldComparer;

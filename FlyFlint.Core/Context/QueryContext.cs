@@ -7,12 +7,11 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
-using FlyFlint.Context;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Runtime.CompilerServices;
 
-namespace FlyFlint
+namespace FlyFlint.Context
 {
     public abstract class QueryContext
     {

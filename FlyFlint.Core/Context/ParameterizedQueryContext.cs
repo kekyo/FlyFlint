@@ -7,139 +7,113 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
-using FlyFlint.Context;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Runtime.CompilerServices;
 
-namespace FlyFlint
+namespace FlyFlint.Context
 {
-    public sealed class ParameterizableQueryContext : QueryContext
+    public sealed class ParameterizedQueryContext : QueryContext
     {
-        internal readonly string parameterPrefix;
-
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        internal ParameterizableQueryContext(
+        internal ParameterizedQueryContext(
             DbConnection connection,
             DbTransaction? transaction,
             ConversionContext cc,
             string sql,
-            string parameterPrefix) :
-            base(connection, transaction, cc, sql, Query.defaultParameters) =>
-            this.parameterPrefix = parameterPrefix;
+            KeyValuePair<string, object?>[] parameters) :
+            base(connection, transaction, cc, sql, parameters)
+        {
+        }
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public ParameterizableQueryContext Prefix(string parameterPrefix) =>
-            new ParameterizableQueryContext(
-                this.connection,
-                this.transaction,
-                this.cc,
-                this.sql,
-                parameterPrefix);
-
-#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-        public ParameterizableQueryContext Conversion(ConversionContext cc) =>
-            new ParameterizableQueryContext(
+        public ParameterizedQueryContext Conversion(ConversionContext cc) =>
+            new ParameterizedQueryContext(
                 this.connection,
                 this.transaction,
                 cc,
                 this.sql,
-                this.parameterPrefix);
+                this.parameters);
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public ParameterizableQueryContext Transaction(DbTransaction transaction) =>
-            new ParameterizableQueryContext(
+        public ParameterizedQueryContext Transaction(DbTransaction transaction) =>
+            new ParameterizedQueryContext(
                 this.connection,
                 transaction,
                 this.cc,
                 this.sql,
-                this.parameterPrefix);
+                this.parameters);
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public ParameterizableQueryContext<TElement> Typed<TElement>()
+        public ParameterizedQueryContext<TElement> Typed<TElement>()
             where TElement : new() =>
-            new ParameterizableQueryContext<TElement>(
+            new ParameterizedQueryContext<TElement>(
                 this.connection,
                 this.transaction,
                 this.cc,
                 FlyFlint.Query.defaultFieldComparer,
                 this.sql,
-                this.parameterPrefix);
+                this.parameters);
     }
 
-    public sealed class ParameterizableQueryContext<TElement> : QueryContext<TElement>
+    public sealed class ParameterizedQueryContext<TElement> : QueryContext<TElement>
     {
-        internal readonly string parameterPrefix;
-
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        internal ParameterizableQueryContext(
+        internal ParameterizedQueryContext(
             DbConnection connection,
             DbTransaction? transaction,
             ConversionContext cc,
             IComparer<string> fieldComparer,
             string sql,
-            string parameterPrefix) :
-            base(connection, transaction, cc, fieldComparer, sql, Query.defaultParameters) =>
-            this.parameterPrefix = parameterPrefix;
+            KeyValuePair<string, object?>[] parameters) :
+            base(connection, transaction, cc, fieldComparer, sql, parameters)
+        {
+        }
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public ParameterizableQueryContext<TElement> Prefix(string parameterPrefix) =>
-            new ParameterizableQueryContext<TElement>(
-                this.connection,
-                this.transaction,
-                this.cc,
-                this.fieldComparer,
-                this.sql,
-                parameterPrefix);
-
-#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-        public ParameterizableQueryContext<TElement> Conversion(ConversionContext cc) =>
-            new ParameterizableQueryContext<TElement>(
+        public ParameterizedQueryContext<TElement> Conversion(ConversionContext cc) =>
+            new ParameterizedQueryContext<TElement>(
                 this.connection,
                 this.transaction,
                 cc,
                 this.fieldComparer,
                 this.sql,
-                this.parameterPrefix);
+                this.parameters);
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public ParameterizableQueryContext<TElement> FieldComparer(IComparer<string> fieldComparer) =>
-            new ParameterizableQueryContext<TElement>(
+        public ParameterizedQueryContext<TElement> FieldComparer(IComparer<string> fieldComparer) =>
+            new ParameterizedQueryContext<TElement>(
                 this.connection,
                 this.transaction,
                 this.cc,
                 fieldComparer,
                 this.sql,
-                this.parameterPrefix);
+                this.parameters);
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public ParameterizableQueryContext<TElement> Transaction(DbTransaction transaction) =>
-            new ParameterizableQueryContext<TElement>(
+        public ParameterizedQueryContext<TElement> Transaction(DbTransaction transaction) =>
+            new ParameterizedQueryContext<TElement>(
                 this.connection,
                 transaction,
                 this.cc,
                 this.fieldComparer,
                 this.sql,
-                this.parameterPrefix);
+                this.parameters);
     }
 }

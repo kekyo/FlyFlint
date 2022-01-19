@@ -7,12 +7,12 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
-using FlyFlint.Context;
+using FlyFlint.Internal;
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
-namespace FlyFlint
+namespace FlyFlint.Context
 {
     public sealed class PreparedParameterizableQueryContext : PreparedQueryContext
     {
@@ -23,7 +23,7 @@ namespace FlyFlint
 #endif
         internal PreparedParameterizableQueryContext(
             ConversionContext cc,
-            Func<QueryBuilderResult> builder,
+            Func<QueryParameterBuilderResult> builder,
             string parameterPrefix) :
             base(cc, builder) =>
             this.parameterPrefix = parameterPrefix;
@@ -69,7 +69,7 @@ namespace FlyFlint
         internal PreparedParameterizableQueryContext(
             ConversionContext cc,
             IComparer<string> fieldComparer,
-            Func<QueryBuilderResult> builder,
+            Func<QueryParameterBuilderResult> builder,
             string parameterPrefix) :
             base(cc, fieldComparer, builder) =>
             this.parameterPrefix = parameterPrefix;
