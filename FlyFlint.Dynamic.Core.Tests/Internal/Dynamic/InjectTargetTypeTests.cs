@@ -73,7 +73,7 @@ namespace FlyFlint.Internal.Dynamic
             Assert.IsTrue(reader.Read());
 
             var context = new DynamicDataInjectionContext(
-                ConversionContext.Default, StringComparer.InvariantCultureIgnoreCase, reader);
+                ConversionContext.Default, StringComparer.OrdinalIgnoreCase, reader);
             var injector = new DynamicInjector<TargetValueTypes>(context);
 
             var element = new TargetValueTypes();
@@ -129,7 +129,7 @@ namespace FlyFlint.Internal.Dynamic
             Assert.IsTrue(reader.Read());
 
             var context = new DynamicDataInjectionContext(
-                ConversionContext.Default, StringComparer.InvariantCultureIgnoreCase, reader);
+                ConversionContext.Default, StringComparer.OrdinalIgnoreCase, reader);
             var injector = new DynamicInjector<TargetNullableValueTypes>(context);
 
             var element = new TargetNullableValueTypes();
@@ -164,7 +164,7 @@ namespace FlyFlint.Internal.Dynamic
             Assert.IsTrue(reader.Read());
 
             var context = new DynamicDataInjectionContext(
-                ConversionContext.Default, StringComparer.InvariantCultureIgnoreCase, reader);
+                ConversionContext.Default, StringComparer.OrdinalIgnoreCase, reader);
             var injector = new DynamicInjector<TargetNullableValueTypes>(context);
 
             var element = new TargetNullableValueTypes();

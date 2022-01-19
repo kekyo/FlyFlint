@@ -59,7 +59,7 @@ namespace FlyFlint.Internal.Static
             var element = new TargetValueType();
 
             var context = new DataInjectionContext(
-                ConversionContext.Default, StringComparer.InvariantCultureIgnoreCase, reader);
+                ConversionContext.Default, StringComparer.OrdinalIgnoreCase, reader);
             var metadataList = element.Prepare(context);
 
             element.Inject(context, metadataList);
@@ -106,7 +106,7 @@ namespace FlyFlint.Internal.Static
             var element = new TargetReferenceType();
 
             var context = new DataInjectionContext(
-                ConversionContext.Default, StringComparer.InvariantCultureIgnoreCase, reader);
+                ConversionContext.Default, StringComparer.OrdinalIgnoreCase, reader);
             var metadataList = element.Prepare(context);
 
             element.Inject(context, metadataList);

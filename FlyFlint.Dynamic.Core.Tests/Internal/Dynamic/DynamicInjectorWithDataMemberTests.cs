@@ -43,7 +43,7 @@ namespace FlyFlint.Internal.Dynamic
             Assert.IsTrue(reader.Read());
 
             var context = new DynamicDataInjectionContext(
-                ConversionContext.Default, StringComparer.InvariantCultureIgnoreCase, reader);
+                ConversionContext.Default, StringComparer.OrdinalIgnoreCase, reader);
             var injector = new DynamicInjector<FieldValueType>(context);
 
             var element = new FieldValueType();
@@ -76,7 +76,7 @@ namespace FlyFlint.Internal.Dynamic
             Assert.IsTrue(reader.Read());
 
             var context = new DynamicDataInjectionContext(
-                ConversionContext.Default, StringComparer.InvariantCultureIgnoreCase, reader);
+                ConversionContext.Default, StringComparer.OrdinalIgnoreCase, reader);
             var injector = new DynamicInjector<FieldReferenceType>(context);
 
             var element = new FieldReferenceType();
@@ -109,7 +109,7 @@ namespace FlyFlint.Internal.Dynamic
             Assert.IsTrue(reader.Read());
 
             var context = new DynamicDataInjectionContext(
-                ConversionContext.Default, StringComparer.InvariantCultureIgnoreCase, reader);
+                ConversionContext.Default, StringComparer.OrdinalIgnoreCase, reader);
             var injector = new DynamicInjector<PropertyValueType>(context);
 
             var element = new PropertyValueType();
@@ -142,7 +142,7 @@ namespace FlyFlint.Internal.Dynamic
             Assert.IsTrue(reader.Read());
 
             var context = new DynamicDataInjectionContext(
-                ConversionContext.Default, StringComparer.InvariantCultureIgnoreCase, reader);
+                ConversionContext.Default, StringComparer.OrdinalIgnoreCase, reader);
             var injector = new DynamicInjector<PropertyReferenceType>(context);
 
             var element = new PropertyReferenceType();

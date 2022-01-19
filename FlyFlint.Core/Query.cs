@@ -18,7 +18,7 @@ namespace FlyFlint
     public static class Query
     {
         internal static readonly IComparer<string> defaultFieldComparer =
-            StringComparer.InvariantCultureIgnoreCase;
+            StringComparer.OrdinalIgnoreCase;
         internal static readonly Func<KeyValuePair<string, object?>[]> constructDefaultParameters =
             new(() => defaultParameters!);
         internal static readonly KeyValuePair<string, object?>[] defaultParameters = { };
