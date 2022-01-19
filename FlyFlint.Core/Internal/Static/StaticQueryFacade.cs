@@ -64,7 +64,7 @@ namespace FlyFlint.Internal.Static
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static ParameterizedQueryContext Query<TParameters>(
             DbConnection connection,
-            PreparedParameterizableQueryContext prepared,
+            PreparedPartialQueryContext prepared,
             TParameters parameters)
             where TParameters : notnull, IParameterExtractable
         {
@@ -86,7 +86,7 @@ namespace FlyFlint.Internal.Static
         public static ParameterizedQueryContext Query<TParameters>(
             DbConnection connection,
             DbTransaction transaction,
-            PreparedParameterizableQueryContext prepared,
+            PreparedPartialQueryContext prepared,
             TParameters parameters)
             where TParameters : notnull, IParameterExtractable
         {
@@ -109,7 +109,7 @@ namespace FlyFlint.Internal.Static
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static ParameterizedQueryContext<TElement> Query<TElement, TParameters>(
             DbConnection connection,
-            PreparedParameterizableQueryContext<TElement> prepared,
+            PreparedPartialQueryContext<TElement> prepared,
             TParameters parameters)
             where TElement : new()
             where TParameters : notnull, IParameterExtractable
@@ -133,7 +133,7 @@ namespace FlyFlint.Internal.Static
         public static ParameterizedQueryContext<TElement> Query<TElement, TParameters>(
             DbConnection connection,
             DbTransaction transaction,
-            PreparedParameterizableQueryContext<TElement> prepared,
+            PreparedPartialQueryContext<TElement> prepared,
             TParameters parameters)
             where TElement : new()
             where TParameters : notnull, IParameterExtractable
@@ -157,7 +157,7 @@ namespace FlyFlint.Internal.Static
 #endif
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static PreparedParameterizedQueryContext Parameter<TParameters>(
-            PreparedParameterizableQueryContext prepared,
+            PreparedPartialQueryContext prepared,
             Func<TParameters> getter)
             where TParameters : notnull, IParameterExtractable
         {
@@ -175,7 +175,7 @@ namespace FlyFlint.Internal.Static
 #endif
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static PreparedParameterizedQueryContext<TElement> Parameter<TElement, TParameters>(
-            PreparedParameterizableQueryContext<TElement> prepared,
+            PreparedPartialQueryContext<TElement> prepared,
             Func<TParameters> getter)
             where TElement : new()
             where TParameters : notnull, IParameterExtractable
@@ -197,7 +197,7 @@ namespace FlyFlint.Internal.Static
 #endif
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static ParameterizedQueryContext Parameter<TParameters>(
-            ParameterizableQueryContext query,
+            PartialQueryContext query,
             TParameters parameters)
             where TParameters : notnull, IParameterExtractable =>
             new ParameterizedQueryContext(
@@ -213,7 +213,7 @@ namespace FlyFlint.Internal.Static
 #endif
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static ParameterizedQueryContext<TElement> Parameter<TElement, TParameters>(
-            ParameterizableQueryContext<TElement> query,
+            PartialQueryContext<TElement> query,
             TParameters parameters)
             where TElement : new()
             where TParameters : IParameterExtractable =>

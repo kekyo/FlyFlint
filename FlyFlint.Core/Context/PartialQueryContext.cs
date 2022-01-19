@@ -13,14 +13,14 @@ using System.Runtime.CompilerServices;
 
 namespace FlyFlint.Context
 {
-    public sealed class ParameterizableQueryContext : QueryContext
+    public sealed class PartialQueryContext : QueryContext
     {
         internal readonly string parameterPrefix;
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        internal ParameterizableQueryContext(
+        internal PartialQueryContext(
             DbConnection connection,
             DbTransaction? transaction,
             ConversionContext cc,
@@ -32,8 +32,8 @@ namespace FlyFlint.Context
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public ParameterizableQueryContext Prefix(string parameterPrefix) =>
-            new ParameterizableQueryContext(
+        public PartialQueryContext Prefix(string parameterPrefix) =>
+            new PartialQueryContext(
                 this.connection,
                 this.transaction,
                 this.cc,
@@ -43,8 +43,8 @@ namespace FlyFlint.Context
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public ParameterizableQueryContext Conversion(ConversionContext cc) =>
-            new ParameterizableQueryContext(
+        public PartialQueryContext Conversion(ConversionContext cc) =>
+            new PartialQueryContext(
                 this.connection,
                 this.transaction,
                 cc,
@@ -54,8 +54,8 @@ namespace FlyFlint.Context
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public ParameterizableQueryContext Transaction(DbTransaction transaction) =>
-            new ParameterizableQueryContext(
+        public PartialQueryContext Transaction(DbTransaction transaction) =>
+            new PartialQueryContext(
                 this.connection,
                 transaction,
                 this.cc,
@@ -65,9 +65,9 @@ namespace FlyFlint.Context
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public ParameterizableQueryContext<TElement> Typed<TElement>()
+        public PartialQueryContext<TElement> Typed<TElement>()
             where TElement : new() =>
-            new ParameterizableQueryContext<TElement>(
+            new PartialQueryContext<TElement>(
                 this.connection,
                 this.transaction,
                 this.cc,
@@ -76,14 +76,14 @@ namespace FlyFlint.Context
                 this.parameterPrefix);
     }
 
-    public sealed class ParameterizableQueryContext<TElement> : QueryContext<TElement>
+    public sealed class PartialQueryContext<TElement> : QueryContext<TElement>
     {
         internal readonly string parameterPrefix;
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        internal ParameterizableQueryContext(
+        internal PartialQueryContext(
             DbConnection connection,
             DbTransaction? transaction,
             ConversionContext cc,
@@ -96,8 +96,8 @@ namespace FlyFlint.Context
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public ParameterizableQueryContext<TElement> Prefix(string parameterPrefix) =>
-            new ParameterizableQueryContext<TElement>(
+        public PartialQueryContext<TElement> Prefix(string parameterPrefix) =>
+            new PartialQueryContext<TElement>(
                 this.connection,
                 this.transaction,
                 this.cc,
@@ -108,8 +108,8 @@ namespace FlyFlint.Context
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public ParameterizableQueryContext<TElement> Conversion(ConversionContext cc) =>
-            new ParameterizableQueryContext<TElement>(
+        public PartialQueryContext<TElement> Conversion(ConversionContext cc) =>
+            new PartialQueryContext<TElement>(
                 this.connection,
                 this.transaction,
                 cc,
@@ -120,8 +120,8 @@ namespace FlyFlint.Context
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public ParameterizableQueryContext<TElement> FieldComparer(IComparer<string> fieldComparer) =>
-            new ParameterizableQueryContext<TElement>(
+        public PartialQueryContext<TElement> FieldComparer(IComparer<string> fieldComparer) =>
+            new PartialQueryContext<TElement>(
                 this.connection,
                 this.transaction,
                 this.cc,
@@ -132,8 +132,8 @@ namespace FlyFlint.Context
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public ParameterizableQueryContext<TElement> Transaction(DbTransaction transaction) =>
-            new ParameterizableQueryContext<TElement>(
+        public PartialQueryContext<TElement> Transaction(DbTransaction transaction) =>
+            new PartialQueryContext<TElement>(
                 this.connection,
                 transaction,
                 this.cc,

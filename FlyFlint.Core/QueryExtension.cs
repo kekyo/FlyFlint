@@ -21,10 +21,10 @@ namespace FlyFlint
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static ParameterizableQueryContext Query(
+        public static PartialQueryContext Query(
             this DbConnection connection,
             ParameterizableQueryString sql) =>
-            new ParameterizableQueryContext(
+            new PartialQueryContext(
                 connection,
                 null,
                 ConversionContext.Default,
@@ -49,11 +49,11 @@ namespace FlyFlint
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static ParameterizableQueryContext Query(
+        public static PartialQueryContext Query(
             this DbConnection connection,
             DbTransaction transaction,
             ParameterizableQueryString sql) =>
-            new ParameterizableQueryContext(
+            new PartialQueryContext(
                 connection,
                 transaction,
                 ConversionContext.Default,
@@ -79,11 +79,11 @@ namespace FlyFlint
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static ParameterizableQueryContext<TElement> Query<TElement>(
+        public static PartialQueryContext<TElement> Query<TElement>(
             this DbConnection connection,
             ParameterizableQueryString sql)
             where TElement : new() =>
-            new ParameterizableQueryContext<TElement>(
+            new PartialQueryContext<TElement>(
                 connection,
                 null,
                 ConversionContext.Default,
@@ -111,12 +111,12 @@ namespace FlyFlint
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static ParameterizableQueryContext<TElement> Query<TElement>(
+        public static PartialQueryContext<TElement> Query<TElement>(
             this DbConnection connection,
             DbTransaction transaction,
             ParameterizableQueryString sql)
             where TElement : new() =>
-            new ParameterizableQueryContext<TElement>(
+            new PartialQueryContext<TElement>(
                 connection,
                 transaction,
                 ConversionContext.Default,
@@ -161,13 +161,13 @@ namespace FlyFlint
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static ParameterizableQueryContext Query(
+        public static PartialQueryContext Query(
             this DbConnection connection,
-            PreparedParameterizableQueryContext prepared)
+            PreparedPartialQueryContext prepared)
         {
             var built = prepared.builder();
             Debug.Assert(object.ReferenceEquals(built.parameters, FlyFlint.Query.defaultParameters));
-            return new ParameterizableQueryContext(
+            return new PartialQueryContext(
                 connection,
                 null,
                 prepared.cc,
@@ -197,14 +197,14 @@ namespace FlyFlint
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static ParameterizableQueryContext Query(
+        public static PartialQueryContext Query(
             this DbConnection connection,
             DbTransaction transaction,
-            PreparedParameterizableQueryContext prepared)
+            PreparedPartialQueryContext prepared)
         {
             var built = prepared.builder();
             Debug.Assert(object.ReferenceEquals(built.parameters, FlyFlint.Query.defaultParameters));
-            return new ParameterizableQueryContext(
+            return new PartialQueryContext(
                 connection,
                 transaction,
                 prepared.cc,
@@ -235,14 +235,14 @@ namespace FlyFlint
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static ParameterizableQueryContext<TElement> Query<TElement>(
+        public static PartialQueryContext<TElement> Query<TElement>(
             this DbConnection connection,
-            PreparedParameterizableQueryContext<TElement> prepared)
+            PreparedPartialQueryContext<TElement> prepared)
             where TElement : new()
         {
             var built = prepared.builder();
             Debug.Assert(object.ReferenceEquals(built.parameters, FlyFlint.Query.defaultParameters));
-            return new ParameterizableQueryContext<TElement>(
+            return new PartialQueryContext<TElement>(
                 connection,
                 null,
                 prepared.cc,
@@ -275,15 +275,15 @@ namespace FlyFlint
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static ParameterizableQueryContext<TElement> Query<TElement>(
+        public static PartialQueryContext<TElement> Query<TElement>(
             this DbConnection connection,
             DbTransaction transaction,
-            PreparedParameterizableQueryContext<TElement> prepared)
+            PreparedPartialQueryContext<TElement> prepared)
             where TElement : new()
         {
             var built = prepared.builder();
             Debug.Assert(object.ReferenceEquals(built.parameters, FlyFlint.Query.defaultParameters));
-            return new ParameterizableQueryContext<TElement>(
+            return new PartialQueryContext<TElement>(
                 connection,
                 transaction,
                 prepared.cc,

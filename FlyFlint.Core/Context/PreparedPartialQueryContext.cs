@@ -14,14 +14,14 @@ using System.Runtime.CompilerServices;
 
 namespace FlyFlint.Context
 {
-    public sealed class PreparedParameterizableQueryContext : PreparedQueryContext
+    public sealed class PreparedPartialQueryContext : PreparedQueryContext
     {
         internal readonly string parameterPrefix;
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        internal PreparedParameterizableQueryContext(
+        internal PreparedPartialQueryContext(
             ConversionContext cc,
             Func<QueryParameterBuilderResult> builder,
             string parameterPrefix) :
@@ -31,8 +31,8 @@ namespace FlyFlint.Context
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public PreparedParameterizableQueryContext Prefix(string parameterPrefix) =>
-            new PreparedParameterizableQueryContext(
+        public PreparedPartialQueryContext Prefix(string parameterPrefix) =>
+            new PreparedPartialQueryContext(
                 this.cc,
                 this.builder, 
                 parameterPrefix);
@@ -40,8 +40,8 @@ namespace FlyFlint.Context
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public PreparedParameterizableQueryContext Conversion(ConversionContext cc) =>
-            new PreparedParameterizableQueryContext(
+        public PreparedPartialQueryContext Conversion(ConversionContext cc) =>
+            new PreparedPartialQueryContext(
                 cc,
                 this.builder,
                 this.parameterPrefix);
@@ -49,16 +49,16 @@ namespace FlyFlint.Context
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public PreparedParameterizableQueryContext<TElement> Typed<TElement>()
+        public PreparedPartialQueryContext<TElement> Typed<TElement>()
             where TElement : new() =>
-            new PreparedParameterizableQueryContext<TElement>(
+            new PreparedPartialQueryContext<TElement>(
                 this.cc,
                 Query.defaultFieldComparer,
                 this.builder,
                 this.parameterPrefix);
     }
 
-    public sealed class PreparedParameterizableQueryContext<TElement> : PreparedQueryContext<TElement>
+    public sealed class PreparedPartialQueryContext<TElement> : PreparedQueryContext<TElement>
         where TElement : new()
     {
         internal readonly string parameterPrefix;
@@ -66,7 +66,7 @@ namespace FlyFlint.Context
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        internal PreparedParameterizableQueryContext(
+        internal PreparedPartialQueryContext(
             ConversionContext cc,
             IComparer<string> fieldComparer,
             Func<QueryParameterBuilderResult> builder,
@@ -77,8 +77,8 @@ namespace FlyFlint.Context
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public PreparedParameterizableQueryContext<TElement> Prefix(string parameterPrefix) =>
-            new PreparedParameterizableQueryContext<TElement>(
+        public PreparedPartialQueryContext<TElement> Prefix(string parameterPrefix) =>
+            new PreparedPartialQueryContext<TElement>(
                 this.cc,
                 this.fieldComparer,
                 this.builder,
@@ -87,8 +87,8 @@ namespace FlyFlint.Context
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public PreparedParameterizableQueryContext<TElement> Conversion(ConversionContext cc) =>
-            new PreparedParameterizableQueryContext<TElement>(
+        public PreparedPartialQueryContext<TElement> Conversion(ConversionContext cc) =>
+            new PreparedPartialQueryContext<TElement>(
                 cc,
                 this.fieldComparer,
                 this.builder,
@@ -97,8 +97,8 @@ namespace FlyFlint.Context
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public PreparedParameterizableQueryContext<TElement> FieldComparer(IComparer<string> fieldComparer) =>
-            new PreparedParameterizableQueryContext<TElement>(
+        public PreparedPartialQueryContext<TElement> FieldComparer(IComparer<string> fieldComparer) =>
+            new PreparedPartialQueryContext<TElement>(
                 this.cc,
                 fieldComparer,
                 this.builder,

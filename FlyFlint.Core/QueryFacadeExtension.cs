@@ -61,7 +61,7 @@ namespace FlyFlint
 #endif
         public static ParameterizedQueryContext Query<TParameters>(
             this DbConnection connection,
-            PreparedParameterizableQueryContext prepared,
+            PreparedPartialQueryContext prepared,
             TParameters parameters)
             where TParameters : notnull
         {
@@ -82,7 +82,7 @@ namespace FlyFlint
         public static ParameterizedQueryContext Query<TParameters>(
             this DbConnection connection,
             DbTransaction transaction,
-            PreparedParameterizableQueryContext prepared,
+            PreparedPartialQueryContext prepared,
             TParameters parameters)
             where TParameters : notnull
         {
@@ -104,7 +104,7 @@ namespace FlyFlint
 #endif
         public static ParameterizedQueryContext<TElement> Query<TElement, TParameters>(
             this DbConnection connection,
-            PreparedParameterizableQueryContext<TElement> prepared,
+            PreparedPartialQueryContext<TElement> prepared,
             TParameters parameters)
             where TElement : new()
             where TParameters : notnull
@@ -127,7 +127,7 @@ namespace FlyFlint
         public static ParameterizedQueryContext<TElement> Query<TElement, TParameters>(
             this DbConnection connection,
             DbTransaction transaction,
-            PreparedParameterizableQueryContext<TElement> prepared,
+            PreparedPartialQueryContext<TElement> prepared,
             TParameters parameters)
             where TElement : new()
             where TParameters : notnull
@@ -150,7 +150,7 @@ namespace FlyFlint
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public static PreparedParameterizedQueryContext Parameter<TParameters>(
-            this PreparedParameterizableQueryContext prepared,
+            this PreparedPartialQueryContext prepared,
             Func<TParameters> getter)
             where TParameters : notnull
         {
@@ -167,7 +167,7 @@ namespace FlyFlint
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public static PreparedParameterizedQueryContext<TElement> Parameter<TElement, TParameters>(
-            this PreparedParameterizableQueryContext<TElement> prepared,
+            this PreparedPartialQueryContext<TElement> prepared,
             Func<TParameters> getter)
             where TElement : new()
             where TParameters : notnull
@@ -188,7 +188,7 @@ namespace FlyFlint
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public static ParameterizedQueryContext Parameter<TParameters>(
-            this ParameterizableQueryContext query,
+            this PartialQueryContext query,
             TParameters parameters)
             where TParameters : notnull =>
             new ParameterizedQueryContext(
@@ -203,7 +203,7 @@ namespace FlyFlint
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public static ParameterizedQueryContext<TElement> Parameter<TElement, TParameters>(
-            this ParameterizableQueryContext<TElement> query,
+            this PartialQueryContext<TElement> query,
             TParameters parameters)
             where TElement : new()
             where TParameters : notnull =>
