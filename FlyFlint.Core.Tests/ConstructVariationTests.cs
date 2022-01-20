@@ -115,7 +115,7 @@ namespace FlyFlint
             using var connection = await CreateConnectionAsync();
 
             var prepared = Query.Prepare<Target>("SELECT * FROM target WHERE Id = @idparam").
-                Parameter__(() => new Parameter { idparam = 2 });
+                Parameter__(new Parameter { idparam = 2 });
 
             var targets = await connection.Query(prepared).
                 ExecuteAsync__().
@@ -131,58 +131,6 @@ namespace FlyFlint
 
             var idparam = 2;
             var prepared = Query.Prepare<Target>($"SELECT * FROM target WHERE Id = {idparam}");
-
-            var targets = await connection.Query(prepared).
-                ExecuteAsync__().
-                ToArrayAsync();
-
-            await Verify(targets.Select(element => $"{element.Id},{element.Name},{element.Birth.ToString(CultureInfo.InvariantCulture)}"));
-        }
-
-        /////////////////////////////////////////////////////////////////////////////
-
-        [Test]
-        public async Task QueryFromPreparedWithTypedParameterAfterTypedElement()
-        {
-            using var connection = await CreateConnectionAsync();
-
-            var prepared = Query.Prepare("SELECT * FROM target WHERE Id = @idparam").
-                Parameter__(() => new Parameter { idparam = 2 }).
-                Typed<Target>();
-
-            var targets = await connection.Query(prepared).
-                ExecuteAsync__().
-                ToArrayAsync();
-
-            await Verify(targets.Select(element => $"{element.Id},{element.Name},{element.Birth.ToString(CultureInfo.InvariantCulture)}"));
-        }
-
-        [Test]
-        public async Task QueryFromPreparedWithInlineParameterAfterTypedElement()
-        {
-            using var connection = await CreateConnectionAsync();
-
-            var idparam = 2;
-            var prepared = Query.Prepare($"SELECT * FROM target WHERE Id = {idparam}").
-                Typed<Target>();
-
-            var targets = await connection.Query(prepared).
-                ExecuteAsync__().
-                ToArrayAsync();
-
-            await Verify(targets.Select(element => $"{element.Id},{element.Name},{element.Birth.ToString(CultureInfo.InvariantCulture)}"));
-        }
-
-        /////////////////////////////////////////////////////////////////////////////
-
-        [Test]
-        public async Task QueryFromPreparedWithTypedParameterBeforeTypedElement()
-        {
-            using var connection = await CreateConnectionAsync();
-
-            var prepared = Query.Prepare("SELECT * FROM target WHERE Id = @idparam").
-                Typed<Target>().
-                Parameter__(() => new Parameter { idparam = 2 });
 
             var targets = await connection.Query(prepared).
                 ExecuteAsync__().
@@ -211,65 +159,14 @@ namespace FlyFlint
         /////////////////////////////////////////////////////////////////////////////
 
         [Test]
-        public async Task QueryAfterTypedParameterAfterTypedElement()
-        {
-            using var connection = await CreateConnectionAsync();
-
-            var prepared = Query.Prepare("SELECT * FROM target WHERE Id = @idparam");
-
-            var targets = await connection.Query(prepared).
-                Parameter__(new Parameter { idparam = 2 }).
-                Typed<Target>().
-                ExecuteAsync__().
-                ToArrayAsync();
-
-            await Verify(targets.Select(element => $"{element.Id},{element.Name},{element.Birth.ToString(CultureInfo.InvariantCulture)}"));
-        }
-
-        [Test]
-        public async Task QueryAfterTypedParameterBeforeTypedElement()
-        {
-            using var connection = await CreateConnectionAsync();
-
-            var prepared = Query.Prepare("SELECT * FROM target WHERE Id = @idparam");
-
-            var targets = await connection.Query(prepared).
-                Typed<Target>().
-                Parameter__(new Parameter { idparam = 2 }).
-                ExecuteAsync__().
-                ToArrayAsync();
-
-            await Verify(targets.Select(element => $"{element.Id},{element.Name},{element.Birth.ToString(CultureInfo.InvariantCulture)}"));
-        }
-
-        /////////////////////////////////////////////////////////////////////////////
-
-        [Test]
-        public async Task QueryWithTypedElementAfterTypedParameter()
-        {
-            using var connection = await CreateConnectionAsync();
-
-            var prepared = Query.Prepare("SELECT * FROM target WHERE Id = @idparam");
-
-            var targets = await connection.Query<Target>(prepared).
-                Parameter__(new Parameter { idparam = 2 }).
-                ExecuteAsync__().
-                ToArrayAsync();
-
-            await Verify(targets.Select(element => $"{element.Id},{element.Name},{element.Birth.ToString(CultureInfo.InvariantCulture)}"));
-        }
-
-        /////////////////////////////////////////////////////////////////////////////
-
-        [Test]
         public async Task QueryFromPreparedWithTypedParameterWithTypedElement()
         {
             using var connection = await CreateConnectionAsync();
 
-            var prepared = Query.Prepare("SELECT * FROM target WHERE Id = @idparam").
+            var prepared = Query.Prepare<Target>("SELECT * FROM target WHERE Id = @idparam").
                 Parameter__(() => new Parameter { idparam = 2 });
 
-            var targets = await connection.Query<Target>(prepared).
+            var targets = await connection.Query(prepared).
                 ExecuteAsync__().
                 ToArrayAsync();
 
@@ -282,9 +179,9 @@ namespace FlyFlint
             using var connection = await CreateConnectionAsync();
 
             var idparam = 2;
-            var prepared = Query.Prepare($"SELECT * FROM target WHERE Id = {idparam}");
+            var prepared = Query.Prepare<Target>($"SELECT * FROM target WHERE Id = {idparam}");
 
-            var targets = await connection.Query<Target>(prepared).
+            var targets = await connection.Query(prepared).
                 ExecuteAsync__().
                 ToArrayAsync();
 

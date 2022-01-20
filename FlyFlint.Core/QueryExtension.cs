@@ -40,7 +40,7 @@ namespace FlyFlint
 #endif
         public static PartialQueryContext Query(
             this DbConnection connection,
-            DbTransaction transaction,
+            DbTransaction? transaction,
             String sql) =>
             FlyFlint.Query.DefaultTrait.Query(connection, transaction, sql);
 
@@ -49,7 +49,7 @@ namespace FlyFlint
 #endif
         public static ParameterizedQueryContext Query(
             this DbConnection connection,
-            DbTransaction transaction,
+            DbTransaction? transaction,
             FormattableString sql) =>
             FlyFlint.Query.DefaultTrait.Query(connection, transaction, sql);
 
@@ -80,7 +80,7 @@ namespace FlyFlint
 #endif
         public static PartialQueryContext<TElement> Query<TElement>(
             this DbConnection connection,
-            DbTransaction transaction,
+            DbTransaction? transaction,
             String sql)
             where TElement : new() =>
             FlyFlint.Query.DefaultTrait.Query<TElement>(connection, transaction, sql);
@@ -90,7 +90,7 @@ namespace FlyFlint
 #endif
         public static ParameterizedQueryContext<TElement> Query<TElement>(
             this DbConnection connection,
-            DbTransaction transaction,
+            DbTransaction? transaction,
             FormattableString sql)
             where TElement : new() =>
             FlyFlint.Query.DefaultTrait.Query<TElement>(connection, transaction, sql);
@@ -123,40 +123,6 @@ namespace FlyFlint
             var built = prepared.builder();
             Debug.Assert(object.ReferenceEquals(built.parameters, Database.defaultParameters));
             return new PartialQueryContext(
-                connection,
-                null,
-                prepared.trait,
-                built.sql);
-        }
-
-        /////////////////////////////////////////////////////////////////////////////
-
-#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-        public static ParameterizedQueryContext<TElement> Query<TElement>(
-            this DbConnection connection,
-            PreparedParameterizedQueryContext prepared)
-        {
-            var built = prepared.builder();
-            return new ParameterizedQueryContext<TElement>(
-                connection,
-                null,
-                prepared.trait,
-                built.sql,
-                built.parameters);
-        }
-
-#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-        public static PartialQueryContext<TElement> Query<TElement>(
-            this DbConnection connection,
-            PreparedPartialQueryContext prepared)
-        {
-            var built = prepared.builder();
-            Debug.Assert(object.ReferenceEquals(built.parameters, Database.defaultParameters));
-            return new PartialQueryContext<TElement>(
                 connection,
                 null,
                 prepared.trait,

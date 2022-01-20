@@ -73,6 +73,21 @@ namespace FlyFlint
 
         public static PreparedParameterizedQueryContext Parameter__<TParameters>(
             this PreparedPartialQueryContext prepared,
+            TParameters parameter)
+            where TParameters : notnull, IParameterExtractable =>
+            StaticQueryFacade.Parameter(prepared, parameter);
+
+        public static PreparedParameterizedQueryContext<TElement> Parameter__<TElement, TParameters>(
+            this PreparedPartialQueryContext<TElement> prepared,
+            TParameters parameter)
+            where TElement : IDataInjectable, new()
+            where TParameters : notnull, IParameterExtractable =>
+            StaticQueryFacade.Parameter(prepared, parameter);
+
+        /////////////////////////////////////////////////////////////////////////////
+
+        public static PreparedParameterizedQueryContext Parameter__<TParameters>(
+            this PreparedPartialQueryContext prepared,
             Func<TParameters> getter)
             where TParameters : notnull, IParameterExtractable =>
             StaticQueryFacade.Parameter(prepared, getter);

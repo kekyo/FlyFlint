@@ -24,15 +24,6 @@ namespace FlyFlint.Context
             base(trait, builder)
         {
         }
-
-#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-        public PreparedPartialQueryContext<TElement> Typed<TElement>()
-            where TElement : new() =>
-            new PreparedPartialQueryContext<TElement>(
-                this.trait,
-                this.builder);
     }
 
     public sealed class PreparedPartialQueryContext<TElement> : PreparedQueryContext<TElement>

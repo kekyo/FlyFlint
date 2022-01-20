@@ -149,11 +149,48 @@ namespace FlyFlint
 #endif
         public static PreparedParameterizedQueryContext Parameter<TParameters>(
             this PreparedPartialQueryContext prepared,
+            TParameters parameters)
+            where TParameters : notnull
+        {
+            var (sql, dps) = prepared.builder();
+            Debug.Assert(object.ReferenceEquals(dps, Database.defaultParameters));
+            var constructParameters = DynamicQueryExecutorFacade.GetConstructParameters(
+                () => parameters, prepared.trait.parameterPrefix);
+            return new PreparedParameterizedQueryContext(
+                prepared.trait,
+                () => new QueryParameterBuilderResult(sql, constructParameters()));
+        }
+
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public static PreparedParameterizedQueryContext<TElement> Parameter<TElement, TParameters>(
+            this PreparedPartialQueryContext<TElement> prepared,
+            TParameters parameters)
+            where TElement : new()
+            where TParameters : notnull
+        {
+            var (sql, dps) = prepared.builder();
+            Debug.Assert(object.ReferenceEquals(dps, Database.defaultParameters));
+            var constructParameters = DynamicQueryExecutorFacade.GetConstructParameters(
+                () => parameters, prepared.trait.parameterPrefix);
+            return new PreparedParameterizedQueryContext<TElement>(
+                prepared.trait,
+                () => new QueryParameterBuilderResult(sql, constructParameters()));
+        }
+
+        /////////////////////////////////////////////////////////////////////////////
+
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public static PreparedParameterizedQueryContext Parameter<TParameters>(
+            this PreparedPartialQueryContext prepared,
             Func<TParameters> getter)
             where TParameters : notnull
         {
-            var (sql, parameters) = prepared.builder();
-            Debug.Assert(object.ReferenceEquals(parameters, Database.defaultParameters));
+            var (sql, dps) = prepared.builder();
+            Debug.Assert(object.ReferenceEquals(dps, Database.defaultParameters));
             var constructParameters = DynamicQueryExecutorFacade.GetConstructParameters(
                 getter, prepared.trait.parameterPrefix);
             return new PreparedParameterizedQueryContext(
@@ -170,8 +207,8 @@ namespace FlyFlint
             where TElement : new()
             where TParameters : notnull
         {
-            var (sql, parameters) = prepared.builder();
-            Debug.Assert(object.ReferenceEquals(parameters, Database.defaultParameters));
+            var (sql, dps) = prepared.builder();
+            Debug.Assert(object.ReferenceEquals(dps, Database.defaultParameters));
             var constructParameters = DynamicQueryExecutorFacade.GetConstructParameters(
                 getter, prepared.trait.parameterPrefix);
             return new PreparedParameterizedQueryContext<TElement>(

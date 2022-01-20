@@ -27,9 +27,9 @@ namespace FlyFlint
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static PreparedPartialQueryContext<T> Prepare<T>(String sql)
-            where T : new() =>
-            DefaultTrait.Prepare<T>(sql);
+        public static PreparedPartialQueryContext<TElement> Prepare<TElement>(String sql)
+            where TElement : new() =>
+            DefaultTrait.Prepare<TElement>(sql);
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -40,9 +40,9 @@ namespace FlyFlint
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static PreparedParameterizedQueryContext<T> Prepare<T>(FormattableString sql)
-            where T : new() =>
-            DefaultTrait.Prepare<T>(sql);
+        public static PreparedParameterizedQueryContext<TElement> Prepare<TElement>(FormattableString sql)
+            where TElement : new() =>
+            DefaultTrait.Prepare<TElement>(sql);
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

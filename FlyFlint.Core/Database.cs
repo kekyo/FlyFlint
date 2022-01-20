@@ -137,7 +137,7 @@ namespace FlyFlint
 #endif
         public PartialQueryContext Query(
             DbConnection connection,
-            DbTransaction transaction,
+            DbTransaction? transaction,
             String sql) =>
             new PartialQueryContext(
                 connection,
@@ -150,7 +150,7 @@ namespace FlyFlint
 #endif
         public ParameterizedQueryContext Query(
             DbConnection connection,
-            DbTransaction transaction,
+            DbTransaction? transaction,
             FormattableString sql) =>
             new ParameterizedQueryContext(
                 connection,
@@ -195,7 +195,7 @@ namespace FlyFlint
 #endif
         public PartialQueryContext<TElement> Query<TElement>(
             DbConnection connection,
-            DbTransaction transaction,
+            DbTransaction? transaction,
             String sql)
             where TElement : new() =>
             new PartialQueryContext<TElement>(
@@ -209,7 +209,7 @@ namespace FlyFlint
 #endif
         public ParameterizedQueryContext<TElement> Query<TElement>(
             DbConnection connection,
-            DbTransaction transaction,
+            DbTransaction? transaction,
             FormattableString sql)
             where TElement : new() =>
             new ParameterizedQueryContext<TElement>(

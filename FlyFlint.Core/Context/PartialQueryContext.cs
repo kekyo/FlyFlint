@@ -7,7 +7,6 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
-using System.Collections.Generic;
 using System.Data.Common;
 using System.Runtime.CompilerServices;
 
@@ -30,21 +29,10 @@ namespace FlyFlint.Context
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public PartialQueryContext Transaction(DbTransaction transaction) =>
+        public PartialQueryContext Transaction(DbTransaction? transaction) =>
             new PartialQueryContext(
                 this.connection,
                 transaction,
-                this.trait,
-                this.sql);
-
-#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-        public PartialQueryContext<TElement> Typed<TElement>()
-            where TElement : new() =>
-            new PartialQueryContext<TElement>(
-                this.connection,
-                this.transaction,
                 this.trait,
                 this.sql);
     }
@@ -66,7 +54,7 @@ namespace FlyFlint.Context
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public PartialQueryContext<TElement> Transaction(DbTransaction transaction) =>
+        public PartialQueryContext<TElement> Transaction(DbTransaction? transaction) =>
             new PartialQueryContext<TElement>(
                 this.connection,
                 transaction,

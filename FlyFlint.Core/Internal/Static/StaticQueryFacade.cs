@@ -157,11 +157,50 @@ namespace FlyFlint.Internal.Static
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static PreparedParameterizedQueryContext Parameter<TParameters>(
             PreparedPartialQueryContext prepared,
+            TParameters parameters)
+            where TParameters : notnull, IParameterExtractable
+        {
+            var (sql, dps) = prepared.builder();
+            Debug.Assert(object.ReferenceEquals(dps, Database.defaultParameters));
+            var constructParameters = StaticQueryExecutor.GetConstructParameters(
+                () => parameters, prepared.trait.parameterPrefix);
+            return new PreparedParameterizedQueryContext(
+                prepared.trait,
+                () => new QueryParameterBuilderResult(sql, constructParameters()));
+        }
+
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static PreparedParameterizedQueryContext<TElement> Parameter<TElement, TParameters>(
+            PreparedPartialQueryContext<TElement> prepared,
+            TParameters parameters)
+            where TElement : IDataInjectable, new()
+            where TParameters : notnull, IParameterExtractable
+        {
+            var (sql, dps) = prepared.builder();
+            Debug.Assert(object.ReferenceEquals(dps, Database.defaultParameters));
+            var constructParameters = StaticQueryExecutor.GetConstructParameters(
+                () => parameters, prepared.trait.parameterPrefix);
+            return new PreparedParameterizedQueryContext<TElement>(
+                prepared.trait,
+                () => new QueryParameterBuilderResult(sql, constructParameters()));
+        }
+
+        /////////////////////////////////////////////////////////////////////////////
+
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static PreparedParameterizedQueryContext Parameter<TParameters>(
+            PreparedPartialQueryContext prepared,
             Func<TParameters> getter)
             where TParameters : notnull, IParameterExtractable
         {
-            var (sql, parameters) = prepared.builder();
-            Debug.Assert(object.ReferenceEquals(parameters, Database.defaultParameters));
+            var (sql, dps) = prepared.builder();
+            Debug.Assert(object.ReferenceEquals(dps, Database.defaultParameters));
             var constructParameters = StaticQueryExecutor.GetConstructParameters(
                 getter, prepared.trait.parameterPrefix);
             return new PreparedParameterizedQueryContext(
@@ -179,8 +218,8 @@ namespace FlyFlint.Internal.Static
             where TElement : IDataInjectable, new()
             where TParameters : notnull, IParameterExtractable
         {
-            var (sql, parameters) = prepared.builder();
-            Debug.Assert(object.ReferenceEquals(parameters, Database.defaultParameters));
+            var (sql, dps) = prepared.builder();
+            Debug.Assert(object.ReferenceEquals(dps, Database.defaultParameters));
             var constructParameters = StaticQueryExecutor.GetConstructParameters(
                 getter, prepared.trait.parameterPrefix);
             return new PreparedParameterizedQueryContext<TElement>(
