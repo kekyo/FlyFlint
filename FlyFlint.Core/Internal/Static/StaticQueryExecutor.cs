@@ -36,13 +36,10 @@ namespace FlyFlint.Internal.Static
             where TParameters : IParameterExtractable
         {
             var extracted = parameters.Extract();
-            if (parameterPrefix.Length >= 1)
+            for (var index = 0; index < extracted.Length; index++)
             {
-                for (var index = 0; index < extracted.Length; index++)
-                {
-                    extracted[index] = new KeyValuePair<string, object?>(
-                        parameterPrefix + extracted[index].Key, extracted[index].Value);
-                }
+                extracted[index] = new KeyValuePair<string, object?>(
+                    parameterPrefix + extracted[index].Key, extracted[index].Value);
             }
             return extracted;
         }
@@ -58,18 +55,18 @@ namespace FlyFlint.Internal.Static
             }
         }
 
-        public static T ExecuteScalar<T>(QueryContext query)
+        public static TElement ExecuteScalar<TElement>(QueryContext<TElement> query)
         {
             using (var command = QueryHelper.CreateCommand(
                 query.connection, query.transaction, query.sql, query.parameters))
             {
-                return InternalValueConverter<T>.converter.Convert(
+                return InternalValueConverter<TElement>.converter.Convert(
                     query.trait.cc, command.ExecuteScalar());
             }
         }
 
-        public static IEnumerable<T> Execute<T>(QueryContext<T> query)
-            where T : IDataInjectable, new()
+        public static IEnumerable<TElement> Execute<TElement>(QueryContext<TElement> query)
+            where TElement : IDataInjectable, new()
         {
             using (var command = QueryHelper.CreateCommand(
                 query.connection, query.transaction, query.sql, query.parameters))
@@ -81,7 +78,7 @@ namespace FlyFlint.Internal.Static
                         var context = new DataInjectionContext(
                             query.trait.cc, query.trait.fieldComparer, reader);
 
-                        var element = new T();
+                        var element = new TElement();
                         var metadataList = element.Prepare(context);
 
                         element.Inject(context, metadataList);
@@ -89,7 +86,7 @@ namespace FlyFlint.Internal.Static
 
                         while (reader.Read())
                         {
-                            element = new T();
+                            element = new TElement();
                             element.Inject(context, metadataList);
                             yield return element;
                         }
@@ -109,19 +106,19 @@ namespace FlyFlint.Internal.Static
             }
         }
 
-        public static async Task<T> ExecuteScalarAsync<T>(QueryContext query)
+        public static async Task<TElement> ExecuteScalarAsync<TElement>(QueryContext<TElement> query)
         {
             using (var command = QueryHelper.CreateCommand(
                 query.connection, query.transaction, query.sql, query.parameters))
             {
-                return InternalValueConverter<T>.converter.Convert(
+                return InternalValueConverter<TElement>.converter.Convert(
                     query.trait.cc, await command.ExecuteScalarAsync().ConfigureAwait(false));
             }
         }
 
 #if NET461_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
-        public static async IAsyncEnumerable<T> ExecuteAsync<T>(QueryContext<T> query)
-            where T : IDataInjectable, new()
+        public static async IAsyncEnumerable<TElement> ExecuteAsync<TElement>(QueryContext<TElement> query)
+            where TElement : IDataInjectable, new()
         {
             using (var command = QueryHelper.CreateCommand(
                 query.connection, query.transaction, query.sql, query.parameters))
@@ -133,7 +130,7 @@ namespace FlyFlint.Internal.Static
                         var context = new DataInjectionContext(
                             query.trait.cc, query.trait.fieldComparer, reader);
 
-                        var element = new T();
+                        var element = new TElement();
                         var metadataList = element.Prepare(context);
 
                         element.Inject(context, metadataList);
@@ -141,7 +138,7 @@ namespace FlyFlint.Internal.Static
 
                         while (await reader.ReadAsync().ConfigureAwait(false))
                         {
-                            element = new T();
+                            element = new TElement();
                             element.Inject(context, metadataList);
                             yield return element;
                         }

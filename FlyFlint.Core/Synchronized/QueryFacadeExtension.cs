@@ -25,14 +25,14 @@ namespace FlyFlint.Synchronized
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static T ExecuteScalar<T>(this QueryContext query) =>
-            DynamicQueryExecutorFacade.ExecuteScalar<T>(query);
+        public static TElement ExecuteScalar<TElement>(this QueryContext<TElement> query) =>
+            DynamicQueryExecutorFacade.ExecuteScalar(query);
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static IEnumerable<T> Execute<T>(this QueryContext<T> query)
-            where T : new() =>
+        public static IEnumerable<TElement> Execute<TElement>(this QueryContext<TElement> query)
+            where TElement : new() =>
             DynamicQueryExecutorFacade.Execute(query);
     }
 }

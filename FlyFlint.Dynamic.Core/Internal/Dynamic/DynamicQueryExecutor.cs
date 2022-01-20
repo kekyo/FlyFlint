@@ -54,7 +54,8 @@ namespace FlyFlint.Internal.Dynamic
             };
         }
 
-        public KeyValuePair<string, object?>[] GetParameters<TParameters>(ref TParameters parameters, string parameterPrefix)
+        public KeyValuePair<string, object?>[] GetParameters<TParameters>(
+            ref TParameters parameters, string parameterPrefix)
             where TParameters : notnull
         {
             var members = DynamicHelper.GetGetterMetadataList<TParameters>();
@@ -79,18 +80,18 @@ namespace FlyFlint.Internal.Dynamic
             }
         }
 
-        public T ExecuteScalar<T>(QueryContext query)
+        public TElement ExecuteScalar<TElement>(QueryContext<TElement> query)
         {
             using (var command = QueryHelper.CreateCommand(
                 query.connection, query.transaction, query.sql, query.parameters))
             {
-                return InternalValueConverter<T>.converter.Convert(
+                return InternalValueConverter<TElement>.converter.Convert(
                     query.trait.cc, command.ExecuteScalar());
             }
         }
 
-        public IEnumerable<T> Execute<T>(QueryContext<T> query)
-            where T : new()
+        public IEnumerable<TElement> Execute<TElement>(QueryContext<TElement> query)
+            where TElement : new()
         {
             using (var command = QueryHelper.CreateCommand(
                 query.connection, query.transaction, query.sql, query.parameters))
@@ -102,10 +103,10 @@ namespace FlyFlint.Internal.Dynamic
                         var context = new DynamicDataInjectionContext(
                             query.trait.cc, query.trait.fieldComparer, reader);
 
-                        var injector = new DynamicInjector<T>(context);
+                        var injector = new DynamicInjector<TElement>(context);
                         do
                         {
-                            var element = new T();
+                            var element = new TElement();
                             injector.Inject(ref element);
                             yield return element;
                         }
@@ -126,20 +127,20 @@ namespace FlyFlint.Internal.Dynamic
             }
         }
 
-        public async Task<T> ExecuteScalarAsync<T>(QueryContext query)
+        public async Task<TElement> ExecuteScalarAsync<TElement>(QueryContext<TElement> query)
         {
             using (var command = QueryHelper.CreateCommand(
                 query.connection, query.transaction, query.sql, query.parameters))
             {
-                return InternalValueConverter<T>.converter.Convert(
+                return InternalValueConverter<TElement>.converter.Convert(
                     query.trait.cc, await command.ExecuteScalarAsync().ConfigureAwait(false));
             }
         }
 
 #if NET461_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public async IAsyncEnumerable<T> ExecuteAsync<T>(QueryContext<T> query)
-            where T : new()
+        public async IAsyncEnumerable<TElement> ExecuteAsync<TElement>(QueryContext<TElement> query)
+            where TElement : new()
         {
             using (var command = QueryHelper.CreateCommand(
                 query.connection, query.transaction, query.sql, query.parameters))
@@ -151,10 +152,10 @@ namespace FlyFlint.Internal.Dynamic
                         var context = new DynamicDataInjectionContext(
                             query.trait.cc, query.trait.fieldComparer, reader);
 
-                        var injector = new DynamicInjector<T>(context);
+                        var injector = new DynamicInjector<TElement>(context);
                         do
                         {
-                            var element = new T();
+                            var element = new TElement();
                             injector.Inject(ref element);
                             yield return element;
                         }

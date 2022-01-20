@@ -16,14 +16,14 @@ namespace FlyFlint.Context
 {
     public abstract class PreparedQueryContext
     {
-        internal readonly DatabaseTrait trait;
+        internal readonly Database trait;
         internal readonly Func<QueryParameterBuilderResult> builder;
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         private protected PreparedQueryContext(
-            DatabaseTrait trait,
+            Database trait,
             Func<QueryParameterBuilderResult> builder)
         {
             this.trait = trait;
@@ -34,14 +34,14 @@ namespace FlyFlint.Context
     public abstract class PreparedQueryContext<TElement>
         where TElement : new()
     {
-        internal readonly DatabaseTrait trait;
+        internal readonly Database trait;
         internal readonly Func<QueryParameterBuilderResult> builder;
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         private protected PreparedQueryContext(
-            DatabaseTrait trait,
+            Database trait,
             Func<QueryParameterBuilderResult> builder)
         {
             this.trait = trait;

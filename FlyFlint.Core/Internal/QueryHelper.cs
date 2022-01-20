@@ -14,9 +14,6 @@ using System.Data;
 using System.Data.Common;
 using System.Linq;
 using System.Runtime.CompilerServices;
-#if NET40_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
-using System.Threading.Tasks;
-#endif
 
 namespace FlyFlint.Internal
 {
@@ -34,17 +31,30 @@ namespace FlyFlint.Internal
 
         /////////////////////////////////////////////////////////////////////
 
-#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-        public static string GetFormattedSqlString(FormattableString fs, string parameterPrefix) =>
-            string.Format(fs.Format, fs.GetArguments().Select((arg, index) => parameterPrefix + "arg" + index).ToArray());
+        public static string GetFormattedSqlString(
+            FormattableString fs, string parameterPrefix)
+        {
+            var args = fs.GetArguments();
+            var formatArgs = new string[args.Length];
+            for (var index = 0; index < formatArgs.Length; index++)
+            {
+                formatArgs[index] = parameterPrefix + "a" + index;
+            }
+            return string.Format(fs.Format, formatArgs);
+        }
 
-#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-        public static KeyValuePair<string, object?>[] GetSqlParameters(FormattableString fs, string parameterPrefix) =>
-            fs.GetArguments().Select((arg, index) => new KeyValuePair<string, object?>(parameterPrefix + "arg" + index, arg)).ToArray();
+        public static KeyValuePair<string, object?>[] GetSqlParameters(
+            FormattableString fs, string parameterPrefix)
+        {
+            var args = fs.GetArguments();
+            var parameters = new KeyValuePair<string, object?>[args.Length];
+            for (var index = 0; index < parameters.Length; index++)
+            {
+                parameters[index] = new KeyValuePair<string, object?>(
+                    parameterPrefix + "a" + index, args[index]);
+            }
+            return parameters;
+        }
 
         /////////////////////////////////////////////////////////////////////
 

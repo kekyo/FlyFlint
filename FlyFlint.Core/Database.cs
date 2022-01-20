@@ -16,7 +16,7 @@ using System.Runtime.CompilerServices;
 
 namespace FlyFlint
 {
-    public sealed class DatabaseTrait
+    public sealed class Database
     {
         internal static readonly KeyValuePair<string, object?>[] defaultParameters = { };
 
@@ -27,7 +27,7 @@ namespace FlyFlint
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        private DatabaseTrait(ConversionContext cc, IComparer<string> fieldComparer, string parameterPrefix)
+        private Database(ConversionContext cc, IComparer<string> fieldComparer, string parameterPrefix)
         {
             this.cc = cc;
             this.fieldComparer = fieldComparer;
@@ -39,7 +39,7 @@ namespace FlyFlint
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public PreparedPartialQueryContext Prepare(PartialQueryString sql) =>
+        public PreparedPartialQueryContext Prepare(String sql) =>
             new PreparedPartialQueryContext(
                 this,
                 () => new QueryParameterBuilderResult(sql.Sql, defaultParameters));
@@ -47,7 +47,7 @@ namespace FlyFlint
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public PreparedPartialQueryContext<T> Prepare<T>(PartialQueryString sql)
+        public PreparedPartialQueryContext<T> Prepare<T>(String sql)
             where T : new() =>
             new PreparedPartialQueryContext<T>(
                 this,
@@ -110,7 +110,7 @@ namespace FlyFlint
 #endif
         public PartialQueryContext Query(
             DbConnection connection,
-            PartialQueryString sql) =>
+            String sql) =>
             new PartialQueryContext(
                 connection,
                 null,
@@ -138,7 +138,7 @@ namespace FlyFlint
         public PartialQueryContext Query(
             DbConnection connection,
             DbTransaction transaction,
-            PartialQueryString sql) =>
+            String sql) =>
             new PartialQueryContext(
                 connection,
                 transaction,
@@ -166,7 +166,7 @@ namespace FlyFlint
 #endif
         public PartialQueryContext<TElement> Query<TElement>(
             DbConnection connection,
-            PartialQueryString sql)
+            String sql)
             where TElement : new() =>
             new PartialQueryContext<TElement>(
                 connection,
@@ -196,7 +196,7 @@ namespace FlyFlint
         public PartialQueryContext<TElement> Query<TElement>(
             DbConnection connection,
             DbTransaction transaction,
-            PartialQueryString sql)
+            String sql)
             where TElement : new() =>
             new PartialQueryContext<TElement>(
                 connection,
@@ -221,38 +221,49 @@ namespace FlyFlint
 
         /////////////////////////////////////////////////////////////////////////////
 
-        public static readonly DatabaseTrait Default =
-            new DatabaseTrait(ConversionContext.Default, StringComparer.OrdinalIgnoreCase, "@");
+        public static readonly Database Default =
+            new Database(ConversionContext.Default, StringComparer.OrdinalIgnoreCase, "@");
+
+        public static readonly Database SqlServer =
+            Default;
+        public static readonly Database Sqlite =
+            Default;
+        public static readonly Database MySql =
+            Default;
+        public static readonly Database Postgresql =
+            Default;
+        public static readonly Database Oracle =
+            new Database(ConversionContext.Default, StringComparer.OrdinalIgnoreCase, ":");
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static DatabaseTrait Create(ConversionContext cc) =>
-            new DatabaseTrait(cc, StringComparer.OrdinalIgnoreCase, "@");
+        public static Database Create(ConversionContext cc) =>
+            new Database(cc, StringComparer.OrdinalIgnoreCase, "@");
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static DatabaseTrait Create(IComparer<string> fieldComparer) =>
-            new DatabaseTrait(ConversionContext.Default, fieldComparer, "@");
+        public static Database Create(IComparer<string> fieldComparer) =>
+            new Database(ConversionContext.Default, fieldComparer, "@");
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static DatabaseTrait Create(string parameterPrefix) =>
-            new DatabaseTrait(ConversionContext.Default, StringComparer.OrdinalIgnoreCase, parameterPrefix);
+        public static Database Create(string parameterPrefix) =>
+            new Database(ConversionContext.Default, StringComparer.OrdinalIgnoreCase, parameterPrefix);
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static DatabaseTrait Create(ConversionContext cc, IComparer<string> fieldComparer) =>
-            new DatabaseTrait(cc, fieldComparer, "@");
+        public static Database Create(ConversionContext cc, IComparer<string> fieldComparer) =>
+            new Database(cc, fieldComparer, "@");
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static DatabaseTrait Create(IComparer<string> fieldComparer, string parameterPrefix) =>
-            new DatabaseTrait(ConversionContext.Default, fieldComparer, parameterPrefix);
+        public static Database Create(IComparer<string> fieldComparer, string parameterPrefix) =>
+            new Database(ConversionContext.Default, fieldComparer, parameterPrefix);
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static DatabaseTrait Create(ConversionContext cc, IComparer<string> fieldComparer, string parameterPrefix) =>
-            new DatabaseTrait(cc, fieldComparer, parameterPrefix);
+        public static Database Create(ConversionContext cc, IComparer<string> fieldComparer, string parameterPrefix) =>
+            new Database(cc, fieldComparer, parameterPrefix);
     }
 }

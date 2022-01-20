@@ -26,7 +26,7 @@ namespace FlyFlint
 #endif
         public static ParameterizedQueryContext Query<TParameters>(
             this DbConnection connection,
-            PartialQueryString sql,
+            String sql,
             TParameters parameters)
             where TParameters : notnull =>
             new ParameterizedQueryContext(
@@ -43,7 +43,7 @@ namespace FlyFlint
         public static ParameterizedQueryContext Query<TParameters>(
             this DbConnection connection,
             DbTransaction transaction,
-            PartialQueryString sql,
+            String sql,
             TParameters parameters)
             where TParameters : notnull =>
             new ParameterizedQueryContext(
@@ -66,7 +66,7 @@ namespace FlyFlint
             where TParameters : notnull
         {
             var built = prepared.builder();
-            Debug.Assert(object.ReferenceEquals(built.parameters, DatabaseTrait.defaultParameters));
+            Debug.Assert(object.ReferenceEquals(built.parameters, Database.defaultParameters));
             return new ParameterizedQueryContext(
                 connection,
                 null,
@@ -87,7 +87,7 @@ namespace FlyFlint
             where TParameters : notnull
         {
             var built = prepared.builder();
-            Debug.Assert(object.ReferenceEquals(built.parameters, DatabaseTrait.defaultParameters));
+            Debug.Assert(object.ReferenceEquals(built.parameters, Database.defaultParameters));
             return new ParameterizedQueryContext(
                 connection,
                 transaction,
@@ -110,7 +110,7 @@ namespace FlyFlint
             where TParameters : notnull
         {
             var built = prepared.builder();
-            Debug.Assert(object.ReferenceEquals(built.parameters, DatabaseTrait.defaultParameters));
+            Debug.Assert(object.ReferenceEquals(built.parameters, Database.defaultParameters));
             return new ParameterizedQueryContext<TElement>(
                 connection,
                 null,
@@ -132,7 +132,7 @@ namespace FlyFlint
             where TParameters : notnull
         {
             var built = prepared.builder();
-            Debug.Assert(object.ReferenceEquals(built.parameters, DatabaseTrait.defaultParameters));
+            Debug.Assert(object.ReferenceEquals(built.parameters, Database.defaultParameters));
             return new ParameterizedQueryContext<TElement>(
                 connection,
                 transaction,
@@ -153,7 +153,7 @@ namespace FlyFlint
             where TParameters : notnull
         {
             var (sql, parameters) = prepared.builder();
-            Debug.Assert(object.ReferenceEquals(parameters, DatabaseTrait.defaultParameters));
+            Debug.Assert(object.ReferenceEquals(parameters, Database.defaultParameters));
             var constructParameters = DynamicQueryExecutorFacade.GetConstructParameters(
                 getter, prepared.trait.parameterPrefix);
             return new PreparedParameterizedQueryContext(
@@ -171,7 +171,7 @@ namespace FlyFlint
             where TParameters : notnull
         {
             var (sql, parameters) = prepared.builder();
-            Debug.Assert(object.ReferenceEquals(parameters, DatabaseTrait.defaultParameters));
+            Debug.Assert(object.ReferenceEquals(parameters, Database.defaultParameters));
             var constructParameters = DynamicQueryExecutorFacade.GetConstructParameters(
                 getter, prepared.trait.parameterPrefix);
             return new PreparedParameterizedQueryContext<TElement>(
@@ -223,8 +223,8 @@ namespace FlyFlint
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static Task<TResult> ExecuteScalarAsync<TResult>(this QueryContext query) =>
-            DynamicQueryExecutorFacade.ExecuteScalarAsync<TResult>(query);
+        public static Task<TElement> ExecuteScalarAsync<TElement>(this QueryContext<TElement> query) =>
+            DynamicQueryExecutorFacade.ExecuteScalarAsync(query);
 
 #if NET461_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

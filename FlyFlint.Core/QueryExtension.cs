@@ -22,7 +22,7 @@ namespace FlyFlint
 #endif
         public static PartialQueryContext Query(
             this DbConnection connection,
-            PartialQueryString sql) =>
+            String sql) =>
             FlyFlint.Query.DefaultTrait.Query(connection, sql);
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
@@ -41,7 +41,7 @@ namespace FlyFlint
         public static PartialQueryContext Query(
             this DbConnection connection,
             DbTransaction transaction,
-            PartialQueryString sql) =>
+            String sql) =>
             FlyFlint.Query.DefaultTrait.Query(connection, transaction, sql);
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
@@ -60,7 +60,7 @@ namespace FlyFlint
 #endif
         public static PartialQueryContext<TElement> Query<TElement>(
             this DbConnection connection,
-            PartialQueryString sql)
+            String sql)
             where TElement : new() =>
             FlyFlint.Query.DefaultTrait.Query<TElement>(connection, sql);
 
@@ -81,7 +81,7 @@ namespace FlyFlint
         public static PartialQueryContext<TElement> Query<TElement>(
             this DbConnection connection,
             DbTransaction transaction,
-            PartialQueryString sql)
+            String sql)
             where TElement : new() =>
             FlyFlint.Query.DefaultTrait.Query<TElement>(connection, transaction, sql);
 
@@ -121,7 +121,7 @@ namespace FlyFlint
             PreparedPartialQueryContext prepared)
         {
             var built = prepared.builder();
-            Debug.Assert(object.ReferenceEquals(built.parameters, DatabaseTrait.defaultParameters));
+            Debug.Assert(object.ReferenceEquals(built.parameters, Database.defaultParameters));
             return new PartialQueryContext(
                 connection,
                 null,
@@ -155,7 +155,7 @@ namespace FlyFlint
             PreparedPartialQueryContext prepared)
         {
             var built = prepared.builder();
-            Debug.Assert(object.ReferenceEquals(built.parameters, DatabaseTrait.defaultParameters));
+            Debug.Assert(object.ReferenceEquals(built.parameters, Database.defaultParameters));
             return new PartialQueryContext<TElement>(
                 connection,
                 null,
@@ -191,7 +191,7 @@ namespace FlyFlint
             PreparedPartialQueryContext prepared)
         {
             var built = prepared.builder();
-            Debug.Assert(object.ReferenceEquals(built.parameters, DatabaseTrait.defaultParameters));
+            Debug.Assert(object.ReferenceEquals(built.parameters, Database.defaultParameters));
             return new PartialQueryContext(
                 connection,
                 transaction,
@@ -227,7 +227,7 @@ namespace FlyFlint
             where TElement : new()
         {
             var built = prepared.builder();
-            Debug.Assert(object.ReferenceEquals(built.parameters, DatabaseTrait.defaultParameters));
+            Debug.Assert(object.ReferenceEquals(built.parameters, Database.defaultParameters));
             return new PartialQueryContext<TElement>(
                 connection,
                 null,
@@ -265,7 +265,7 @@ namespace FlyFlint
             where TElement : new()
         {
             var built = prepared.builder();
-            Debug.Assert(object.ReferenceEquals(built.parameters, DatabaseTrait.defaultParameters));
+            Debug.Assert(object.ReferenceEquals(built.parameters, Database.defaultParameters));
             return new PartialQueryContext<TElement>(
                 connection,
                 transaction,

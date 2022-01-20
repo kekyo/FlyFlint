@@ -19,7 +19,7 @@ namespace FlyFlint.Context
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         internal PreparedPartialQueryContext(
-            DatabaseTrait trait,
+            Database trait,
             Func<QueryParameterBuilderResult> builder) :
             base(trait, builder)
         {
@@ -42,7 +42,7 @@ namespace FlyFlint.Context
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         internal PreparedPartialQueryContext(
-            DatabaseTrait trait,
+            Database trait,
             Func<QueryParameterBuilderResult> builder) :
             base(trait, builder)
         {

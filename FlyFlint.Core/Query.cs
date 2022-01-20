@@ -15,19 +15,19 @@ namespace FlyFlint
 {
     public static class Query
     {
-        public static DatabaseTrait DefaultTrait =
-            DatabaseTrait.Default;
+        public static Database DefaultTrait =
+            Database.Default;
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static PreparedPartialQueryContext Prepare(PartialQueryString sql) =>
+        public static PreparedPartialQueryContext Prepare(String sql) =>
             DefaultTrait.Prepare(sql);
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static PreparedPartialQueryContext<T> Prepare<T>(PartialQueryString sql)
+        public static PreparedPartialQueryContext<T> Prepare<T>(String sql)
             where T : new() =>
             DefaultTrait.Prepare<T>(sql);
 

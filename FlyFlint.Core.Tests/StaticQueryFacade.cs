@@ -20,7 +20,7 @@ namespace FlyFlint
     {
         public static ParameterizedQueryContext Query__<TParameters>(
             this DbConnection connection,
-            PartialQueryString sql,
+            String sql,
             TParameters parameters)
             where TParameters : notnull, IParameterExtractable =>
             StaticQueryFacade.Query(connection, sql, parameters);
@@ -28,7 +28,7 @@ namespace FlyFlint
         public static ParameterizedQueryContext Query__<TParameters>(
             this DbConnection connection,
             DbTransaction transaction,
-            PartialQueryString sql,
+            String sql,
             TParameters parameters)
             where TParameters : notnull, IParameterExtractable =>
             StaticQueryFacade.Query(connection, transaction, sql, parameters);
@@ -104,8 +104,8 @@ namespace FlyFlint
         public static void ExecuteNonQuery__(this QueryContext query) =>
             StaticQueryFacade.ExecuteNonQuery(query);
 
-        public static TResult ExecuteScalar__<TResult>(this QueryContext query) =>
-            StaticQueryFacade.ExecuteScalar<TResult>(query);
+        public static TElement ExecuteScalar__<TElement>(this QueryContext<TElement> query) =>
+            StaticQueryFacade.ExecuteScalar(query);
 
         public static IEnumerable<TElement> Execute__<TElement>(this QueryContext<TElement> query)
             where TElement : IDataInjectable, new() =>
@@ -116,8 +116,8 @@ namespace FlyFlint
         public static Task ExecuteNonQueryAsync__(this QueryContext query) =>
             StaticQueryFacade.ExecuteNonQueryAsync(query);
 
-        public static Task<TResult> ExecuteScalarAsync__<TResult>(this QueryContext query) =>
-            StaticQueryFacade.ExecuteScalarAsync<TResult>(query);
+        public static Task<TElement> ExecuteScalarAsync__<TElement>(this QueryContext<TElement> query) =>
+            StaticQueryFacade.ExecuteScalarAsync(query);
 
         public static IAsyncEnumerable<TElement> ExecuteAsync__<TElement>(this QueryContext<TElement> query)
             where TElement : IDataInjectable, new() =>

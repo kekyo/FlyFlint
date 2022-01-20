@@ -30,17 +30,17 @@ namespace FlyFlint.Internal.Dynamic
         /////////////////////////////////////////////////////////////////////
 
         int ExecuteNonQuery(QueryContext query);
-        T ExecuteScalar<T>(QueryContext query);
-        IEnumerable<T> Execute<T>(QueryContext<T> query)
-            where T : new();
+        TElement ExecuteScalar<TElement>(QueryContext<TElement> query);
+        IEnumerable<TElement> Execute<TElement>(QueryContext<TElement> query)
+            where TElement : new();
 
         /////////////////////////////////////////////////////////////////////
 
         Task<int> ExecuteNonQueryAsync(QueryContext query);
-        Task<T> ExecuteScalarAsync<T>(QueryContext query);
+        Task<TElement> ExecuteScalarAsync<TElement>(QueryContext<TElement> query);
 #if NET461_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
-        IAsyncEnumerable<T> ExecuteAsync<T>(QueryContext<T> query)
-            where T : new();
+        IAsyncEnumerable<TElement> ExecuteAsync<TElement>(QueryContext<TElement> query)
+            where TElement : new();
 #endif
     }
 
@@ -108,14 +108,14 @@ namespace FlyFlint.Internal.Dynamic
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        internal static T ExecuteScalar<T>(QueryContext query) =>
-            GetDynamicQueryExecutor().ExecuteScalar<T>(query);
+        internal static TElement ExecuteScalar<TElement>(QueryContext<TElement> query) =>
+            GetDynamicQueryExecutor().ExecuteScalar(query);
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        internal static IEnumerable<T> Execute<T>(QueryContext<T> query)
-            where T : new() =>
+        internal static IEnumerable<TElement> Execute<TElement>(QueryContext<TElement> query)
+            where TElement : new() =>
             GetDynamicQueryExecutor().Execute(query);
 
         /////////////////////////////////////////////////////////////////////
@@ -129,13 +129,13 @@ namespace FlyFlint.Internal.Dynamic
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        internal static Task<T> ExecuteScalarAsync<T>(QueryContext query) =>
-            GetDynamicQueryExecutor().ExecuteScalarAsync<T>(query);
+        internal static Task<TElement> ExecuteScalarAsync<TElement>(QueryContext<TElement> query) =>
+            GetDynamicQueryExecutor().ExecuteScalarAsync<TElement>(query);
 
 #if NET461_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static IAsyncEnumerable<T> ExecuteAsync<T>(QueryContext<T> query)
-            where T : new() =>
+        internal static IAsyncEnumerable<TElement> ExecuteAsync<TElement>(QueryContext<TElement> query)
+            where TElement : new() =>
             GetDynamicQueryExecutor().ExecuteAsync(query);
 #endif
     }
