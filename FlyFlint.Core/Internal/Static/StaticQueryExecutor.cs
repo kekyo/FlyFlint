@@ -14,28 +14,39 @@ using FlyFlint.Utilities;
 #endif
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace FlyFlint.Internal.Static
 {
-    internal static class StaticQueryExecutor
+    internal sealed class StaticQueryExecutor : QueryExecutor
     {
-        public static Func<KeyValuePair<string, object?>[]> GetConstructParameters<TParameters>(
+        public new static readonly QueryExecutor Instance = new StaticQueryExecutor();
+
+        private StaticQueryExecutor()
+        {
+        }
+
+        public override object? Convert(ConversionContext context, object? value, Type targetType) =>
+            throw new NotImplementedException();
+
+        public override object? UnsafeConvert(ConversionContext context, object value, Type targetType) =>
+            throw new NotImplementedException();
+
+        public override Func<KeyValuePair<string, object?>[]> GetConstructParameters<TParameters>(
             Func<TParameters> getter, string parameterPrefix)
-            where TParameters : notnull, IParameterExtractable
         {
             return () =>
             {
-                var parameters = getter();
+                var parameters = (IParameterExtractable)getter();
                 return GetParameters(ref parameters, parameterPrefix);
             };
         }
 
-        public static KeyValuePair<string, object?>[] GetParameters<TParameters>(
+        public override KeyValuePair<string, object?>[] GetParameters<TParameters>(
             ref TParameters parameters, string parameterPrefix)
-            where TParameters : IParameterExtractable
         {
-            var extracted = parameters.Extract();
+            var extracted = ((IParameterExtractable)parameters).Extract();
             for (var index = 0; index < extracted.Length; index++)
             {
                 extracted[index] = new KeyValuePair<string, object?>(
@@ -46,7 +57,7 @@ namespace FlyFlint.Internal.Static
 
         /////////////////////////////////////////////////////////////////////
 
-        public static int ExecuteNonQuery(QueryContext query)
+        public override int ExecuteNonQuery(QueryContext query)
         {
             using (var command = QueryHelper.CreateCommand(
                 query.connection, query.transaction, query.sql, query.parameters))
@@ -55,7 +66,7 @@ namespace FlyFlint.Internal.Static
             }
         }
 
-        public static TElement ExecuteScalar<TElement>(QueryContext<TElement> query)
+        public override TElement ExecuteScalar<TElement>(QueryContext<TElement> query)
         {
             using (var command = QueryHelper.CreateCommand(
                 query.connection, query.transaction, query.sql, query.parameters))
@@ -65,8 +76,35 @@ namespace FlyFlint.Internal.Static
             }
         }
 
-        public static IEnumerable<TElement> Execute<TElement>(QueryContext<TElement> query)
-            where TElement : IDataInjectable, new()
+        /////////////////////////////////////////////////////////////////////
+
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        private static PreparingResult<TElement> CreateAndPrepareAndInject<TElement>(
+            DataInjectionContext context, out TElement element)
+            where TElement : new()
+        {
+            element = new();
+            var pr = ((IDataInjectable<TElement>)element).Prepare(context);
+            pr.Injector(ref element, context, pr.MetadataList);
+            return pr;
+        }
+
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        private static void CreateAndInject<TElement>(
+            DataInjectionContext context, PreparingResult<TElement> pr, out TElement element)
+            where TElement : new()
+        {
+            element = new();
+            pr.Injector(ref element, context, pr.MetadataList);
+        }
+
+        /////////////////////////////////////////////////////////////////////
+
+        public override IEnumerable<TElement> Execute<TElement>(QueryContext<TElement> query)
         {
             using (var command = QueryHelper.CreateCommand(
                 query.connection, query.transaction, query.sql, query.parameters))
@@ -78,16 +116,15 @@ namespace FlyFlint.Internal.Static
                         var context = new DataInjectionContext(
                             query.trait.cc, query.trait.fieldComparer, reader);
 
-                        var element = new TElement();
-                        var metadataList = element.Prepare(context);
+                        TElement element;
+                        var pr = CreateAndPrepareAndInject(context, out element);
 
-                        element.Inject(context, metadataList);
                         yield return element;
 
                         while (reader.Read())
                         {
-                            element = new TElement();
-                            element.Inject(context, metadataList);
+                            CreateAndInject(context, pr, out element);
+
                             yield return element;
                         }
                     }
@@ -97,7 +134,7 @@ namespace FlyFlint.Internal.Static
 
         /////////////////////////////////////////////////////////////////////
 
-        public static async Task<int> ExecuteNonQueryAsync(QueryContext query)
+        public override async Task<int> ExecuteNonQueryAsync(QueryContext query)
         {
             using (var command = QueryHelper.CreateCommand(
                 query.connection, query.transaction, query.sql, query.parameters))
@@ -106,7 +143,7 @@ namespace FlyFlint.Internal.Static
             }
         }
 
-        public static async Task<TElement> ExecuteScalarAsync<TElement>(QueryContext<TElement> query)
+        public override async Task<TElement> ExecuteScalarAsync<TElement>(QueryContext<TElement> query)
         {
             using (var command = QueryHelper.CreateCommand(
                 query.connection, query.transaction, query.sql, query.parameters))
@@ -117,8 +154,7 @@ namespace FlyFlint.Internal.Static
         }
 
 #if NET461_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
-        public static async IAsyncEnumerable<TElement> ExecuteAsync<TElement>(QueryContext<TElement> query)
-            where TElement : IDataInjectable, new()
+        public override async IAsyncEnumerable<TElement> ExecuteAsync<TElement>(QueryContext<TElement> query)
         {
             using (var command = QueryHelper.CreateCommand(
                 query.connection, query.transaction, query.sql, query.parameters))
@@ -130,16 +166,15 @@ namespace FlyFlint.Internal.Static
                         var context = new DataInjectionContext(
                             query.trait.cc, query.trait.fieldComparer, reader);
 
-                        var element = new TElement();
-                        var metadataList = element.Prepare(context);
+                        TElement element;
+                        var pr = CreateAndPrepareAndInject(context, out element);
 
-                        element.Inject(context, metadataList);
                         yield return element;
 
                         while (await reader.ReadAsync().ConfigureAwait(false))
                         {
-                            element = new TElement();
-                            element.Inject(context, metadataList);
+                            CreateAndInject(context, pr, out element);
+
                             yield return element;
                         }
                     }

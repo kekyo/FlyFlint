@@ -20,7 +20,7 @@ namespace FlyFlint.Internal.Static
 {
     public sealed class StaticInjectorTests
     {
-        private struct TargetValueType : IDataInjectable
+        private struct TargetValueType : IDataInjectable<TargetValueType>
         {
             public int Id;
             public string? Name;
@@ -33,14 +33,17 @@ namespace FlyFlint.Internal.Static
                 new KeyValuePair<string, Type>(nameof(Birth), typeof(DateTime)),
             };
 
-            public DataInjectionMetadata[] Prepare(DataInjectionContext context) =>
-                context.Prepare(members);
+            private static readonly InjectDelegate<TargetValueType> injectDelegate = Inject;
 
-            public void Inject(DataInjectionContext context, DataInjectionMetadata[] metadataList)
+            public PreparingResult<TargetValueType> Prepare(DataInjectionContext context) =>
+                new PreparingResult<TargetValueType>(injectDelegate, context.Prepare(members));
+
+            private static void Inject(
+                ref TargetValueType element, DataInjectionContext context, DataInjectionMetadata[] metadataList)
             {
-                this.Id = context.GetInt32(metadataList[0]);
-                this.Name = context.GetString(metadataList[1]);
-                this.Birth = context.GetDateTime(metadataList[2]);
+                element.Id = context.GetInt32(metadataList[0]);
+                element.Name = context.GetString(metadataList[1]);
+                element.Birth = context.GetDateTime(metadataList[2]);
             }
         }
 
@@ -60,14 +63,14 @@ namespace FlyFlint.Internal.Static
 
             var context = new DataInjectionContext(
                 ConversionContext.Default, StringComparer.OrdinalIgnoreCase, reader);
-            var metadataList = element.Prepare(context);
+            var pr = element.Prepare(context);
 
-            element.Inject(context, metadataList);
+            pr.Injector(ref element, context, pr.MetadataList);
 
             return Verify($"{element.Id},{element.Name},{element.Birth.ToString(CultureInfo.InvariantCulture)}");
         }
 
-        private sealed class TargetReferenceType : IDataInjectable
+        private sealed class TargetReferenceType : IDataInjectable<TargetReferenceType>
         {
             public int Id;
             public string? Name;
@@ -80,14 +83,17 @@ namespace FlyFlint.Internal.Static
                 new KeyValuePair<string, Type>(nameof(Birth), typeof(DateTime)),
             };
 
-            public DataInjectionMetadata[] Prepare(DataInjectionContext context) =>
-                context.Prepare(members);
+            private static readonly InjectDelegate<TargetReferenceType> injectDelegate = Inject;
 
-            public void Inject(DataInjectionContext context, DataInjectionMetadata[] metadataList)
+            public PreparingResult<TargetReferenceType> Prepare(DataInjectionContext context) =>
+                new PreparingResult<TargetReferenceType>(injectDelegate, context.Prepare(members));
+
+            private static void Inject(
+                ref TargetReferenceType element, DataInjectionContext context, DataInjectionMetadata[] metadataList)
             {
-                this.Id = context.GetInt32(metadataList[0]);
-                this.Name = context.GetString(metadataList[1]);
-                this.Birth = context.GetDateTime(metadataList[2]);
+                element.Id = context.GetInt32(metadataList[0]);
+                element.Name = context.GetString(metadataList[1]);
+                element.Birth = context.GetDateTime(metadataList[2]);
             }
         }
 
@@ -107,9 +113,9 @@ namespace FlyFlint.Internal.Static
 
             var context = new DataInjectionContext(
                 ConversionContext.Default, StringComparer.OrdinalIgnoreCase, reader);
-            var metadataList = element.Prepare(context);
+            var pr = element.Prepare(context);
 
-            element.Inject(context, metadataList);
+            pr.Injector(ref element, context, pr.MetadataList);
 
             return Verify($"{element.Id},{element.Name},{element.Birth.ToString(CultureInfo.InvariantCulture)}");
         }

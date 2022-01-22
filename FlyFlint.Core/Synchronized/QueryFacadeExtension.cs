@@ -8,7 +8,7 @@
 ////////////////////////////////////////////////////////////////////////////
 
 using FlyFlint.Context;
-using FlyFlint.Internal.Dynamic;
+using FlyFlint.Internal;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
@@ -20,19 +20,19 @@ namespace FlyFlint.Synchronized
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public static int ExecuteNonQuery(this QueryContext query) =>
-            DynamicQueryExecutorFacade.ExecuteNonQuery(query);
+            QueryExecutor.Instance.ExecuteNonQuery(query);
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public static TElement ExecuteScalar<TElement>(this QueryContext<TElement> query) =>
-            DynamicQueryExecutorFacade.ExecuteScalar(query);
+            QueryExecutor.Instance.ExecuteScalar(query);
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public static IEnumerable<TElement> Execute<TElement>(this QueryContext<TElement> query)
             where TElement : new() =>
-            DynamicQueryExecutorFacade.Execute(query);
+            QueryExecutor.Instance.Execute(query);
     }
 }

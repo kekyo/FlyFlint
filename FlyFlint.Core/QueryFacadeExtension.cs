@@ -9,7 +9,6 @@
 
 using FlyFlint.Context;
 using FlyFlint.Internal;
-using FlyFlint.Internal.Dynamic;
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
@@ -34,7 +33,7 @@ namespace FlyFlint
                 null,
                 FlyFlint.Query.DefaultTrait,
                 sql.Sql,
-                DynamicQueryExecutorFacade.GetParameters(
+                QueryExecutor.Instance.GetParameters(
                     ref parameters, FlyFlint.Query.DefaultTrait.parameterPrefix));
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
@@ -51,7 +50,7 @@ namespace FlyFlint
                 transaction,
                 FlyFlint.Query.DefaultTrait,
                 sql.Sql,
-                DynamicQueryExecutorFacade.GetParameters(
+                QueryExecutor.Instance.GetParameters(
                     ref parameters, FlyFlint.Query.DefaultTrait.parameterPrefix));
 
         /////////////////////////////////////////////////////////////////////////////
@@ -72,7 +71,7 @@ namespace FlyFlint
                 null,
                 prepared.trait,
                 built.sql,
-                DynamicQueryExecutorFacade.GetParameters(
+                QueryExecutor.Instance.GetParameters(
                     ref parameters, prepared.trait.parameterPrefix));
         }
 
@@ -93,7 +92,7 @@ namespace FlyFlint
                 transaction,
                 prepared.trait,
                 built.sql,
-                DynamicQueryExecutorFacade.GetParameters(
+                QueryExecutor.Instance.GetParameters(
                     ref parameters, prepared.trait.parameterPrefix));
         }
 
@@ -116,7 +115,7 @@ namespace FlyFlint
                 null,
                 prepared.trait,
                 built.sql,
-                DynamicQueryExecutorFacade.GetParameters(
+                QueryExecutor.Instance.GetParameters(
                     ref parameters, prepared.trait.parameterPrefix));
         }
 
@@ -138,7 +137,7 @@ namespace FlyFlint
                 transaction,
                 prepared.trait,
                 built.sql,
-                DynamicQueryExecutorFacade.GetParameters(
+                QueryExecutor.Instance.GetParameters(
                     ref parameters, prepared.trait.parameterPrefix));
         }
 
@@ -154,7 +153,7 @@ namespace FlyFlint
         {
             var (sql, dps) = prepared.builder();
             Debug.Assert(object.ReferenceEquals(dps, Database.defaultParameters));
-            var constructParameters = DynamicQueryExecutorFacade.GetConstructParameters(
+            var constructParameters = QueryExecutor.Instance.GetConstructParameters(
                 () => parameters, prepared.trait.parameterPrefix);
             return new PreparedParameterizedQueryContext(
                 prepared.trait,
@@ -172,7 +171,7 @@ namespace FlyFlint
         {
             var (sql, dps) = prepared.builder();
             Debug.Assert(object.ReferenceEquals(dps, Database.defaultParameters));
-            var constructParameters = DynamicQueryExecutorFacade.GetConstructParameters(
+            var constructParameters = QueryExecutor.Instance.GetConstructParameters(
                 () => parameters, prepared.trait.parameterPrefix);
             return new PreparedParameterizedQueryContext<TElement>(
                 prepared.trait,
@@ -191,7 +190,7 @@ namespace FlyFlint
         {
             var (sql, dps) = prepared.builder();
             Debug.Assert(object.ReferenceEquals(dps, Database.defaultParameters));
-            var constructParameters = DynamicQueryExecutorFacade.GetConstructParameters(
+            var constructParameters = QueryExecutor.Instance.GetConstructParameters(
                 getter, prepared.trait.parameterPrefix);
             return new PreparedParameterizedQueryContext(
                 prepared.trait,
@@ -209,7 +208,7 @@ namespace FlyFlint
         {
             var (sql, dps) = prepared.builder();
             Debug.Assert(object.ReferenceEquals(dps, Database.defaultParameters));
-            var constructParameters = DynamicQueryExecutorFacade.GetConstructParameters(
+            var constructParameters = QueryExecutor.Instance.GetConstructParameters(
                 getter, prepared.trait.parameterPrefix);
             return new PreparedParameterizedQueryContext<TElement>(
                 prepared.trait,
@@ -230,7 +229,7 @@ namespace FlyFlint
                 query.transaction,
                 query.trait,
                 query.sql,
-                DynamicQueryExecutorFacade.GetParameters(
+                QueryExecutor.Instance.GetParameters(
                     ref parameters, query.trait.parameterPrefix));
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
@@ -246,7 +245,7 @@ namespace FlyFlint
                 query.transaction,
                 query.trait,
                 query.sql,
-                DynamicQueryExecutorFacade.GetParameters(
+                QueryExecutor.Instance.GetParameters(
                     ref parameters, query.trait.parameterPrefix));
 
         /////////////////////////////////////////////////////////////////////////////
@@ -255,19 +254,19 @@ namespace FlyFlint
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public static Task<int> ExecuteNonQueryAsync(this QueryContext query) =>
-            DynamicQueryExecutorFacade.ExecuteNonQueryAsync(query);
+            QueryExecutor.Instance.ExecuteNonQueryAsync(query);
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public static Task<TElement> ExecuteScalarAsync<TElement>(this QueryContext<TElement> query) =>
-            DynamicQueryExecutorFacade.ExecuteScalarAsync(query);
+            QueryExecutor.Instance.ExecuteScalarAsync(query);
 
 #if NET461_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IAsyncEnumerable<TElement> ExecuteAsync<TElement>(this QueryContext<TElement> query)
             where TElement : new() =>
-            DynamicQueryExecutorFacade.ExecuteAsync(query);
+            QueryExecutor.Instance.ExecuteAsync(query);
 #else
         [Obsolete("Before net461 platform, it is not supported async enumeration. Consider upgrades to net461 or upper, or `Execute()` method with `FlyFlint.Synchronized` namespace instead.", true)]
         public static void ExecuteAsync<TElement>(this QueryContext<TElement> query)

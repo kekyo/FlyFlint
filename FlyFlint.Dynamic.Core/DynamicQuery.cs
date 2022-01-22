@@ -7,6 +7,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
+using FlyFlint.Internal;
 using FlyFlint.Internal.Dynamic;
 
 namespace FlyFlint
@@ -16,6 +17,6 @@ namespace FlyFlint
         private static readonly DynamicQueryExecutor executor = new();
 
         public static void Enable() =>
-            DynamicQueryExecutorFacade.SetDynamicQueryExecutor(executor);
+            QueryExecutor.SetQueryExecutor(executor);
     }
 }

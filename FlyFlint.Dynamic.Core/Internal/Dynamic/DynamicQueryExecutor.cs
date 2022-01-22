@@ -14,30 +14,22 @@ using FlyFlint.Utilities;
 #endif
 using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace FlyFlint.Internal.Dynamic
 {
-    internal sealed class DynamicQueryExecutor : IDynamicQueryExecutor
+    internal sealed class DynamicQueryExecutor : QueryExecutor
     {
-#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-        public object? Convert(ConversionContext context, object? value, Type targetType) =>
+        public override object? Convert(ConversionContext context, object? value, Type targetType) =>
             DynamicValueConverter.GetConverter(targetType).Convert(context, value);
 
-#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-        public object? UnsafeConvert(ConversionContext context, object value, Type targetType) =>
+        public override object? UnsafeConvert(ConversionContext context, object value, Type targetType) =>
             DynamicValueConverter.GetConverter(targetType).UnsafeConvert(context, value);
 
         /////////////////////////////////////////////////////////////////////
 
-        public Func<KeyValuePair<string, object?>[]> GetConstructParameters<TParameters>(
+        public override Func<KeyValuePair<string, object?>[]> GetConstructParameters<TParameters>(
             Func<TParameters> getter, string parameterPrefix)
-            where TParameters : notnull
         {
             var members = DynamicHelper.GetGetterMetadataList<TParameters>();
             return () =>
@@ -54,9 +46,8 @@ namespace FlyFlint.Internal.Dynamic
             };
         }
 
-        public KeyValuePair<string, object?>[] GetParameters<TParameters>(
+        public override KeyValuePair<string, object?>[] GetParameters<TParameters>(
             ref TParameters parameters, string parameterPrefix)
-            where TParameters : notnull
         {
             var members = DynamicHelper.GetGetterMetadataList<TParameters>();
             var ps = new KeyValuePair<string, object?>[members.Length];
@@ -71,7 +62,7 @@ namespace FlyFlint.Internal.Dynamic
 
         /////////////////////////////////////////////////////////////////////
 
-        public int ExecuteNonQuery(QueryContext query)
+        public override int ExecuteNonQuery(QueryContext query)
         {
             using (var command = QueryHelper.CreateCommand(
                 query.connection, query.transaction, query.sql, query.parameters))
@@ -80,7 +71,7 @@ namespace FlyFlint.Internal.Dynamic
             }
         }
 
-        public TElement ExecuteScalar<TElement>(QueryContext<TElement> query)
+        public override TElement ExecuteScalar<TElement>(QueryContext<TElement> query)
         {
             using (var command = QueryHelper.CreateCommand(
                 query.connection, query.transaction, query.sql, query.parameters))
@@ -90,8 +81,7 @@ namespace FlyFlint.Internal.Dynamic
             }
         }
 
-        public IEnumerable<TElement> Execute<TElement>(QueryContext<TElement> query)
-            where TElement : new()
+        public override IEnumerable<TElement> Execute<TElement>(QueryContext<TElement> query)
         {
             using (var command = QueryHelper.CreateCommand(
                 query.connection, query.transaction, query.sql, query.parameters))
@@ -118,7 +108,7 @@ namespace FlyFlint.Internal.Dynamic
 
         /////////////////////////////////////////////////////////////////////
 
-        public async Task<int> ExecuteNonQueryAsync(QueryContext query)
+        public override async Task<int> ExecuteNonQueryAsync(QueryContext query)
         {
             using (var command = QueryHelper.CreateCommand(
                 query.connection, query.transaction, query.sql, query.parameters))
@@ -127,7 +117,7 @@ namespace FlyFlint.Internal.Dynamic
             }
         }
 
-        public async Task<TElement> ExecuteScalarAsync<TElement>(QueryContext<TElement> query)
+        public override async Task<TElement> ExecuteScalarAsync<TElement>(QueryContext<TElement> query)
         {
             using (var command = QueryHelper.CreateCommand(
                 query.connection, query.transaction, query.sql, query.parameters))
@@ -138,9 +128,7 @@ namespace FlyFlint.Internal.Dynamic
         }
 
 #if NET461_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public async IAsyncEnumerable<TElement> ExecuteAsync<TElement>(QueryContext<TElement> query)
-            where TElement : new()
+        public override async IAsyncEnumerable<TElement> ExecuteAsync<TElement>(QueryContext<TElement> query)
         {
             using (var command = QueryHelper.CreateCommand(
                 query.connection, query.transaction, query.sql, query.parameters))

@@ -25,7 +25,7 @@ namespace FlyFlint
 {
     public sealed class ConstructVariationTests
     {
-        private struct Target : IDataInjectable
+        private struct Target : IDataInjectable<Target>
         {
             public int Id;
             public string? Name;
@@ -38,14 +38,17 @@ namespace FlyFlint
                  new KeyValuePair<string, Type>(nameof(Birth), typeof(DateTime)),
             };
 
-            public DataInjectionMetadata[] Prepare(DataInjectionContext context) =>
-                context.Prepare(members);
+            private static readonly InjectDelegate<Target> injectDelegate = Inject;
 
-            public void Inject(DataInjectionContext context, DataInjectionMetadata[] metadataList)
+            public PreparingResult<Target> Prepare(DataInjectionContext context) =>
+                new PreparingResult<Target>(injectDelegate, context.Prepare(members));
+
+            private static void Inject(
+                ref Target element, DataInjectionContext context, DataInjectionMetadata[] metadataList)
             {
-                this.Id = context.GetInt32(metadataList[0]);
-                this.Name = context.GetString(metadataList[1]);
-                this.Birth = context.GetDateTime(metadataList[2]);
+                element.Id = context.GetInt32(metadataList[0]);
+                element.Name = context.GetString(metadataList[1]);
+                element.Birth = context.GetDateTime(metadataList[2]);
             }
         }
 
@@ -87,8 +90,8 @@ namespace FlyFlint
             using var connection = await CreateConnectionAsync();
 
             var targets = await connection.Query<Target>("SELECT * FROM target WHERE Id = @idparam").
-                Parameter__(new Parameter { idparam = 2 }).
-                ExecuteAsync__().
+                Parameter(new Parameter { idparam = 2 }).
+                ExecuteAsync().
                 ToArrayAsync();
 
             await Verify(targets.Select(element => $"{element.Id},{element.Name},{element.Birth.ToString(CultureInfo.InvariantCulture)}"));
@@ -101,7 +104,7 @@ namespace FlyFlint
 
             var idparam = 2;
             var targets = await connection.Query<Target>($"SELECT * FROM target WHERE Id = {idparam}").
-                ExecuteAsync__().
+                ExecuteAsync().
                 ToArrayAsync();
 
             await Verify(targets.Select(element => $"{element.Id},{element.Name},{element.Birth.ToString(CultureInfo.InvariantCulture)}"));
@@ -115,10 +118,10 @@ namespace FlyFlint
             using var connection = await CreateConnectionAsync();
 
             var prepared = Query.Prepare<Target>("SELECT * FROM target WHERE Id = @idparam").
-                Parameter__(new Parameter { idparam = 2 });
+                Parameter(new Parameter { idparam = 2 });
 
             var targets = await connection.Query(prepared).
-                ExecuteAsync__().
+                ExecuteAsync().
                 ToArrayAsync();
 
             await Verify(targets.Select(element => $"{element.Id},{element.Name},{element.Birth.ToString(CultureInfo.InvariantCulture)}"));
@@ -133,7 +136,7 @@ namespace FlyFlint
             var prepared = Query.Prepare<Target>($"SELECT * FROM target WHERE Id = {idparam}");
 
             var targets = await connection.Query(prepared).
-                ExecuteAsync__().
+                ExecuteAsync().
                 ToArrayAsync();
 
             await Verify(targets.Select(element => $"{element.Id},{element.Name},{element.Birth.ToString(CultureInfo.InvariantCulture)}"));
@@ -149,8 +152,8 @@ namespace FlyFlint
             var prepared = Query.Prepare<Target>("SELECT * FROM target WHERE Id = @idparam");
 
             var targets = await connection.Query(prepared).
-                Parameter__(new Parameter { idparam = 2 }).
-                ExecuteAsync__().
+                Parameter(new Parameter { idparam = 2 }).
+                ExecuteAsync().
                 ToArrayAsync();
 
             await Verify(targets.Select(element => $"{element.Id},{element.Name},{element.Birth.ToString(CultureInfo.InvariantCulture)}"));
@@ -164,10 +167,10 @@ namespace FlyFlint
             using var connection = await CreateConnectionAsync();
 
             var prepared = Query.Prepare<Target>("SELECT * FROM target WHERE Id = @idparam").
-                Parameter__(() => new Parameter { idparam = 2 });
+                Parameter(() => new Parameter { idparam = 2 });
 
             var targets = await connection.Query(prepared).
-                ExecuteAsync__().
+                ExecuteAsync().
                 ToArrayAsync();
 
             await Verify(targets.Select(element => $"{element.Id},{element.Name},{element.Birth.ToString(CultureInfo.InvariantCulture)}"));
@@ -182,7 +185,7 @@ namespace FlyFlint
             var prepared = Query.Prepare<Target>($"SELECT * FROM target WHERE Id = {idparam}");
 
             var targets = await connection.Query(prepared).
-                ExecuteAsync__().
+                ExecuteAsync().
                 ToArrayAsync();
 
             await Verify(targets.Select(element => $"{element.Id},{element.Name},{element.Birth.ToString(CultureInfo.InvariantCulture)}"));

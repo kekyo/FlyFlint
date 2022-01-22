@@ -21,12 +21,32 @@ namespace FlyFlint.Internal.Static
     }
 
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public interface IDataInjectable
+    public delegate void InjectDelegate<TElement>(
+        ref TElement element,
+        DataInjectionContext context,
+        DataInjectionMetadata[] metadataList);
+
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public struct PreparingResult<TElement>
     {
         [EditorBrowsable(EditorBrowsableState.Never)]
-        DataInjectionMetadata[] Prepare(DataInjectionContext context);
+        public readonly InjectDelegate<TElement> Injector;
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public readonly DataInjectionMetadata[] MetadataList;
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        void Inject(DataInjectionContext context, DataInjectionMetadata[] metadataList);
+        public PreparingResult(
+            InjectDelegate<TElement> injector, DataInjectionMetadata[] metadataList)
+        {
+            this.Injector = injector;
+            this.MetadataList = metadataList;
+        }
+    }
+
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public interface IDataInjectable<TElement>
+    {
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        PreparingResult<TElement> Prepare(DataInjectionContext context);
     }
 }

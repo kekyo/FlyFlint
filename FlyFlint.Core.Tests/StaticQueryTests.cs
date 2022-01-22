@@ -24,7 +24,7 @@ namespace FlyFlint
 {
     public sealed class StaticQueryTests
     {
-        private sealed class Target : IDataInjectable
+        private sealed class Target : IDataInjectable<Target>
         {
             public int Id;
             public string? Name;
@@ -37,14 +37,17 @@ namespace FlyFlint
                  new KeyValuePair<string, Type>(nameof(Birth), typeof(DateTime)),
             };
 
-            public DataInjectionMetadata[] Prepare(DataInjectionContext context) =>
-                context.Prepare(members);
+            private static readonly InjectDelegate<Target> injectDelegate = Inject;
 
-            public void Inject(DataInjectionContext context, DataInjectionMetadata[] metadataList)
+            public PreparingResult<Target> Prepare(DataInjectionContext context) =>
+                new PreparingResult<Target>(injectDelegate, context.Prepare(members));
+
+            private static void Inject(
+                ref Target element, DataInjectionContext context, DataInjectionMetadata[] metadataList)
             {
-                this.Id = context.GetInt32(metadataList[0]);
-                this.Name = context.GetString(metadataList[1]);
-                this.Birth = context.GetDateTime(metadataList[2]);
+                element.Id = context.GetInt32(metadataList[0]);
+                element.Name = context.GetString(metadataList[1]);
+                element.Birth = context.GetDateTime(metadataList[2]);
             }
         }
 
@@ -66,8 +69,8 @@ namespace FlyFlint
             c.CommandText = "INSERT INTO target VALUES (3,'CCCCC','2022/01/23 12:34:58.789')";
             await c.ExecuteNonQueryAsync();
 
-            var qc = QueryExtension.Query<Target>(connection, "SELECT * FROM target");
-            var targets = await StaticQueryFacade.ExecuteAsync(qc).ToArrayAsync();
+            var query = QueryExtension.Query<Target>(connection, "SELECT * FROM target");
+            var targets = await QueryFacadeExtension.ExecuteAsync(query).ToArrayAsync();
 
             await Verify(targets.Select(element => $"{element.Id},{element.Name},{element.Birth.ToString(CultureInfo.InvariantCulture)}"));
         }
@@ -98,11 +101,11 @@ namespace FlyFlint
             c.CommandText = "INSERT INTO target VALUES (3,'CCCCC','2022/01/23 12:34:58.789')";
             await c.ExecuteNonQueryAsync();
 
-            var query = StaticQueryFacade.Parameter(
+            var query = QueryFacadeExtension.Parameter(
                 QueryExtension.Query<Target>(
                     connection, "SELECT * FROM target WHERE Id = @idparam"),
                     new Parameter { idparam = 2 });
-            var targets = StaticQueryFacade.Execute(query).ToArray();
+            var targets = await QueryFacadeExtension.ExecuteAsync(query).ToArrayAsync();
 
             await Verify(targets.Select(element => $"{element.Id},{element.Name},{element.Birth.ToString(CultureInfo.InvariantCulture)}"));
         }
@@ -128,7 +131,7 @@ namespace FlyFlint
             var idparam = 2;
             var query = QueryExtension.Query<Target>(
                 connection, $"SELECT * FROM target WHERE Id = {idparam}");
-            var targets = StaticQueryFacade.Execute(query).ToArray();
+            var targets = await QueryFacadeExtension.ExecuteAsync(query).ToArrayAsync();
 
             await Verify(targets.Select(element => $"{element.Id},{element.Name},{element.Birth.ToString(CultureInfo.InvariantCulture)}"));
         }
