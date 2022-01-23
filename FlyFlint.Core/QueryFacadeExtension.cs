@@ -9,6 +9,10 @@
 
 using FlyFlint.Context;
 using FlyFlint.Internal;
+using FlyFlint.Internal.Converter;
+#if NET35 || NET40
+using FlyFlint.Utilities;
+#endif
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
@@ -254,16 +258,26 @@ namespace FlyFlint
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static Task<int> ExecuteNonQueryAsync(
-            this QueryContext query, CancellationToken ct = default) =>
-            QueryExecutor.Instance.ExecuteNonQueryAsync(query, ct);
+        public static async Task<int> ExecuteNonQueryAsync(
+            this QueryContext query, CancellationToken ct = default)
+        {
+            using var command = QueryHelper.CreateCommand(
+                query.connection, query.transaction, query.sql, query.parameters);
+            return await command.ExecuteNonQueryAsync(ct).ConfigureAwait(false);
+        }
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static Task<TElement> ExecuteScalarAsync<TElement>(
-            this QueryContext<TElement> query, CancellationToken ct = default) =>
-            QueryExecutor.Instance.ExecuteScalarAsync(query, ct);
+        public static async Task<TElement> ExecuteScalarAsync<TElement>(
+            this QueryContext<TElement> query, CancellationToken ct = default)
+        {
+            using var command = QueryHelper.CreateCommand(
+                query.connection, query.transaction, query.sql, query.parameters);
+            return InternalValueConverter<TElement>.converter.Convert(
+                query.trait.cc,
+                await command.ExecuteScalarAsync(ct).ConfigureAwait(false));
+        }
 
 #if NET461_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

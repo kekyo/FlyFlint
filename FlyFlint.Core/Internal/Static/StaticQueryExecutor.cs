@@ -8,15 +8,10 @@
 ////////////////////////////////////////////////////////////////////////////
 
 using FlyFlint.Context;
-using FlyFlint.Internal.Converter;
-#if NET35 || NET40
-using FlyFlint.Utilities;
-#endif
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace FlyFlint.Internal.Static
 {
@@ -58,28 +53,8 @@ namespace FlyFlint.Internal.Static
 
         /////////////////////////////////////////////////////////////////////
 
-        public override int ExecuteNonQuery(QueryContext query)
-        {
-            using (var command = QueryHelper.CreateCommand(
-                query.connection, query.transaction, query.sql, query.parameters))
-            {
-                return command.ExecuteNonQuery();
-            }
-        }
-
-        public override TElement ExecuteScalar<TElement>(QueryContext<TElement> query)
-        {
-            using (var command = QueryHelper.CreateCommand(
-                query.connection, query.transaction, query.sql, query.parameters))
-            {
-                return InternalValueConverter<TElement>.converter.Convert(
-                    query.trait.cc, command.ExecuteScalar());
-            }
-        }
-
-        /////////////////////////////////////////////////////////////////////
-
-        public override IEnumerable<TElement> Execute<TElement>(QueryContext<TElement> query)
+        public override IEnumerable<TElement> Execute<TElement>(
+            QueryContext<TElement> query)
         {
             using (var command = QueryHelper.CreateCommand(
                 query.connection, query.transaction, query.sql, query.parameters))
@@ -88,10 +63,10 @@ namespace FlyFlint.Internal.Static
                 {
                     if (reader.Read())
                     {
+                        var element = new TElement();
+
                         var context = new DataInjectionContext<TElement>(
                             query.trait.cc, query.trait.fieldComparer, reader);
-
-                        var element = new TElement();
                         ((IDataInjectable)element).Prepare(context);
 
                         context.Inject(ref element);
@@ -110,27 +85,6 @@ namespace FlyFlint.Internal.Static
 
         /////////////////////////////////////////////////////////////////////
 
-        public override async Task<int> ExecuteNonQueryAsync(
-            QueryContext query, CancellationToken ct)
-        {
-            using (var command = QueryHelper.CreateCommand(
-                query.connection, query.transaction, query.sql, query.parameters))
-            {
-                return await command.ExecuteNonQueryAsync(ct).ConfigureAwait(false);
-            }
-        }
-
-        public override async Task<TElement> ExecuteScalarAsync<TElement>(
-            QueryContext<TElement> query, CancellationToken ct)
-        {
-            using (var command = QueryHelper.CreateCommand(
-                query.connection, query.transaction, query.sql, query.parameters))
-            {
-                return InternalValueConverter<TElement>.converter.Convert(
-                    query.trait.cc, await command.ExecuteScalarAsync(ct).ConfigureAwait(false));
-            }
-        }
-
 #if NET461_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         public override async IAsyncEnumerable<TElement> ExecuteAsync<TElement>(
             QueryContext<TElement> query, [EnumeratorCancellation] CancellationToken ct)
@@ -142,10 +96,10 @@ namespace FlyFlint.Internal.Static
                 {
                     if (await reader.ReadAsync(ct).ConfigureAwait(false))
                     {
+                        var element = new TElement();
+
                         var context = new DataInjectionContext<TElement>(
                             query.trait.cc, query.trait.fieldComparer, reader);
-
-                        var element = new TElement();
                         ((IDataInjectable)element).Prepare(context);
 
                         context.Inject(ref element);

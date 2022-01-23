@@ -9,6 +9,7 @@
 
 using FlyFlint.Context;
 using FlyFlint.Internal;
+using FlyFlint.Internal.Converter;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
@@ -19,14 +20,25 @@ namespace FlyFlint.Synchronized
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static int ExecuteNonQuery(this QueryContext query) =>
-            QueryExecutor.Instance.ExecuteNonQuery(query);
+        public static int ExecuteNonQuery(
+            this QueryContext query)
+        {
+            using var command = QueryHelper.CreateCommand(
+                query.connection, query.transaction, query.sql, query.parameters);
+            return command.ExecuteNonQuery();
+        }
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static TElement ExecuteScalar<TElement>(this QueryContext<TElement> query) =>
-            QueryExecutor.Instance.ExecuteScalar(query);
+        public static TElement ExecuteScalar<TElement>(
+            this QueryContext<TElement> query)
+        {
+            using var command = QueryHelper.CreateCommand(
+                query.connection, query.transaction, query.sql, query.parameters);
+            return InternalValueConverter<TElement>.converter.Convert(
+                query.trait.cc, command.ExecuteScalar());
+        }
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

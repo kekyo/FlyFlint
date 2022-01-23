@@ -9,14 +9,10 @@
 
 using FlyFlint.Context;
 using FlyFlint.Internal.Converter;
-#if NET35 || NET40
-using FlyFlint.Utilities;
-#endif
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace FlyFlint.Internal.Dynamic
 {
@@ -64,26 +60,8 @@ namespace FlyFlint.Internal.Dynamic
 
         /////////////////////////////////////////////////////////////////////
 
-        public override int ExecuteNonQuery(QueryContext query)
-        {
-            using (var command = QueryHelper.CreateCommand(
-                query.connection, query.transaction, query.sql, query.parameters))
-            {
-                return command.ExecuteNonQuery();
-            }
-        }
-
-        public override TElement ExecuteScalar<TElement>(QueryContext<TElement> query)
-        {
-            using (var command = QueryHelper.CreateCommand(
-                query.connection, query.transaction, query.sql, query.parameters))
-            {
-                return InternalValueConverter<TElement>.converter.Convert(
-                    query.trait.cc, command.ExecuteScalar());
-            }
-        }
-
-        public override IEnumerable<TElement> Execute<TElement>(QueryContext<TElement> query)
+        public override IEnumerable<TElement> Execute<TElement>(
+            QueryContext<TElement> query)
         {
             using (var command = QueryHelper.CreateCommand(
                 query.connection, query.transaction, query.sql, query.parameters))
@@ -92,44 +70,27 @@ namespace FlyFlint.Internal.Dynamic
                 {
                     if (reader.Read())
                     {
+                        var element = new TElement();
+
                         var context = new DynamicDataInjectionContext(
                             query.trait.cc, query.trait.fieldComparer, reader);
-
                         var injector = new DynamicInjector<TElement>(context);
-                        do
+
+                        injector.Inject(ref element);
+                        yield return element;
+
+                        while (reader.Read())
                         {
-                            var element = new TElement();
+                            element = new TElement();
                             injector.Inject(ref element);
                             yield return element;
                         }
-                        while (reader.Read());
                     }
                 }
             }
         }
 
         /////////////////////////////////////////////////////////////////////
-
-        public override async Task<int> ExecuteNonQueryAsync(
-            QueryContext query, CancellationToken ct)
-        {
-            using (var command = QueryHelper.CreateCommand(
-                query.connection, query.transaction, query.sql, query.parameters))
-            {
-                return await command.ExecuteNonQueryAsync(ct).ConfigureAwait(false);
-            }
-        }
-
-        public override async Task<TElement> ExecuteScalarAsync<TElement>(
-            QueryContext<TElement> query, CancellationToken ct)
-        {
-            using (var command = QueryHelper.CreateCommand(
-                query.connection, query.transaction, query.sql, query.parameters))
-            {
-                return InternalValueConverter<TElement>.converter.Convert(
-                    query.trait.cc, await command.ExecuteScalarAsync(ct).ConfigureAwait(false));
-            }
-        }
 
 #if NET461_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         public override async IAsyncEnumerable<TElement> ExecuteAsync<TElement>(
@@ -142,19 +103,23 @@ namespace FlyFlint.Internal.Dynamic
                 {
                     if (await reader.ReadAsync(ct).ConfigureAwait(false))
                     {
+                        var element = new TElement();
+
                         var context = new DynamicDataInjectionContext(
                             query.trait.cc, query.trait.fieldComparer, reader);
-
                         var injector = new DynamicInjector<TElement>(context);
-                        ConfiguredTaskAwaitable<bool> prefetchAwaitable;
-                        do
+
+                        injector.Inject(ref element);
+                        var prefetchAwaitable = reader.ReadAsync(ct).ConfigureAwait(false);
+                        yield return element;
+
+                        while (await prefetchAwaitable)
                         {
-                            var element = new TElement();
+                            element = new TElement();
                             injector.Inject(ref element);
                             prefetchAwaitable = reader.ReadAsync(ct).ConfigureAwait(false);
                             yield return element;
                         }
-                        while (await prefetchAwaitable);
                     }
                 }
             }
