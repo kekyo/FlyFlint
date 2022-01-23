@@ -401,6 +401,7 @@ namespace FlyFlint.Internal.Static
     [EditorBrowsable(EditorBrowsableState.Never)]
     public sealed class StaticDataInjectionContext<TElement> :
         StaticDataInjectionContext
+        where TElement : notnull
     {
         private StaticInjectDelegate<TElement> injector = null!;
 

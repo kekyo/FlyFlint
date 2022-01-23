@@ -11,8 +11,7 @@ using FlyFlint.Context;
 using FlyFlint.Internal.Converter;
 using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using System.Threading;
+using System.Data.Common;
 
 namespace FlyFlint.Internal.Dynamic
 {
@@ -23,8 +22,6 @@ namespace FlyFlint.Internal.Dynamic
 
         public override object? UnsafeConvert(ConversionContext context, object value, Type targetType) =>
             DynamicValueConverter.GetConverter(targetType).UnsafeConvert(context, value);
-
-        /////////////////////////////////////////////////////////////////////
 
         public override Func<KeyValuePair<string, object?>[]> GetConstructParameters<TParameters>(
             Func<TParameters> getter, string parameterPrefix)
@@ -58,70 +55,12 @@ namespace FlyFlint.Internal.Dynamic
             return ps;
         }
 
-        /////////////////////////////////////////////////////////////////////
-
-        public override IEnumerable<TElement> Execute<TElement>(
-            QueryContext<TElement> query)
-        {
-            using (var command = QueryHelper.CreateCommand(
-                query.connection, query.transaction, query.sql, query.parameters))
-            {
-                using (var reader = command.ExecuteReader())
-                {
-                    if (reader.Read())
-                    {
-                        var element = new TElement();
-
-                        var context = new DynamicDataInjectionContext<TElement>(
-                            query.trait.cc, query.trait.fieldComparer, reader);
-
-                        context.Inject(ref element);
-                        yield return element;
-
-                        while (reader.Read())
-                        {
-                            element = new TElement();
-                            context.Inject(ref element);
-                            yield return element;
-                        }
-                    }
-                }
-            }
-        }
-
-        /////////////////////////////////////////////////////////////////////
-
-#if NET461_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
-        public override async IAsyncEnumerable<TElement> ExecuteAsync<TElement>(
-            QueryContext<TElement> query, [EnumeratorCancellation] CancellationToken ct)
-        {
-            using (var command = QueryHelper.CreateCommand(
-                query.connection, query.transaction, query.sql, query.parameters))
-            {
-                using (var reader = await command.ExecuteReaderAsync(ct).ConfigureAwait(false))
-                {
-                    if (await reader.ReadAsync(ct).ConfigureAwait(false))
-                    {
-                        var element = new TElement();
-
-                        var context = new DynamicDataInjectionContext<TElement>(
-                            query.trait.cc, query.trait.fieldComparer, reader);
-
-                        context.Inject(ref element);
-                        var prefetchAwaitable = reader.ReadAsync(ct).ConfigureAwait(false);
-                        yield return element;
-
-                        while (await prefetchAwaitable)
-                        {
-                            element = new TElement();
-                            context.Inject(ref element);
-                            prefetchAwaitable = reader.ReadAsync(ct).ConfigureAwait(false);
-                            yield return element;
-                        }
-                    }
-                }
-            }
-        }
-#endif
+        public override InjectorDelegate<TElement> GetInjector<TElement>(
+            ConversionContext cc,
+            IComparer<string> fieldComparer,
+            DbDataReader reader,
+            ref TElement element) =>
+            new DynamicDataInjectionContext<TElement>(
+                cc, fieldComparer, reader).Inject;
     }
 }

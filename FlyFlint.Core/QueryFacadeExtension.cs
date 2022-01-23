@@ -281,10 +281,38 @@ namespace FlyFlint
 
 #if NET461_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IAsyncEnumerable<TElement> ExecuteAsync<TElement>(
-            this QueryContext<TElement> query, CancellationToken ct = default)
-            where TElement : new() =>
-            QueryExecutor.Instance.ExecuteAsync(query, ct);
+        public static async IAsyncEnumerable<TElement> ExecuteAsync<TElement>(
+            this QueryContext<TElement> query,
+            [EnumeratorCancellation] CancellationToken ct = default)
+            where TElement : notnull, new()
+        {
+            using (var command = QueryHelper.CreateCommand(
+                query.connection, query.transaction, query.sql, query.parameters))
+            {
+                using (var reader = await command.ExecuteReaderAsync(ct).ConfigureAwait(false))
+                {
+                    if (await reader.ReadAsync(ct).ConfigureAwait(false))
+                    {
+                        var element = new TElement();
+
+                        var injector = QueryExecutor.Instance.GetInjector<TElement>(
+                            query.trait.cc, query.trait.fieldComparer, reader, ref element);
+
+                        injector(ref element);
+                        var prefetchAwaitable = reader.ReadAsync(ct).ConfigureAwait(false);
+                        yield return element;
+
+                        while (await prefetchAwaitable)
+                        {
+                            element = new TElement();
+                            injector(ref element);
+                            prefetchAwaitable = reader.ReadAsync(ct).ConfigureAwait(false);
+                            yield return element;
+                        }
+                    }
+                }
+            }
+        }
 #else
         [Obsolete("Before net461 platform, it is not supported async enumeration. Consider upgrades to net461 or upper, or `Execute()` method with `FlyFlint.Synchronized` namespace instead.", true)]
         public static void ExecuteAsync<TElement>(

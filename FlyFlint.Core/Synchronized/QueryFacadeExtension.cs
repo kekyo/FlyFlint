@@ -17,9 +17,6 @@ namespace FlyFlint.Synchronized
 {
     public static class QueryFacadeExtension
     {
-#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
         public static int ExecuteNonQuery(
             this QueryContext query)
         {
@@ -28,9 +25,6 @@ namespace FlyFlint.Synchronized
             return command.ExecuteNonQuery();
         }
 
-#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
         public static TElement ExecuteScalar<TElement>(
             this QueryContext<TElement> query)
         {
@@ -40,11 +34,34 @@ namespace FlyFlint.Synchronized
                 query.trait.cc, command.ExecuteScalar());
         }
 
-#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-        public static IEnumerable<TElement> Execute<TElement>(this QueryContext<TElement> query)
-            where TElement : new() =>
-            QueryExecutor.Instance.Execute(query);
+        public static IEnumerable<TElement> Execute<TElement>(
+            this QueryContext<TElement> query)
+            where TElement : notnull, new()
+        {
+            using (var command = QueryHelper.CreateCommand(
+                query.connection, query.transaction, query.sql, query.parameters))
+            {
+                using (var reader = command.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        var element = new TElement();
+
+                        var injector = QueryExecutor.Instance.GetInjector(
+                            query.trait.cc, query.trait.fieldComparer, reader, ref element);
+
+                        injector(ref element);
+                        yield return element;
+
+                        while (reader.Read())
+                        {
+                            element = new TElement();
+                            injector(ref element);
+                            yield return element;
+                        }
+                    }
+                }
+            }
+        }
     }
 }

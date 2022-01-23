@@ -77,6 +77,7 @@ namespace FlyFlint.Internal.Dynamic
 
     internal sealed class DynamicDataInjectionContext<TElement> :
         DynamicDataInjectionContext
+        where TElement : notnull
     {
         private delegate void Setter(ref TElement element);
         private readonly Setter[] setters;

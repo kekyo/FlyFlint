@@ -16,6 +16,10 @@ using System.Runtime.CompilerServices;
 namespace FlyFlint.Internal
 {
     [EditorBrowsable(EditorBrowsableState.Never)]
+    public delegate void InjectorDelegate<TElement>(ref TElement element)
+        where TElement : notnull;
+
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public abstract class DataInjectionContext
     {
         internal readonly ConversionContext cc;
