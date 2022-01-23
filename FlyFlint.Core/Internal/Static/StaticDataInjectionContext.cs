@@ -18,9 +18,10 @@ using System.Runtime.CompilerServices;
 namespace FlyFlint.Internal.Static
 {
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public delegate void StaticInjectDelegate<TElement>(
+    public delegate void StaticDataInjectorDelegate<TElement>(
         StaticDataInjectionContext context,
-        ref TElement element);
+        ref TElement element)
+        where TElement : notnull;
 
     [EditorBrowsable(EditorBrowsableState.Never)]
     public abstract class StaticDataInjectionContext :
@@ -403,7 +404,7 @@ namespace FlyFlint.Internal.Static
         StaticDataInjectionContext
         where TElement : notnull
     {
-        private StaticInjectDelegate<TElement> injector = null!;
+        private StaticDataInjectorDelegate<TElement> injector = null!;
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -422,11 +423,11 @@ namespace FlyFlint.Internal.Static
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override void RegisterMetadata(
             KeyValuePair<string, Type>[] members,
-            Delegate injector)   // InjectDelegate<TElement>
+            Delegate injector)   // StaticDataInjectorDelegate<TElement>
         {
             Debug.Assert(this.injector == null);    // TODO: combine multiple
 
-            this.injector = (StaticInjectDelegate<TElement>)injector;
+            this.injector = (StaticDataInjectorDelegate<TElement>)injector;
             this.RegisterMemberMetadata(members);
         }
 

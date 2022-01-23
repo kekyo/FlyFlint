@@ -38,7 +38,7 @@ namespace FlyFlint
                  new KeyValuePair<string, Type>(nameof(Birth), typeof(DateTime)),
             };
 
-            private static readonly StaticInjectDelegate<Target> injector = Inject;
+            private static readonly StaticDataInjectorDelegate<Target> injector = Inject;
 
             public void Prepare(StaticDataInjectionContext context) =>
                 context.RegisterMetadata(members, injector);

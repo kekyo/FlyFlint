@@ -33,7 +33,7 @@ namespace FlyFlint.Internal.Static
                 new KeyValuePair<string, Type>(nameof(Birth), typeof(DateTime)),
             };
 
-            private static readonly StaticInjectDelegate<TargetValueType> injector = Inject;
+            private static readonly StaticDataInjectorDelegate<TargetValueType> injector = Inject;
 
             public void Prepare(StaticDataInjectionContext context) =>
                 context.RegisterMetadata(members, injector);
@@ -83,7 +83,7 @@ namespace FlyFlint.Internal.Static
                 new KeyValuePair<string, Type>(nameof(Birth), typeof(DateTime)),
             };
 
-            private static readonly StaticInjectDelegate<TargetReferenceType> injector = Inject;
+            private static readonly StaticDataInjectorDelegate<TargetReferenceType> injector = Inject;
 
             public void Prepare(StaticDataInjectionContext context) =>
                 context.RegisterMetadata(members, injector);

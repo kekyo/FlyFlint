@@ -65,7 +65,7 @@ namespace FlyFlint.Internal.Static
                 new KeyValuePair<string, Type>(nameof(Value15), typeof(string)),
             };
 
-            private static readonly StaticInjectDelegate<TargetValueTypes> injector = Inject;
+            private static readonly StaticDataInjectorDelegate<TargetValueTypes> injector = Inject;
 
             public void Prepare(StaticDataInjectionContext context) =>
                 context.RegisterMetadata(members, injector);
@@ -165,7 +165,7 @@ namespace FlyFlint.Internal.Static
                 new KeyValuePair<string, Type>(nameof(Value15), typeof(string)),
             };
 
-            private static readonly StaticInjectDelegate<TargetNullableValueTypes> injector = Inject;
+            private static readonly StaticDataInjectorDelegate<TargetNullableValueTypes> injector = Inject;
 
             public void Prepare(StaticDataInjectionContext context) =>
                 context.RegisterMetadata(members, injector);

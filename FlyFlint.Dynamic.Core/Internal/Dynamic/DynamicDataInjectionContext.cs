@@ -88,7 +88,7 @@ namespace FlyFlint.Internal.Dynamic
             DbDataReader reader) :
             base(cc, fieldComparer, reader)
         {
-            // TODO: improvement
+            // TODO: improve with bulk setter
 
             var metadataMap =
                 QueryHelper.CreateSortedMetadataMap(this.reader, this.fieldComparer);
