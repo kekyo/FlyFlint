@@ -10,7 +10,7 @@
 using System;
 using System.ComponentModel;
 
-namespace FlyFlint.Context
+namespace FlyFlint.Internal
 {
     [EditorBrowsable(EditorBrowsableState.Never)]
     public sealed class DataInjectionMetadata

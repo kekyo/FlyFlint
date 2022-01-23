@@ -7,7 +7,6 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
-using FlyFlint.Context;
 using System.Collections.Generic;
 using System.ComponentModel;
 
@@ -21,14 +20,9 @@ namespace FlyFlint.Internal.Static
     }
 
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public delegate void InjectDelegate<TElement>(
-        DataInjectionContext<TElement> context,
-        ref TElement element);
-
-    [EditorBrowsable(EditorBrowsableState.Never)]
     public interface IDataInjectable
     {
         [EditorBrowsable(EditorBrowsableState.Never)]
-        void Prepare(DataInjectionContext context);
+        void Prepare(StaticDataInjectionContext context);
     }
 }

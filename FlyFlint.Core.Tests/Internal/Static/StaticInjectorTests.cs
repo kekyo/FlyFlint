@@ -33,13 +33,13 @@ namespace FlyFlint.Internal.Static
                 new KeyValuePair<string, Type>(nameof(Birth), typeof(DateTime)),
             };
 
-            private static readonly InjectDelegate<TargetValueType> injector = Inject;
+            private static readonly StaticInjectDelegate<TargetValueType> injector = Inject;
 
-            public void Prepare(DataInjectionContext context) =>
+            public void Prepare(StaticDataInjectionContext context) =>
                 context.RegisterMetadata(members, injector);
 
             private static void Inject(
-                DataInjectionContext context, ref TargetValueType element)
+                StaticDataInjectionContext context, ref TargetValueType element)
             {
                 element.Id = context.GetInt32(0);
                 element.Name = context.GetString(1);
@@ -61,7 +61,7 @@ namespace FlyFlint.Internal.Static
 
             var element = new TargetValueType();
 
-            var context = new DataInjectionContext<TargetValueType>(
+            var context = new StaticDataInjectionContext<TargetValueType>(
                 ConversionContext.Default, StringComparer.OrdinalIgnoreCase, reader);
             element.Prepare(context);
 
@@ -83,13 +83,13 @@ namespace FlyFlint.Internal.Static
                 new KeyValuePair<string, Type>(nameof(Birth), typeof(DateTime)),
             };
 
-            private static readonly InjectDelegate<TargetReferenceType> injector = Inject;
+            private static readonly StaticInjectDelegate<TargetReferenceType> injector = Inject;
 
-            public void Prepare(DataInjectionContext context) =>
+            public void Prepare(StaticDataInjectionContext context) =>
                 context.RegisterMetadata(members, injector);
 
             private static void Inject(
-                DataInjectionContext context, ref TargetReferenceType element)
+                StaticDataInjectionContext context, ref TargetReferenceType element)
             {
                 element.Id = context.GetInt32(0);
                 element.Name = context.GetString(1);
@@ -111,7 +111,7 @@ namespace FlyFlint.Internal.Static
 
             var element = new TargetReferenceType();
 
-            var context = new DataInjectionContext<TargetReferenceType>(
+            var context = new StaticDataInjectionContext<TargetReferenceType>(
                 ConversionContext.Default, StringComparer.OrdinalIgnoreCase, reader);
             element.Prepare(context);
 

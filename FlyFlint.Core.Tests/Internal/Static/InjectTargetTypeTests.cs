@@ -65,13 +65,13 @@ namespace FlyFlint.Internal.Static
                 new KeyValuePair<string, Type>(nameof(Value15), typeof(string)),
             };
 
-            private static readonly InjectDelegate<TargetValueTypes> injector = Inject;
+            private static readonly StaticInjectDelegate<TargetValueTypes> injector = Inject;
 
-            public void Prepare(DataInjectionContext context) =>
+            public void Prepare(StaticDataInjectionContext context) =>
                 context.RegisterMetadata(members, injector);
 
             private static void Inject(
-                DataInjectionContext context, ref TargetValueTypes element)
+                StaticDataInjectionContext context, ref TargetValueTypes element)
             {
                 element.Value1 = context.GetBoolean(0);
                 element.Value2 = context.GetByte(1);
@@ -119,7 +119,7 @@ namespace FlyFlint.Internal.Static
 
             var element = new TargetValueTypes();
 
-            var context = new DataInjectionContext<TargetValueTypes>(
+            var context = new StaticDataInjectionContext<TargetValueTypes>(
                 ConversionContext.Default, StringComparer.OrdinalIgnoreCase, reader);
             element.Prepare(context);
 
@@ -165,13 +165,13 @@ namespace FlyFlint.Internal.Static
                 new KeyValuePair<string, Type>(nameof(Value15), typeof(string)),
             };
 
-            private static readonly InjectDelegate<TargetNullableValueTypes> injector = Inject;
+            private static readonly StaticInjectDelegate<TargetNullableValueTypes> injector = Inject;
 
-            public void Prepare(DataInjectionContext context) =>
+            public void Prepare(StaticDataInjectionContext context) =>
                 context.RegisterMetadata(members, injector);
 
             private static void Inject(
-                DataInjectionContext context, ref TargetNullableValueTypes element)
+                StaticDataInjectionContext context, ref TargetNullableValueTypes element)
             {
                 element.Value1 = context.GetNullableBoolean(0);
                 element.Value2 = context.GetNullableByte(1);
@@ -219,7 +219,7 @@ namespace FlyFlint.Internal.Static
 
             var element = new TargetNullableValueTypes();
 
-            var context = new DataInjectionContext<TargetNullableValueTypes>(
+            var context = new StaticDataInjectionContext<TargetNullableValueTypes>(
                 ConversionContext.Default, StringComparer.OrdinalIgnoreCase, reader);
             element.Prepare(context);
 
@@ -254,7 +254,7 @@ namespace FlyFlint.Internal.Static
 
             var element = new TargetNullableValueTypes();
 
-            var context = new DataInjectionContext<TargetNullableValueTypes>(
+            var context = new StaticDataInjectionContext<TargetNullableValueTypes>(
                 ConversionContext.Default, StringComparer.OrdinalIgnoreCase, reader);
             element.Prepare(context);
 

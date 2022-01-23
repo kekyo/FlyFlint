@@ -65,7 +65,7 @@ namespace FlyFlint.Internal.Static
                     {
                         var element = new TElement();
 
-                        var context = new DataInjectionContext<TElement>(
+                        var context = new StaticDataInjectionContext<TElement>(
                             query.trait.cc, query.trait.fieldComparer, reader);
                         ((IDataInjectable)element).Prepare(context);
 
@@ -98,7 +98,7 @@ namespace FlyFlint.Internal.Static
                     {
                         var element = new TElement();
 
-                        var context = new DataInjectionContext<TElement>(
+                        var context = new StaticDataInjectionContext<TElement>(
                             query.trait.cc, query.trait.fieldComparer, reader);
                         ((IDataInjectable)element).Prepare(context);
 

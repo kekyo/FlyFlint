@@ -72,17 +72,16 @@ namespace FlyFlint.Internal.Dynamic
                     {
                         var element = new TElement();
 
-                        var context = new DynamicDataInjectionContext(
+                        var context = new DynamicDataInjectionContext<TElement>(
                             query.trait.cc, query.trait.fieldComparer, reader);
-                        var injector = new DynamicInjector<TElement>(context);
 
-                        injector.Inject(ref element);
+                        context.Inject(ref element);
                         yield return element;
 
                         while (reader.Read())
                         {
                             element = new TElement();
-                            injector.Inject(ref element);
+                            context.Inject(ref element);
                             yield return element;
                         }
                     }
@@ -105,18 +104,17 @@ namespace FlyFlint.Internal.Dynamic
                     {
                         var element = new TElement();
 
-                        var context = new DynamicDataInjectionContext(
+                        var context = new DynamicDataInjectionContext<TElement>(
                             query.trait.cc, query.trait.fieldComparer, reader);
-                        var injector = new DynamicInjector<TElement>(context);
 
-                        injector.Inject(ref element);
+                        context.Inject(ref element);
                         var prefetchAwaitable = reader.ReadAsync(ct).ConfigureAwait(false);
                         yield return element;
 
                         while (await prefetchAwaitable)
                         {
                             element = new TElement();
-                            injector.Inject(ref element);
+                            context.Inject(ref element);
                             prefetchAwaitable = reader.ReadAsync(ct).ConfigureAwait(false);
                             yield return element;
                         }

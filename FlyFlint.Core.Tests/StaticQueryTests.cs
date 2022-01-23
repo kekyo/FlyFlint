@@ -7,7 +7,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
-using FlyFlint.Context;
+using FlyFlint.Internal;
 using FlyFlint.Internal.Static;
 using FlyFlint.Utilities;
 using NUnit.Framework;
@@ -37,13 +37,13 @@ namespace FlyFlint
                  new KeyValuePair<string, Type>(nameof(Birth), typeof(DateTime)),
             };
 
-            private static readonly InjectDelegate<Target> injector = Inject;
+            private static readonly StaticInjectDelegate<Target> injector = Inject;
 
-            public void Prepare(DataInjectionContext context) =>
+            public void Prepare(StaticDataInjectionContext context) =>
                 context.RegisterMetadata(members, injector);
 
             private static void Inject(
-                DataInjectionContext context, ref Target element)
+                StaticDataInjectionContext context, ref Target element)
             {
                 element.Id = context.GetInt32(0);
                 element.Name = context.GetString(1);

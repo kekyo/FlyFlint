@@ -72,13 +72,12 @@ namespace FlyFlint.Internal.Dynamic
             using var reader = data.CreateDataReader();
             Assert.IsTrue(reader.Read());
 
-            var context = new DynamicDataInjectionContext(
+            var context = new DynamicDataInjectionContext<TargetValueTypes>(
                 ConversionContext.Default, StringComparer.OrdinalIgnoreCase, reader);
-            var injector = new DynamicInjector<TargetValueTypes>(context);
 
             var element = new TargetValueTypes();
 
-            injector.Inject(ref element);
+            context.Inject(ref element);
 
             return Verify($"{element.Value1},{element.Value2},{element.Value3},{element.Value4},{element.Value5},{element.Value6},{element.Value7},{element.Value8},{element.Value9},{element.Value10.ToString(CultureInfo.InvariantCulture)},{element.Value11},{element.Value12},{element.Value13},{element.Value14},{element.Value15}");
         }
@@ -128,13 +127,12 @@ namespace FlyFlint.Internal.Dynamic
             using var reader = data.CreateDataReader();
             Assert.IsTrue(reader.Read());
 
-            var context = new DynamicDataInjectionContext(
+            var context = new DynamicDataInjectionContext<TargetNullableValueTypes>(
                 ConversionContext.Default, StringComparer.OrdinalIgnoreCase, reader);
-            var injector = new DynamicInjector<TargetNullableValueTypes>(context);
 
             var element = new TargetNullableValueTypes();
 
-            injector.Inject(ref element);
+            context.Inject(ref element);
 
             return Verify($"{element.Value1},{element.Value2},{element.Value3},{element.Value4},{element.Value5},{element.Value6},{element.Value7},{element.Value8},{element.Value9},{element.Value10?.ToString(CultureInfo.InvariantCulture)},{element.Value11},{element.Value12},{element.Value13},{element.Value14},{element.Value15}");
         }
@@ -163,13 +161,12 @@ namespace FlyFlint.Internal.Dynamic
             using var reader = data.CreateDataReader();
             Assert.IsTrue(reader.Read());
 
-            var context = new DynamicDataInjectionContext(
+            var context = new DynamicDataInjectionContext<TargetNullableValueTypes>(
                 ConversionContext.Default, StringComparer.OrdinalIgnoreCase, reader);
-            var injector = new DynamicInjector<TargetNullableValueTypes>(context);
 
             var element = new TargetNullableValueTypes();
 
-            injector.Inject(ref element);
+            context.Inject(ref element);
 
             return Verify($"{element.Value1},{element.Value2},{element.Value3},{element.Value4},{element.Value5},{element.Value6},{element.Value7},{element.Value8},{element.Value9},{element.Value10?.ToString(CultureInfo.InvariantCulture)},{element.Value11},{element.Value12},{element.Value13},{element.Value14},{element.Value15}");
         }
