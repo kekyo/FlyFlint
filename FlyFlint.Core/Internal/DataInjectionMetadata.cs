@@ -10,24 +10,24 @@
 using System;
 using System.ComponentModel;
 
-namespace FlyFlint.Context
+namespace FlyFlint.Internal
 {
     [EditorBrowsable(EditorBrowsableState.Never)]
     public sealed class DataInjectionMetadata
     {
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public DataInjectionMetadata(int index, Type type)
+        public DataInjectionMetadata(int dbfieldIndex, Type dbType)
         {
-            this.Index = index;
+            this.DbFieldIndex = dbfieldIndex;
             this.StoreDirect = false;
-            this.Type = type;
+            this.DbType = dbType;
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public readonly int Index;
+        public readonly int DbFieldIndex;
         [EditorBrowsable(EditorBrowsableState.Never)]
         public bool StoreDirect;
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public readonly Type Type;
+        public readonly Type DbType;
     }
 }

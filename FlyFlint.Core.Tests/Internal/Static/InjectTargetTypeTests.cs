@@ -65,26 +65,29 @@ namespace FlyFlint.Internal.Static
                 new KeyValuePair<string, Type>(nameof(Value15), typeof(string)),
             };
 
-            public DataInjectionMetadata[] Prepare(DataInjectionContext context) =>
-                context.Prepare(members);
+            private static readonly StaticDataInjectorDelegate<TargetValueTypes> injector = Inject;
 
-            public void Inject(DataInjectionContext context, DataInjectionMetadata[] metadataList)
+            public void Prepare(StaticDataInjectionContext context) =>
+                context.RegisterMetadata(members, injector);
+
+            private static void Inject(
+                StaticDataInjectionContext context, ref TargetValueTypes element)
             {
-                this.Value1 = context.GetBoolean(metadataList[0]);
-                this.Value2 = context.GetByte(metadataList[1]);
-                this.Value3 = context.GetInt16(metadataList[2]);
-                this.Value4 = context.GetInt32(metadataList[3]);
-                this.Value5 = context.GetInt64(metadataList[4]);
-                this.Value6 = context.GetSingle(metadataList[5]);
-                this.Value7 = context.GetDouble(metadataList[6]);
-                this.Value8 = context.GetDecimal(metadataList[7]);
-                this.Value9 = context.GetGuid(metadataList[8]);
-                this.Value10 = context.GetDateTime(metadataList[9]);
-                this.Value11 = context.GetEnum<EnumValue>(metadataList[10]);
-                this.Value12 = context.GetEnum<EnumValue>(metadataList[11]);
-                this.Value13 = context.GetEnum<EnumValue>(metadataList[12]);
-                this.Value14 = context.GetEnum<EnumValue>(metadataList[13]);
-                this.Value15 = context.GetString(metadataList[14]);
+                element.Value1 = context.GetBoolean(0);
+                element.Value2 = context.GetByte(1);
+                element.Value3 = context.GetInt16(2);
+                element.Value4 = context.GetInt32(3);
+                element.Value5 = context.GetInt64(4);
+                element.Value6 = context.GetSingle(5);
+                element.Value7 = context.GetDouble(6);
+                element.Value8 = context.GetDecimal(7);
+                element.Value9 = context.GetGuid(8);
+                element.Value10 = context.GetDateTime(9);
+                element.Value11 = context.GetEnum<EnumValue>(10);
+                element.Value12 = context.GetEnum<EnumValue>(11);
+                element.Value13 = context.GetEnum<EnumValue>(12);
+                element.Value14 = context.GetEnum<EnumValue>(13);
+                element.Value15 = context.GetString(14);
             }
         }
 
@@ -116,11 +119,11 @@ namespace FlyFlint.Internal.Static
 
             var element = new TargetValueTypes();
 
-            var context = new DataInjectionContext(
+            var context = new StaticDataInjectionContext<TargetValueTypes>(
                 ConversionContext.Default, StringComparer.OrdinalIgnoreCase, reader);
-            var metadataList = element.Prepare(context);
+            element.Prepare(context);
 
-            element.Inject(context, metadataList);
+            context.Inject(ref element);
 
             return Verify($"{element.Value1},{element.Value2},{element.Value3},{element.Value4},{element.Value5},{element.Value6},{element.Value7},{element.Value8},{element.Value9},{element.Value10.ToString(CultureInfo.InvariantCulture)},{element.Value11},{element.Value12},{element.Value13},{element.Value14},{element.Value15}");
         }
@@ -162,26 +165,29 @@ namespace FlyFlint.Internal.Static
                 new KeyValuePair<string, Type>(nameof(Value15), typeof(string)),
             };
 
-            public DataInjectionMetadata[] Prepare(DataInjectionContext context) =>
-                context.Prepare(members);
+            private static readonly StaticDataInjectorDelegate<TargetNullableValueTypes> injector = Inject;
 
-            public void Inject(DataInjectionContext context, DataInjectionMetadata[] metadataList)
+            public void Prepare(StaticDataInjectionContext context) =>
+                context.RegisterMetadata(members, injector);
+
+            private static void Inject(
+                StaticDataInjectionContext context, ref TargetNullableValueTypes element)
             {
-                this.Value1 = context.GetNullableBoolean(metadataList[0]);
-                this.Value2 = context.GetNullableByte(metadataList[1]);
-                this.Value3 = context.GetNullableInt16(metadataList[2]);
-                this.Value4 = context.GetNullableInt32(metadataList[3]);
-                this.Value5 = context.GetNullableInt64(metadataList[4]);
-                this.Value6 = context.GetNullableSingle(metadataList[5]);
-                this.Value7 = context.GetNullableDouble(metadataList[6]);
-                this.Value8 = context.GetNullableDecimal(metadataList[7]);
-                this.Value9 = context.GetNullableGuid(metadataList[8]);
-                this.Value10 = context.GetNullableDateTime(metadataList[9]);
-                this.Value11 = context.GetNullableEnum<EnumValue>(metadataList[10]);
-                this.Value12 = context.GetNullableEnum<EnumValue>(metadataList[11]);
-                this.Value13 = context.GetNullableEnum<EnumValue>(metadataList[12]);
-                this.Value14 = context.GetNullableEnum<EnumValue>(metadataList[13]);
-                this.Value15 = context.GetNullableString(metadataList[14]);
+                element.Value1 = context.GetNullableBoolean(0);
+                element.Value2 = context.GetNullableByte(1);
+                element.Value3 = context.GetNullableInt16(2);
+                element.Value4 = context.GetNullableInt32(3);
+                element.Value5 = context.GetNullableInt64(4);
+                element.Value6 = context.GetNullableSingle(5);
+                element.Value7 = context.GetNullableDouble(6);
+                element.Value8 = context.GetNullableDecimal(7);
+                element.Value9 = context.GetNullableGuid(8);
+                element.Value10 = context.GetNullableDateTime(9);
+                element.Value11 = context.GetNullableEnum<EnumValue>(10);
+                element.Value12 = context.GetNullableEnum<EnumValue>(11);
+                element.Value13 = context.GetNullableEnum<EnumValue>(12);
+                element.Value14 = context.GetNullableEnum<EnumValue>(13);
+                element.Value15 = context.GetNullableString(14);
             }
         }
 
@@ -213,11 +219,11 @@ namespace FlyFlint.Internal.Static
 
             var element = new TargetNullableValueTypes();
 
-            var context = new DataInjectionContext(
+            var context = new StaticDataInjectionContext<TargetNullableValueTypes>(
                 ConversionContext.Default, StringComparer.OrdinalIgnoreCase, reader);
-            var metadataList = element.Prepare(context);
+            element.Prepare(context);
 
-            element.Inject(context, metadataList);
+            context.Inject(ref element);
 
             return Verify($"{element.Value1},{element.Value2},{element.Value3},{element.Value4},{element.Value5},{element.Value6},{element.Value7},{element.Value8},{element.Value9},{element.Value10?.ToString(CultureInfo.InvariantCulture)},{element.Value11},{element.Value12},{element.Value13},{element.Value14},{element.Value15}");
         }
@@ -248,11 +254,11 @@ namespace FlyFlint.Internal.Static
 
             var element = new TargetNullableValueTypes();
 
-            var context = new DataInjectionContext(
+            var context = new StaticDataInjectionContext<TargetNullableValueTypes>(
                 ConversionContext.Default, StringComparer.OrdinalIgnoreCase, reader);
-            var metadataList = element.Prepare(context);
+            element.Prepare(context);
 
-            element.Inject(context, metadataList);
+            context.Inject(ref element);
 
             return Verify($"{element.Value1},{element.Value2},{element.Value3},{element.Value4},{element.Value5},{element.Value6},{element.Value7},{element.Value8},{element.Value9},{element.Value10?.ToString(CultureInfo.InvariantCulture)},{element.Value11},{element.Value12},{element.Value13},{element.Value14},{element.Value15}");
         }

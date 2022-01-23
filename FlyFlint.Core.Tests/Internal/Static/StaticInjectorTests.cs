@@ -33,14 +33,17 @@ namespace FlyFlint.Internal.Static
                 new KeyValuePair<string, Type>(nameof(Birth), typeof(DateTime)),
             };
 
-            public DataInjectionMetadata[] Prepare(DataInjectionContext context) =>
-                context.Prepare(members);
+            private static readonly StaticDataInjectorDelegate<TargetValueType> injector = Inject;
 
-            public void Inject(DataInjectionContext context, DataInjectionMetadata[] metadataList)
+            public void Prepare(StaticDataInjectionContext context) =>
+                context.RegisterMetadata(members, injector);
+
+            private static void Inject(
+                StaticDataInjectionContext context, ref TargetValueType element)
             {
-                this.Id = context.GetInt32(metadataList[0]);
-                this.Name = context.GetString(metadataList[1]);
-                this.Birth = context.GetDateTime(metadataList[2]);
+                element.Id = context.GetInt32(0);
+                element.Name = context.GetString(1);
+                element.Birth = context.GetDateTime(2);
             }
         }
 
@@ -58,11 +61,11 @@ namespace FlyFlint.Internal.Static
 
             var element = new TargetValueType();
 
-            var context = new DataInjectionContext(
+            var context = new StaticDataInjectionContext<TargetValueType>(
                 ConversionContext.Default, StringComparer.OrdinalIgnoreCase, reader);
-            var metadataList = element.Prepare(context);
+            element.Prepare(context);
 
-            element.Inject(context, metadataList);
+            context.Inject(ref element);
 
             return Verify($"{element.Id},{element.Name},{element.Birth.ToString(CultureInfo.InvariantCulture)}");
         }
@@ -80,14 +83,17 @@ namespace FlyFlint.Internal.Static
                 new KeyValuePair<string, Type>(nameof(Birth), typeof(DateTime)),
             };
 
-            public DataInjectionMetadata[] Prepare(DataInjectionContext context) =>
-                context.Prepare(members);
+            private static readonly StaticDataInjectorDelegate<TargetReferenceType> injector = Inject;
 
-            public void Inject(DataInjectionContext context, DataInjectionMetadata[] metadataList)
+            public void Prepare(StaticDataInjectionContext context) =>
+                context.RegisterMetadata(members, injector);
+
+            private static void Inject(
+                StaticDataInjectionContext context, ref TargetReferenceType element)
             {
-                this.Id = context.GetInt32(metadataList[0]);
-                this.Name = context.GetString(metadataList[1]);
-                this.Birth = context.GetDateTime(metadataList[2]);
+                element.Id = context.GetInt32(0);
+                element.Name = context.GetString(1);
+                element.Birth = context.GetDateTime(2);
             }
         }
 
@@ -105,11 +111,11 @@ namespace FlyFlint.Internal.Static
 
             var element = new TargetReferenceType();
 
-            var context = new DataInjectionContext(
+            var context = new StaticDataInjectionContext<TargetReferenceType>(
                 ConversionContext.Default, StringComparer.OrdinalIgnoreCase, reader);
-            var metadataList = element.Prepare(context);
+            element.Prepare(context);
 
-            element.Inject(context, metadataList);
+            context.Inject(ref element);
 
             return Verify($"{element.Id},{element.Name},{element.Birth.ToString(CultureInfo.InvariantCulture)}");
         }

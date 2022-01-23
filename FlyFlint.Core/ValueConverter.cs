@@ -8,8 +8,8 @@
 ////////////////////////////////////////////////////////////////////////////
 
 using FlyFlint.Context;
+using FlyFlint.Internal;
 using FlyFlint.Internal.Converter;
-using FlyFlint.Internal.Dynamic;
 using System;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -28,6 +28,6 @@ namespace FlyFlint
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public static object? Convert(IFormatProvider fp, Encoding encoding, object? value, Type targetType) =>
-            DynamicQueryExecutorFacade.Convert(new ConversionContext(fp, encoding), value, targetType);
+            QueryExecutor.Instance.Convert(new ConversionContext(fp, encoding), value, targetType);
     }
 }

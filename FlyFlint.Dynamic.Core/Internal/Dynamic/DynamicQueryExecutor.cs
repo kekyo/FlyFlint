@@ -9,35 +9,22 @@
 
 using FlyFlint.Context;
 using FlyFlint.Internal.Converter;
-#if NET35 || NET40
-using FlyFlint.Utilities;
-#endif
 using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
+using System.Data.Common;
 
 namespace FlyFlint.Internal.Dynamic
 {
-    internal sealed class DynamicQueryExecutor : IDynamicQueryExecutor
+    internal sealed class DynamicQueryExecutor : QueryExecutor
     {
-#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-        public object? Convert(ConversionContext context, object? value, Type targetType) =>
+        public override object? Convert(ConversionContext context, object? value, Type targetType) =>
             DynamicValueConverter.GetConverter(targetType).Convert(context, value);
 
-#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-        public object? UnsafeConvert(ConversionContext context, object value, Type targetType) =>
+        public override object? UnsafeConvert(ConversionContext context, object value, Type targetType) =>
             DynamicValueConverter.GetConverter(targetType).UnsafeConvert(context, value);
 
-        /////////////////////////////////////////////////////////////////////
-
-        public Func<KeyValuePair<string, object?>[]> GetConstructParameters<TParameters>(
+        public override Func<KeyValuePair<string, object?>[]> GetConstructParameters<TParameters>(
             Func<TParameters> getter, string parameterPrefix)
-            where TParameters : notnull
         {
             var members = DynamicHelper.GetGetterMetadataList<TParameters>();
             return () =>
@@ -54,9 +41,8 @@ namespace FlyFlint.Internal.Dynamic
             };
         }
 
-        public KeyValuePair<string, object?>[] GetParameters<TParameters>(
+        public override KeyValuePair<string, object?>[] GetParameters<TParameters>(
             ref TParameters parameters, string parameterPrefix)
-            where TParameters : notnull
         {
             var members = DynamicHelper.GetGetterMetadataList<TParameters>();
             var ps = new KeyValuePair<string, object?>[members.Length];
@@ -69,101 +55,12 @@ namespace FlyFlint.Internal.Dynamic
             return ps;
         }
 
-        /////////////////////////////////////////////////////////////////////
-
-        public int ExecuteNonQuery(QueryContext query)
-        {
-            using (var command = QueryHelper.CreateCommand(
-                query.connection, query.transaction, query.sql, query.parameters))
-            {
-                return command.ExecuteNonQuery();
-            }
-        }
-
-        public TElement ExecuteScalar<TElement>(QueryContext<TElement> query)
-        {
-            using (var command = QueryHelper.CreateCommand(
-                query.connection, query.transaction, query.sql, query.parameters))
-            {
-                return InternalValueConverter<TElement>.converter.Convert(
-                    query.trait.cc, command.ExecuteScalar());
-            }
-        }
-
-        public IEnumerable<TElement> Execute<TElement>(QueryContext<TElement> query)
-            where TElement : new()
-        {
-            using (var command = QueryHelper.CreateCommand(
-                query.connection, query.transaction, query.sql, query.parameters))
-            {
-                using (var reader = command.ExecuteReader())
-                {
-                    if (reader.Read())
-                    {
-                        var context = new DynamicDataInjectionContext(
-                            query.trait.cc, query.trait.fieldComparer, reader);
-
-                        var injector = new DynamicInjector<TElement>(context);
-                        do
-                        {
-                            var element = new TElement();
-                            injector.Inject(ref element);
-                            yield return element;
-                        }
-                        while (reader.Read());
-                    }
-                }
-            }
-        }
-
-        /////////////////////////////////////////////////////////////////////
-
-        public async Task<int> ExecuteNonQueryAsync(QueryContext query)
-        {
-            using (var command = QueryHelper.CreateCommand(
-                query.connection, query.transaction, query.sql, query.parameters))
-            {
-                return await command.ExecuteNonQueryAsync().ConfigureAwait(false);
-            }
-        }
-
-        public async Task<TElement> ExecuteScalarAsync<TElement>(QueryContext<TElement> query)
-        {
-            using (var command = QueryHelper.CreateCommand(
-                query.connection, query.transaction, query.sql, query.parameters))
-            {
-                return InternalValueConverter<TElement>.converter.Convert(
-                    query.trait.cc, await command.ExecuteScalarAsync().ConfigureAwait(false));
-            }
-        }
-
-#if NET461_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public async IAsyncEnumerable<TElement> ExecuteAsync<TElement>(QueryContext<TElement> query)
-            where TElement : new()
-        {
-            using (var command = QueryHelper.CreateCommand(
-                query.connection, query.transaction, query.sql, query.parameters))
-            {
-                using (var reader = await command.ExecuteReaderAsync().ConfigureAwait(false))
-                {
-                    if (await reader.ReadAsync().ConfigureAwait(false))
-                    {
-                        var context = new DynamicDataInjectionContext(
-                            query.trait.cc, query.trait.fieldComparer, reader);
-
-                        var injector = new DynamicInjector<TElement>(context);
-                        do
-                        {
-                            var element = new TElement();
-                            injector.Inject(ref element);
-                            yield return element;
-                        }
-                        while (await reader.ReadAsync().ConfigureAwait(false));
-                    }
-                }
-            }
-        }
-#endif
+        public override InjectorDelegate<TElement> GetInjector<TElement>(
+            ConversionContext cc,
+            IComparer<string> fieldComparer,
+            DbDataReader reader,
+            ref TElement element) =>
+            new DynamicDataInjectionContext<TElement>(
+                cc, fieldComparer, reader).Inject;
     }
 }

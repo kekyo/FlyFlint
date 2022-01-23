@@ -7,6 +7,8 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
+using FlyFlint.Internal;
+using FlyFlint.Internal.Static;
 using FlyFlint.Utilities;
 using NUnit.Framework;
 using System;
@@ -21,6 +23,10 @@ namespace FlyFlint
 {
     public sealed class DynamicQueryTests
     {
+        [OneTimeSetUp]
+        public void OneTimeSetUp() =>
+            DynamicQuery.Enable();
+
         public struct Target
         {
             public int Id;
@@ -31,8 +37,6 @@ namespace FlyFlint
         [Test]
         public async Task Query()
         {
-            DynamicQuery.Enable();
-
             using var connection = new SQLiteConnection("Data Source=:memory:");
             await connection.OpenAsync();
 
@@ -57,8 +61,6 @@ namespace FlyFlint
         [Test]
         public async Task QueryWithParameter()
         {
-            DynamicQuery.Enable();
-
             using var connection = new SQLiteConnection("Data Source=:memory:");
             await connection.OpenAsync();
 
@@ -85,8 +87,6 @@ namespace FlyFlint
         [Test]
         public async Task QueryWithInlinedParameter()
         {
-            DynamicQuery.Enable();
-
             using var connection = new SQLiteConnection("Data Source=:memory:");
             await connection.OpenAsync();
 
