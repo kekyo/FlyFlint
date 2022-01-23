@@ -20,14 +20,20 @@ namespace FlyFlint.Internal.Dynamic
 {
     public sealed class DynamicInjectorWithDataMemberTests
     {
-        [DataContract]
         public struct FieldValueType
         {
             [DataMember]
             public DateTime Birth;
+            [IgnoreDataMember]
             public string? Name;
             [DataMember]
-            public int Id;
+            private int Id;
+            private string Address;
+
+            public int GetId() =>
+                this.Id;
+            public string GetAddress() =>
+                this.Address;
         }
 
         [Test]
@@ -37,7 +43,8 @@ namespace FlyFlint.Internal.Dynamic
             data.Columns.Add("Id", typeof(int));
             data.Columns.Add("Name", typeof(string));
             data.Columns.Add("Birth", typeof(DateTime));
-            data.Rows.Add(1, "AAAA", new DateTime(2022, 1, 23, 12, 34, 56, 789));
+            data.Columns.Add("Address", typeof(string));
+            data.Rows.Add(1, "AAAA", new DateTime(2022, 1, 23, 12, 34, 56, 789), "ABC");
 
             using var reader = data.CreateDataReader();
             Assert.IsTrue(reader.Read());
@@ -49,17 +56,23 @@ namespace FlyFlint.Internal.Dynamic
 
             context.Inject(ref element);
 
-            return Verify($"{element.Id},{element.Name},{element.Birth.ToString(CultureInfo.InvariantCulture)}");
+            return Verify($"{element.GetId()},{element.Name},{element.Birth.ToString(CultureInfo.InvariantCulture)},{element.GetAddress()}");
         }
 
-        [DataContract]
         public sealed class FieldReferenceType
         {
             [DataMember]
             public DateTime Birth;
+            [IgnoreDataMember]
             public string? Name;
             [DataMember]
-            public int Id;
+            private int Id;
+            private string? Address;
+
+            public int GetId() =>
+                this.Id;
+            public string? GetAddress() =>
+                this.Address;
         }
 
         [Test]
@@ -69,7 +82,8 @@ namespace FlyFlint.Internal.Dynamic
             data.Columns.Add("Id", typeof(int));
             data.Columns.Add("Name", typeof(string));
             data.Columns.Add("Birth", typeof(DateTime));
-            data.Rows.Add(1, "AAAA", new DateTime(2022, 1, 23, 12, 34, 56, 789));
+            data.Columns.Add("Address", typeof(string));
+            data.Rows.Add(1, "AAAA", new DateTime(2022, 1, 23, 12, 34, 56, 789), "ABC");
 
             using var reader = data.CreateDataReader();
             Assert.IsTrue(reader.Read());
@@ -81,17 +95,23 @@ namespace FlyFlint.Internal.Dynamic
 
             context.Inject(ref element);
 
-            return Verify($"{element.Id},{element.Name},{element.Birth.ToString(CultureInfo.InvariantCulture)}");
+            return Verify($"{element.GetId()},{element.Name},{element.Birth.ToString(CultureInfo.InvariantCulture)},{element.GetAddress()}");
         }
 
-        [DataContract]
         public struct PropertyValueType
         {
             [DataMember]
             public DateTime Birth { get; set; }
+            [IgnoreDataMember]
             public string? Name { get; set; }
             [DataMember]
-            public int Id { get; set; }
+            private int Id { get; set; }
+            private string? Address { get; set; }
+
+            public int GetId() =>
+                this.Id;
+            public string? GetAddress() =>
+                this.Address;
         }
 
         [Test]
@@ -101,7 +121,8 @@ namespace FlyFlint.Internal.Dynamic
             data.Columns.Add("Id", typeof(int));
             data.Columns.Add("Name", typeof(string));
             data.Columns.Add("Birth", typeof(DateTime));
-            data.Rows.Add(1, "AAAA", new DateTime(2022, 1, 23, 12, 34, 56, 789));
+            data.Columns.Add("Address", typeof(string));
+            data.Rows.Add(1, "AAAA", new DateTime(2022, 1, 23, 12, 34, 56, 789), "ABC");
 
             using var reader = data.CreateDataReader();
             Assert.IsTrue(reader.Read());
@@ -113,17 +134,23 @@ namespace FlyFlint.Internal.Dynamic
 
             context.Inject(ref element);
 
-            return Verify($"{element.Id},{element.Name},{element.Birth.ToString(CultureInfo.InvariantCulture)}");
+            return Verify($"{element.GetId()},{element.Name},{element.Birth.ToString(CultureInfo.InvariantCulture)},{element.GetAddress()}");
         }
 
-        [DataContract]
         public sealed class PropertyReferenceType
         {
             [DataMember]
             public DateTime Birth { get; set; }
+            [IgnoreDataMember]
             public string? Name { get; set; }
             [DataMember]
-            public int Id { get; set; }
+            private int Id { get; set; }
+            private string? Address { get; set; }
+
+            public int GetId() =>
+                this.Id;
+            public string? GetAddress() =>
+                this.Address;
         }
 
         [Test]
@@ -133,7 +160,8 @@ namespace FlyFlint.Internal.Dynamic
             data.Columns.Add("Id", typeof(int));
             data.Columns.Add("Name", typeof(string));
             data.Columns.Add("Birth", typeof(DateTime));
-            data.Rows.Add(1, "AAAA", new DateTime(2022, 1, 23, 12, 34, 56, 789));
+            data.Columns.Add("Address", typeof(string));
+            data.Rows.Add(1, "AAAA", new DateTime(2022, 1, 23, 12, 34, 56, 789), "ABC");
 
             using var reader = data.CreateDataReader();
             Assert.IsTrue(reader.Read());
@@ -145,7 +173,7 @@ namespace FlyFlint.Internal.Dynamic
 
             context.Inject(ref element);
 
-            return Verify($"{element.Id},{element.Name},{element.Birth.ToString(CultureInfo.InvariantCulture)}");
+            return Verify($"{element.GetId()},{element.Name},{element.Birth.ToString(CultureInfo.InvariantCulture)},{element.GetAddress()}");
         }
     }
 }
