@@ -9,16 +9,17 @@
 
 #if NET35 || NET40
 using System.Data.Common;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace FlyFlint.Utilities
 {
     internal static class DbCommandExtension
     {
-        public static Task<int> ExecuteNonQueryAsync(this DbCommand command) =>
-            Task.Factory.StartNew(command.ExecuteNonQuery);
-        public static Task<object?> ExecuteScalarAsync(this DbCommand command) =>
-            Task.Factory.StartNew(command.ExecuteScalar);
+        public static Task<int> ExecuteNonQueryAsync(this DbCommand command, CancellationToken ct) =>
+            Task.Factory.StartNew(command.ExecuteNonQuery, ct);
+        public static Task<object?> ExecuteScalarAsync(this DbCommand command, CancellationToken ct) =>
+            Task.Factory.StartNew(command.ExecuteScalar, ct);
     }
 }
 #endif

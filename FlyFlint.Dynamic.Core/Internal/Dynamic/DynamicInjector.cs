@@ -36,7 +36,7 @@ namespace FlyFlint.Internal.Dynamic
                     var dbFieldMetadata = metadataMap.MetadataList[dbFieldNameIndiciesIndex];
 
                     var ut = Nullable.GetUnderlyingType(member.FieldType) ?? member.FieldType;
-                    dbFieldMetadata.StoreDirect = ut == dbFieldMetadata.Type;
+                    dbFieldMetadata.StoreDirect = ut == dbFieldMetadata.DbType;
 
                     candidates.Add((ref T element) =>
                         member.Accessor(ref element, context.GetValue(dbFieldMetadata, member.FieldType)));

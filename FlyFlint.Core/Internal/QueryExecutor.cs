@@ -12,6 +12,7 @@ using FlyFlint.Internal.Static;
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace FlyFlint.Internal
@@ -57,10 +58,13 @@ namespace FlyFlint.Internal
 
         /////////////////////////////////////////////////////////////////////
 
-        public abstract Task<int> ExecuteNonQueryAsync(QueryContext query);
-        public abstract Task<TElement> ExecuteScalarAsync<TElement>(QueryContext<TElement> query);
+        public abstract Task<int> ExecuteNonQueryAsync(
+            QueryContext query, CancellationToken ct);
+        public abstract Task<TElement> ExecuteScalarAsync<TElement>(
+            QueryContext<TElement> query, CancellationToken ct);
 #if NET461_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
-        public abstract IAsyncEnumerable<TElement> ExecuteAsync<TElement>(QueryContext<TElement> query)
+        public abstract IAsyncEnumerable<TElement> ExecuteAsync<TElement>(
+            QueryContext<TElement> query, CancellationToken ct)
             where TElement : new();
 #endif
     }

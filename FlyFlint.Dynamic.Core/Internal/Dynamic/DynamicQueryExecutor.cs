@@ -14,6 +14,8 @@ using FlyFlint.Utilities;
 #endif
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace FlyFlint.Internal.Dynamic
@@ -108,46 +110,51 @@ namespace FlyFlint.Internal.Dynamic
 
         /////////////////////////////////////////////////////////////////////
 
-        public override async Task<int> ExecuteNonQueryAsync(QueryContext query)
+        public override async Task<int> ExecuteNonQueryAsync(
+            QueryContext query, CancellationToken ct)
         {
             using (var command = QueryHelper.CreateCommand(
                 query.connection, query.transaction, query.sql, query.parameters))
             {
-                return await command.ExecuteNonQueryAsync().ConfigureAwait(false);
+                return await command.ExecuteNonQueryAsync(ct).ConfigureAwait(false);
             }
         }
 
-        public override async Task<TElement> ExecuteScalarAsync<TElement>(QueryContext<TElement> query)
+        public override async Task<TElement> ExecuteScalarAsync<TElement>(
+            QueryContext<TElement> query, CancellationToken ct)
         {
             using (var command = QueryHelper.CreateCommand(
                 query.connection, query.transaction, query.sql, query.parameters))
             {
                 return InternalValueConverter<TElement>.converter.Convert(
-                    query.trait.cc, await command.ExecuteScalarAsync().ConfigureAwait(false));
+                    query.trait.cc, await command.ExecuteScalarAsync(ct).ConfigureAwait(false));
             }
         }
 
 #if NET461_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
-        public override async IAsyncEnumerable<TElement> ExecuteAsync<TElement>(QueryContext<TElement> query)
+        public override async IAsyncEnumerable<TElement> ExecuteAsync<TElement>(
+            QueryContext<TElement> query, [EnumeratorCancellation] CancellationToken ct)
         {
             using (var command = QueryHelper.CreateCommand(
                 query.connection, query.transaction, query.sql, query.parameters))
             {
-                using (var reader = await command.ExecuteReaderAsync().ConfigureAwait(false))
+                using (var reader = await command.ExecuteReaderAsync(ct).ConfigureAwait(false))
                 {
-                    if (await reader.ReadAsync().ConfigureAwait(false))
+                    if (await reader.ReadAsync(ct).ConfigureAwait(false))
                     {
                         var context = new DynamicDataInjectionContext(
                             query.trait.cc, query.trait.fieldComparer, reader);
 
                         var injector = new DynamicInjector<TElement>(context);
+                        ConfiguredTaskAwaitable<bool> prefetchAwaitable;
                         do
                         {
                             var element = new TElement();
                             injector.Inject(ref element);
+                            prefetchAwaitable = reader.ReadAsync(ct).ConfigureAwait(false);
                             yield return element;
                         }
-                        while (await reader.ReadAsync().ConfigureAwait(false));
+                        while (await prefetchAwaitable);
                     }
                 }
             }

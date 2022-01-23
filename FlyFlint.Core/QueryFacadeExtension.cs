@@ -14,6 +14,7 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace FlyFlint
@@ -253,23 +254,27 @@ namespace FlyFlint
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static Task<int> ExecuteNonQueryAsync(this QueryContext query) =>
-            QueryExecutor.Instance.ExecuteNonQueryAsync(query);
+        public static Task<int> ExecuteNonQueryAsync(
+            this QueryContext query, CancellationToken ct = default) =>
+            QueryExecutor.Instance.ExecuteNonQueryAsync(query, ct);
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static Task<TElement> ExecuteScalarAsync<TElement>(this QueryContext<TElement> query) =>
-            QueryExecutor.Instance.ExecuteScalarAsync(query);
+        public static Task<TElement> ExecuteScalarAsync<TElement>(
+            this QueryContext<TElement> query, CancellationToken ct = default) =>
+            QueryExecutor.Instance.ExecuteScalarAsync(query, ct);
 
 #if NET461_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IAsyncEnumerable<TElement> ExecuteAsync<TElement>(this QueryContext<TElement> query)
+        public static IAsyncEnumerable<TElement> ExecuteAsync<TElement>(
+            this QueryContext<TElement> query, CancellationToken ct = default)
             where TElement : new() =>
-            QueryExecutor.Instance.ExecuteAsync(query);
+            QueryExecutor.Instance.ExecuteAsync(query, ct);
 #else
         [Obsolete("Before net461 platform, it is not supported async enumeration. Consider upgrades to net461 or upper, or `Execute()` method with `FlyFlint.Synchronized` namespace instead.", true)]
-        public static void ExecuteAsync<TElement>(this QueryContext<TElement> query)
+        public static void ExecuteAsync<TElement>(
+            this QueryContext<TElement> query, CancellationToken ct = default)
             where TElement : new() =>
             throw new InvalidOperationException();
 #endif

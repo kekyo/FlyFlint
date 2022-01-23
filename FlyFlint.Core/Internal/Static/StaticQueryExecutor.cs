@@ -15,6 +15,7 @@ using FlyFlint.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace FlyFlint.Internal.Static
@@ -78,32 +79,6 @@ namespace FlyFlint.Internal.Static
 
         /////////////////////////////////////////////////////////////////////
 
-#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-        private static PreparingResult<TElement> CreateAndPrepareAndInject<TElement>(
-            DataInjectionContext context, out TElement element)
-            where TElement : new()
-        {
-            element = new();
-            var pr = ((IDataInjectable<TElement>)element).Prepare(context);
-            pr.Injector(ref element, context, pr.MetadataList);
-            return pr;
-        }
-
-#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-        private static void CreateAndInject<TElement>(
-            DataInjectionContext context, PreparingResult<TElement> pr, out TElement element)
-            where TElement : new()
-        {
-            element = new();
-            pr.Injector(ref element, context, pr.MetadataList);
-        }
-
-        /////////////////////////////////////////////////////////////////////
-
         public override IEnumerable<TElement> Execute<TElement>(QueryContext<TElement> query)
         {
             using (var command = QueryHelper.CreateCommand(
@@ -113,18 +88,19 @@ namespace FlyFlint.Internal.Static
                 {
                     if (reader.Read())
                     {
-                        var context = new DataInjectionContext(
+                        var context = new DataInjectionContext<TElement>(
                             query.trait.cc, query.trait.fieldComparer, reader);
 
-                        TElement element;
-                        var pr = CreateAndPrepareAndInject(context, out element);
+                        var element = new TElement();
+                        ((IDataInjectable)element).Prepare(context);
 
+                        context.Inject(ref element);
                         yield return element;
 
                         while (reader.Read())
                         {
-                            CreateAndInject(context, pr, out element);
-
+                            element = new TElement();
+                            context.Inject(ref element);
                             yield return element;
                         }
                     }
@@ -134,47 +110,53 @@ namespace FlyFlint.Internal.Static
 
         /////////////////////////////////////////////////////////////////////
 
-        public override async Task<int> ExecuteNonQueryAsync(QueryContext query)
+        public override async Task<int> ExecuteNonQueryAsync(
+            QueryContext query, CancellationToken ct)
         {
             using (var command = QueryHelper.CreateCommand(
                 query.connection, query.transaction, query.sql, query.parameters))
             {
-                return await command.ExecuteNonQueryAsync().ConfigureAwait(false);
+                return await command.ExecuteNonQueryAsync(ct).ConfigureAwait(false);
             }
         }
 
-        public override async Task<TElement> ExecuteScalarAsync<TElement>(QueryContext<TElement> query)
+        public override async Task<TElement> ExecuteScalarAsync<TElement>(
+            QueryContext<TElement> query, CancellationToken ct)
         {
             using (var command = QueryHelper.CreateCommand(
                 query.connection, query.transaction, query.sql, query.parameters))
             {
                 return InternalValueConverter<TElement>.converter.Convert(
-                    query.trait.cc, await command.ExecuteScalarAsync().ConfigureAwait(false));
+                    query.trait.cc, await command.ExecuteScalarAsync(ct).ConfigureAwait(false));
             }
         }
 
 #if NET461_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
-        public override async IAsyncEnumerable<TElement> ExecuteAsync<TElement>(QueryContext<TElement> query)
+        public override async IAsyncEnumerable<TElement> ExecuteAsync<TElement>(
+            QueryContext<TElement> query, [EnumeratorCancellation] CancellationToken ct)
         {
             using (var command = QueryHelper.CreateCommand(
                 query.connection, query.transaction, query.sql, query.parameters))
             {
-                using (var reader = await command.ExecuteReaderAsync().ConfigureAwait(false))
+                using (var reader = await command.ExecuteReaderAsync(ct).ConfigureAwait(false))
                 {
-                    if (await reader.ReadAsync().ConfigureAwait(false))
+                    if (await reader.ReadAsync(ct).ConfigureAwait(false))
                     {
-                        var context = new DataInjectionContext(
+                        var context = new DataInjectionContext<TElement>(
                             query.trait.cc, query.trait.fieldComparer, reader);
 
-                        TElement element;
-                        var pr = CreateAndPrepareAndInject(context, out element);
+                        var element = new TElement();
+                        ((IDataInjectable)element).Prepare(context);
 
+                        context.Inject(ref element);
+                        var prefetchAwaitable = reader.ReadAsync(ct).ConfigureAwait(false);
                         yield return element;
 
-                        while (await reader.ReadAsync().ConfigureAwait(false))
+                        while (await prefetchAwaitable)
                         {
-                            CreateAndInject(context, pr, out element);
-
+                            element = new TElement();
+                            context.Inject(ref element);
+                            prefetchAwaitable = reader.ReadAsync(ct).ConfigureAwait(false);
                             yield return element;
                         }
                     }

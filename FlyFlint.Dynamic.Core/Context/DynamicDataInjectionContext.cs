@@ -67,8 +67,8 @@ namespace FlyFlint.Context
 #endif
         [EditorBrowsable(EditorBrowsableState.Never)]
         public object? GetValue(DataInjectionMetadata metadata, Type targetType) =>
-            this.reader.IsDBNull(metadata.Index) ? null :
-                metadata.StoreDirect ? this.reader.GetValue(metadata.Index) :
-                    Convert(this.cc, this.reader.GetValue(metadata.Index), targetType);
+            this.reader.IsDBNull(metadata.DbFieldIndex) ? null :
+                metadata.StoreDirect ? this.reader.GetValue(metadata.DbFieldIndex) :
+                    Convert(this.cc, this.reader.GetValue(metadata.DbFieldIndex), targetType);
     }
 }

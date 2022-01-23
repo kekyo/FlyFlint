@@ -28,7 +28,7 @@ namespace FlyFlint.Internal.Static
             ValueD = 13,
         }
 
-        public struct TargetValueTypes : IDataInjectable<TargetValueTypes>
+        public struct TargetValueTypes : IDataInjectable
         {
             public bool Value1;
             public byte Value2;
@@ -65,29 +65,29 @@ namespace FlyFlint.Internal.Static
                 new KeyValuePair<string, Type>(nameof(Value15), typeof(string)),
             };
 
-            private static readonly InjectDelegate<TargetValueTypes> injectDelegate = Inject;
+            private static readonly InjectDelegate<TargetValueTypes> injector = Inject;
 
-            public PreparingResult<TargetValueTypes> Prepare(DataInjectionContext context) =>
-                new PreparingResult<TargetValueTypes>(injectDelegate, context.Prepare(members));
+            public void Prepare(DataInjectionContext context) =>
+                context.RegisterMetadata(members, injector);
 
             private static void Inject(
-                ref TargetValueTypes element, DataInjectionContext context, DataInjectionMetadata[] metadataList)
+                DataInjectionContext context, ref TargetValueTypes element)
             {
-                element.Value1 = context.GetBoolean(metadataList[0]);
-                element.Value2 = context.GetByte(metadataList[1]);
-                element.Value3 = context.GetInt16(metadataList[2]);
-                element.Value4 = context.GetInt32(metadataList[3]);
-                element.Value5 = context.GetInt64(metadataList[4]);
-                element.Value6 = context.GetSingle(metadataList[5]);
-                element.Value7 = context.GetDouble(metadataList[6]);
-                element.Value8 = context.GetDecimal(metadataList[7]);
-                element.Value9 = context.GetGuid(metadataList[8]);
-                element.Value10 = context.GetDateTime(metadataList[9]);
-                element.Value11 = context.GetEnum<EnumValue>(metadataList[10]);
-                element.Value12 = context.GetEnum<EnumValue>(metadataList[11]);
-                element.Value13 = context.GetEnum<EnumValue>(metadataList[12]);
-                element.Value14 = context.GetEnum<EnumValue>(metadataList[13]);
-                element.Value15 = context.GetString(metadataList[14]);
+                element.Value1 = context.GetBoolean(0);
+                element.Value2 = context.GetByte(1);
+                element.Value3 = context.GetInt16(2);
+                element.Value4 = context.GetInt32(3);
+                element.Value5 = context.GetInt64(4);
+                element.Value6 = context.GetSingle(5);
+                element.Value7 = context.GetDouble(6);
+                element.Value8 = context.GetDecimal(7);
+                element.Value9 = context.GetGuid(8);
+                element.Value10 = context.GetDateTime(9);
+                element.Value11 = context.GetEnum<EnumValue>(10);
+                element.Value12 = context.GetEnum<EnumValue>(11);
+                element.Value13 = context.GetEnum<EnumValue>(12);
+                element.Value14 = context.GetEnum<EnumValue>(13);
+                element.Value15 = context.GetString(14);
             }
         }
 
@@ -119,16 +119,16 @@ namespace FlyFlint.Internal.Static
 
             var element = new TargetValueTypes();
 
-            var context = new DataInjectionContext(
+            var context = new DataInjectionContext<TargetValueTypes>(
                 ConversionContext.Default, StringComparer.OrdinalIgnoreCase, reader);
-            var pr = element.Prepare(context);
+            element.Prepare(context);
 
-            pr.Injector(ref element, context, pr.MetadataList);
+            context.Inject(ref element);
 
             return Verify($"{element.Value1},{element.Value2},{element.Value3},{element.Value4},{element.Value5},{element.Value6},{element.Value7},{element.Value8},{element.Value9},{element.Value10.ToString(CultureInfo.InvariantCulture)},{element.Value11},{element.Value12},{element.Value13},{element.Value14},{element.Value15}");
         }
 
-        public struct TargetNullableValueTypes : IDataInjectable<TargetNullableValueTypes>
+        public struct TargetNullableValueTypes : IDataInjectable
         {
             public bool? Value1;
             public byte? Value2;
@@ -165,29 +165,29 @@ namespace FlyFlint.Internal.Static
                 new KeyValuePair<string, Type>(nameof(Value15), typeof(string)),
             };
 
-            private static readonly InjectDelegate<TargetNullableValueTypes> injectDelegate = Inject;
+            private static readonly InjectDelegate<TargetNullableValueTypes> injector = Inject;
 
-            public PreparingResult<TargetNullableValueTypes> Prepare(DataInjectionContext context) =>
-                new PreparingResult<TargetNullableValueTypes>(injectDelegate, context.Prepare(members));
+            public void Prepare(DataInjectionContext context) =>
+                context.RegisterMetadata(members, injector);
 
             private static void Inject(
-                ref TargetNullableValueTypes element, DataInjectionContext context, DataInjectionMetadata[] metadataList)
+                DataInjectionContext context, ref TargetNullableValueTypes element)
             {
-                element.Value1 = context.GetNullableBoolean(metadataList[0]);
-                element.Value2 = context.GetNullableByte(metadataList[1]);
-                element.Value3 = context.GetNullableInt16(metadataList[2]);
-                element.Value4 = context.GetNullableInt32(metadataList[3]);
-                element.Value5 = context.GetNullableInt64(metadataList[4]);
-                element.Value6 = context.GetNullableSingle(metadataList[5]);
-                element.Value7 = context.GetNullableDouble(metadataList[6]);
-                element.Value8 = context.GetNullableDecimal(metadataList[7]);
-                element.Value9 = context.GetNullableGuid(metadataList[8]);
-                element.Value10 = context.GetNullableDateTime(metadataList[9]);
-                element.Value11 = context.GetNullableEnum<EnumValue>(metadataList[10]);
-                element.Value12 = context.GetNullableEnum<EnumValue>(metadataList[11]);
-                element.Value13 = context.GetNullableEnum<EnumValue>(metadataList[12]);
-                element.Value14 = context.GetNullableEnum<EnumValue>(metadataList[13]);
-                element.Value15 = context.GetNullableString(metadataList[14]);
+                element.Value1 = context.GetNullableBoolean(0);
+                element.Value2 = context.GetNullableByte(1);
+                element.Value3 = context.GetNullableInt16(2);
+                element.Value4 = context.GetNullableInt32(3);
+                element.Value5 = context.GetNullableInt64(4);
+                element.Value6 = context.GetNullableSingle(5);
+                element.Value7 = context.GetNullableDouble(6);
+                element.Value8 = context.GetNullableDecimal(7);
+                element.Value9 = context.GetNullableGuid(8);
+                element.Value10 = context.GetNullableDateTime(9);
+                element.Value11 = context.GetNullableEnum<EnumValue>(10);
+                element.Value12 = context.GetNullableEnum<EnumValue>(11);
+                element.Value13 = context.GetNullableEnum<EnumValue>(12);
+                element.Value14 = context.GetNullableEnum<EnumValue>(13);
+                element.Value15 = context.GetNullableString(14);
             }
         }
 
@@ -219,11 +219,11 @@ namespace FlyFlint.Internal.Static
 
             var element = new TargetNullableValueTypes();
 
-            var context = new DataInjectionContext(
+            var context = new DataInjectionContext<TargetNullableValueTypes>(
                 ConversionContext.Default, StringComparer.OrdinalIgnoreCase, reader);
-            var pr = element.Prepare(context);
+            element.Prepare(context);
 
-            pr.Injector(ref element, context, pr.MetadataList);
+            context.Inject(ref element);
 
             return Verify($"{element.Value1},{element.Value2},{element.Value3},{element.Value4},{element.Value5},{element.Value6},{element.Value7},{element.Value8},{element.Value9},{element.Value10?.ToString(CultureInfo.InvariantCulture)},{element.Value11},{element.Value12},{element.Value13},{element.Value14},{element.Value15}");
         }
@@ -254,11 +254,11 @@ namespace FlyFlint.Internal.Static
 
             var element = new TargetNullableValueTypes();
 
-            var context = new DataInjectionContext(
+            var context = new DataInjectionContext<TargetNullableValueTypes>(
                 ConversionContext.Default, StringComparer.OrdinalIgnoreCase, reader);
-            var pr = element.Prepare(context);
+            element.Prepare(context);
 
-            pr.Injector(ref element, context, pr.MetadataList);
+            context.Inject(ref element);
 
             return Verify($"{element.Value1},{element.Value2},{element.Value3},{element.Value4},{element.Value5},{element.Value6},{element.Value7},{element.Value8},{element.Value9},{element.Value10?.ToString(CultureInfo.InvariantCulture)},{element.Value11},{element.Value12},{element.Value13},{element.Value14},{element.Value15}");
         }

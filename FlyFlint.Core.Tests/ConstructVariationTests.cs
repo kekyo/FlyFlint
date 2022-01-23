@@ -25,7 +25,7 @@ namespace FlyFlint
 {
     public sealed class ConstructVariationTests
     {
-        private struct Target : IDataInjectable<Target>
+        private struct Target : IDataInjectable
         {
             public int Id;
             public string? Name;
@@ -38,17 +38,17 @@ namespace FlyFlint
                  new KeyValuePair<string, Type>(nameof(Birth), typeof(DateTime)),
             };
 
-            private static readonly InjectDelegate<Target> injectDelegate = Inject;
+            private static readonly InjectDelegate<Target> injector = Inject;
 
-            public PreparingResult<Target> Prepare(DataInjectionContext context) =>
-                new PreparingResult<Target>(injectDelegate, context.Prepare(members));
+            public void Prepare(DataInjectionContext context) =>
+                context.RegisterMetadata(members, injector);
 
             private static void Inject(
-                ref Target element, DataInjectionContext context, DataInjectionMetadata[] metadataList)
+                DataInjectionContext context, ref Target element)
             {
-                element.Id = context.GetInt32(metadataList[0]);
-                element.Name = context.GetString(metadataList[1]);
-                element.Birth = context.GetDateTime(metadataList[2]);
+                element.Id = context.GetInt32(0);
+                element.Name = context.GetString(1);
+                element.Birth = context.GetDateTime(2);
             }
         }
 
