@@ -24,17 +24,6 @@
     <ProjectReference Include="..\FlyFlint.Core\FlyFlint.Core.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Update="ConstructVariationTests.Query.verified.txt">
-      <ParentFile>$([System.String]::Copy('%(FileName)').Split('.')[0])</ParentFile>
-      <DependentUpon>ConstructVariationTests.cs</DependentUpon>
-    </None>
-    <None Update="ConstructVariationTests.QueryWithParameter.verified.txt">
-      <ParentFile>$([System.String]::Copy('%(FileName)').Split('.')[0])</ParentFile>
-      <DependentUpon>ConstructVariationTests.cs</DependentUpon>
-    </None>
-  </ItemGroup>
-
   <!-- https://stackoverflow.com/questions/21293105/system-dllnotfoundexception-on-mono-sqlite -->
   <Target Name="FixSQLiteInteropFilesOnLinuxAndOSX" BeforeTargets="CopySQLiteInteropFiles">
     <ItemGroup>

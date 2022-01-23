@@ -61,8 +61,4 @@
     <ProjectReference Include="..\FlyFlint.Core\FlyFlint.Core.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Context\" />
-  </ItemGroup>
-
 </Project>
