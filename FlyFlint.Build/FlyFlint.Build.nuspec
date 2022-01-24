@@ -12,7 +12,7 @@
     <description>Lightweight static O/R mapping builder at compile time.</description>
     <releaseNotes>$PackageReleaseNotes$</releaseNotes>
     <copyright>Copyright (c) Kouji Matsui</copyright>
-    <tags>or-mapper database independent lightweight compile-time</tags>
+    <tags>or-mapper orm database lightweight static compile-time</tags>
     <repository type="git" url="https://github.com/kekyo/FlyFlint.git" branch="$RepositoryBranch$" commit="$RepositoryCommit$" />
   </metadata>
   <files>
