@@ -16,7 +16,7 @@ using System.Runtime.CompilerServices;
 namespace FlyFlint.Internal
 {
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public delegate void InjectorDelegate<TElement>(ref TElement element)
+    public delegate void DataInjectorDelegate<TElement>(ref TElement element)
         where TElement : notnull;
 
     [EditorBrowsable(EditorBrowsableState.Never)]

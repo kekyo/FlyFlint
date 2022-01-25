@@ -8,7 +8,6 @@
 ////////////////////////////////////////////////////////////////////////////
 
 using FlyFlint.Context;
-using FlyFlint.Internal;
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
@@ -16,24 +15,24 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Threading;
 
-namespace FlyFlint
+namespace FlyFlint.Internal.Static
 {
-    public static class QueryFacadeExtension
+    public static class StaticQueryFacade
     {
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public static ParameterizedQueryContext Query<TParameters>(
-            this DbConnection connection,
+            DbConnection connection,
             String sql,
             TParameters parameters)
-            where TParameters : notnull =>
+            where TParameters : notnull, IParameterExtractable =>
             new ParameterizedQueryContext(
                 connection,
                 null,
                 FlyFlint.Query.DefaultTrait,
                 sql.Sql,
-                QueryExecutor.GetParameters(
+                StaticQueryExecutor.GetParameters(
                     FlyFlint.Query.DefaultTrait.cc,
                     FlyFlint.Query.DefaultTrait.parameterPrefix,
                     ref parameters));
@@ -42,17 +41,17 @@ namespace FlyFlint
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public static ParameterizedQueryContext Query<TParameters>(
-            this DbConnection connection,
+            DbConnection connection,
             DbTransaction transaction,
             String sql,
             TParameters parameters)
-            where TParameters : notnull =>
+            where TParameters : notnull, IParameterExtractable =>
             new ParameterizedQueryContext(
                 connection,
                 transaction,
                 FlyFlint.Query.DefaultTrait,
                 sql.Sql,
-                QueryExecutor.GetParameters(
+                StaticQueryExecutor.GetParameters(
                     FlyFlint.Query.DefaultTrait.cc,
                     FlyFlint.Query.DefaultTrait.parameterPrefix,
                     ref parameters));
@@ -63,10 +62,10 @@ namespace FlyFlint
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public static ParameterizedQueryContext Query<TParameters>(
-            this DbConnection connection,
+            DbConnection connection,
             PreparedPartialQueryContext prepared,
             TParameters parameters)
-            where TParameters : notnull
+            where TParameters : notnull, IParameterExtractable
         {
             var built = prepared.builder();
             Debug.Assert(object.ReferenceEquals(built.parameters, Trait.defaultParameters));
@@ -75,7 +74,7 @@ namespace FlyFlint
                 null,
                 prepared.trait,
                 built.sql,
-                QueryExecutor.GetParameters(
+                StaticQueryExecutor.GetParameters(
                     prepared.trait.cc,
                     prepared.trait.parameterPrefix,
                     ref parameters));
@@ -85,11 +84,11 @@ namespace FlyFlint
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public static ParameterizedQueryContext Query<TParameters>(
-            this DbConnection connection,
+            DbConnection connection,
             DbTransaction transaction,
             PreparedPartialQueryContext prepared,
             TParameters parameters)
-            where TParameters : notnull
+            where TParameters : notnull, IParameterExtractable
         {
             var built = prepared.builder();
             Debug.Assert(object.ReferenceEquals(built.parameters, Trait.defaultParameters));
@@ -98,7 +97,7 @@ namespace FlyFlint
                 transaction,
                 prepared.trait,
                 built.sql,
-                QueryExecutor.GetParameters(
+                StaticQueryExecutor.GetParameters(
                     prepared.trait.cc,
                     prepared.trait.parameterPrefix,
                     ref parameters));
@@ -110,11 +109,11 @@ namespace FlyFlint
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public static ParameterizedQueryContext<TElement> Query<TElement, TParameters>(
-            this DbConnection connection,
+            DbConnection connection,
             PreparedPartialQueryContext<TElement> prepared,
             TParameters parameters)
-            where TElement : notnull, new()
-            where TParameters : notnull
+            where TElement : notnull, IDataInjectable, new()
+            where TParameters : notnull, IParameterExtractable
         {
             var built = prepared.builder();
             Debug.Assert(object.ReferenceEquals(built.parameters, Trait.defaultParameters));
@@ -123,7 +122,7 @@ namespace FlyFlint
                 null,
                 prepared.trait,
                 built.sql,
-                QueryExecutor.GetParameters(
+                StaticQueryExecutor.GetParameters(
                     prepared.trait.cc,
                     prepared.trait.parameterPrefix,
                     ref parameters));
@@ -133,12 +132,12 @@ namespace FlyFlint
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public static ParameterizedQueryContext<TElement> Query<TElement, TParameters>(
-            this DbConnection connection,
+            DbConnection connection,
             DbTransaction transaction,
             PreparedPartialQueryContext<TElement> prepared,
             TParameters parameters)
-            where TElement : notnull, new()
-            where TParameters : notnull
+            where TElement : notnull, IDataInjectable, new()
+            where TParameters : notnull, IParameterExtractable
         {
             var built = prepared.builder();
             Debug.Assert(object.ReferenceEquals(built.parameters, Trait.defaultParameters));
@@ -147,7 +146,7 @@ namespace FlyFlint
                 transaction,
                 prepared.trait,
                 built.sql,
-                QueryExecutor.GetParameters(
+                StaticQueryExecutor.GetParameters(
                     prepared.trait.cc,
                     prepared.trait.parameterPrefix,
                     ref parameters));
@@ -159,13 +158,13 @@ namespace FlyFlint
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public static PreparedParameterizedQueryContext Parameter<TParameters>(
-            this PreparedPartialQueryContext prepared,
+            PreparedPartialQueryContext prepared,
             TParameters parameters)
-            where TParameters : notnull
+            where TParameters : notnull, IParameterExtractable
         {
             var (sql, dps) = prepared.builder();
             Debug.Assert(object.ReferenceEquals(dps, Trait.defaultParameters));
-            var constructParameters = QueryExecutor.GetConstructParameters(
+            var constructParameters = StaticQueryExecutor.GetConstructParameters(
                 prepared.trait.cc,
                 prepared.trait.parameterPrefix,
                 () => parameters);
@@ -178,14 +177,14 @@ namespace FlyFlint
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public static PreparedParameterizedQueryContext<TElement> Parameter<TElement, TParameters>(
-            this PreparedPartialQueryContext<TElement> prepared,
+            PreparedPartialQueryContext<TElement> prepared,
             TParameters parameters)
-            where TElement : notnull, new()
-            where TParameters : notnull
+            where TElement : notnull, IDataInjectable, new()
+            where TParameters : notnull, IParameterExtractable
         {
             var (sql, dps) = prepared.builder();
             Debug.Assert(object.ReferenceEquals(dps, Trait.defaultParameters));
-            var constructParameters = QueryExecutor.GetConstructParameters(
+            var constructParameters = StaticQueryExecutor.GetConstructParameters(
                 prepared.trait.cc,
                 prepared.trait.parameterPrefix,
                 () => parameters);
@@ -200,13 +199,13 @@ namespace FlyFlint
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public static PreparedParameterizedQueryContext Parameter<TParameters>(
-            this PreparedPartialQueryContext prepared,
+            PreparedPartialQueryContext prepared,
             Func<TParameters> getter)
-            where TParameters : notnull
+            where TParameters : notnull, IParameterExtractable
         {
             var (sql, dps) = prepared.builder();
             Debug.Assert(object.ReferenceEquals(dps, Trait.defaultParameters));
-            var constructParameters = QueryExecutor.GetConstructParameters(
+            var constructParameters = StaticQueryExecutor.GetConstructParameters(
                 prepared.trait.cc,
                 prepared.trait.parameterPrefix,
                 getter);
@@ -219,14 +218,14 @@ namespace FlyFlint
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public static PreparedParameterizedQueryContext<TElement> Parameter<TElement, TParameters>(
-            this PreparedPartialQueryContext<TElement> prepared,
+            PreparedPartialQueryContext<TElement> prepared,
             Func<TParameters> getter)
-            where TElement : notnull, new()
-            where TParameters : notnull
+            where TElement : notnull, IDataInjectable, new()
+            where TParameters : notnull, IParameterExtractable
         {
             var (sql, dps) = prepared.builder();
             Debug.Assert(object.ReferenceEquals(dps, Trait.defaultParameters));
-            var constructParameters = QueryExecutor.GetConstructParameters(
+            var constructParameters = StaticQueryExecutor.GetConstructParameters(
                 prepared.trait.cc,
                 prepared.trait.parameterPrefix,
                 getter);
@@ -241,15 +240,15 @@ namespace FlyFlint
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public static ParameterizedQueryContext Parameter<TParameters>(
-            this PartialQueryContext query,
+            PartialQueryContext query,
             TParameters parameters)
-            where TParameters : notnull =>
+            where TParameters : notnull, IParameterExtractable =>
             new ParameterizedQueryContext(
                 query.connection,
                 query.transaction,
                 query.trait,
                 query.sql,
-                QueryExecutor.GetParameters(
+                StaticQueryExecutor.GetParameters(
                     query.trait.cc,
                     query.trait.parameterPrefix,
                     ref parameters));
@@ -258,27 +257,57 @@ namespace FlyFlint
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public static ParameterizedQueryContext<TElement> Parameter<TElement, TParameters>(
-            this PartialQueryContext<TElement> query,
+            PartialQueryContext<TElement> query,
             TParameters parameters)
-            where TElement : notnull, new()
-            where TParameters : notnull =>
+            where TElement : new()
+            where TParameters : notnull, IParameterExtractable =>
             new ParameterizedQueryContext<TElement>(
                 query.connection,
                 query.transaction,
                 query.trait,
                 query.sql,
-                QueryExecutor.GetParameters(
+                StaticQueryExecutor.GetParameters(
                     query.trait.cc,
                     query.trait.parameterPrefix,
                     ref parameters));
 
         /////////////////////////////////////////////////////////////////////////////
 
+        public static IEnumerable<TElement> Execute<TElement>(
+            QueryContext<TElement> query)
+            where TElement : notnull, IDataInjectable, new()
+        {
+            using (var command = QueryHelper.CreateCommand(
+                query.connection, query.transaction, query.sql, query.parameters))
+            {
+                using (var reader = command.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        var element = new TElement();
+
+                        var injector = StaticQueryExecutor.GetDataInjector<TElement>(
+                            query.trait.cc, query.trait.fieldComparer, reader, element);
+
+                        injector(ref element);
+                        yield return element;
+
+                        while (reader.Read())
+                        {
+                            element = new TElement();
+                            injector(ref element);
+                            yield return element;
+                        }
+                    }
+                }
+            }
+        }
+
 #if NET461_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         public static async IAsyncEnumerable<TElement> ExecuteAsync<TElement>(
-            this QueryContext<TElement> query,
+            QueryContext<TElement> query,
             [EnumeratorCancellation] CancellationToken ct = default)
-            where TElement : notnull, new()
+            where TElement : notnull, IDataInjectable, new()
         {
             using (var command = QueryHelper.CreateCommand(
                 query.connection, query.transaction, query.sql, query.parameters))
@@ -289,8 +318,8 @@ namespace FlyFlint
                     {
                         var element = new TElement();
 
-                        var injector = QueryExecutor.GetDataInjector(
-                            query.trait.cc, query.trait.fieldComparer, reader, ref element);
+                        var injector = StaticQueryExecutor.GetDataInjector<TElement>(
+                            query.trait.cc, query.trait.fieldComparer, reader, element);
 
                         injector(ref element);
                         var prefetchAwaitable = reader.ReadAsync(ct).ConfigureAwait(false);
@@ -307,12 +336,6 @@ namespace FlyFlint
                 }
             }
         }
-#else
-        [Obsolete("Before net461 platform, it is not supported async enumeration. Consider upgrades to net461 or upper, or `Execute()` method with `FlyFlint.Synchronized` namespace instead.", true)]
-        public static void ExecuteAsync<TElement>(
-            this QueryContext<TElement> query, CancellationToken ct = default)
-            where TElement : new() =>
-            throw new InvalidOperationException();
 #endif
     }
 }

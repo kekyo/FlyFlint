@@ -15,7 +15,6 @@ using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Runtime.CompilerServices;
-using System.Text;
 
 namespace FlyFlint.Internal
 {
@@ -70,15 +69,15 @@ namespace FlyFlint.Internal
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static InjectorDelegate<TElement> GetDataInjector<TElement>(
+        public static DataInjectorDelegate<TElement> GetDataInjector<TElement>(
             ConversionContext cc,
             IComparer<string> fieldComparer,
             DbDataReader reader,
             ref TElement element)
             where TElement : notnull =>
-            element is IDataInjectable ?
-                StaticQueryExecutor.GetDataInjector(
-                    cc, fieldComparer, reader, ref element) :
+            element is IDataInjectable di ?
+                StaticQueryExecutor.GetDataInjector<TElement>(
+                    cc, fieldComparer, reader, di) :
                 DynamicQueryExecutorFacade.Instance.GetDataInjector<TElement>(
                     cc, fieldComparer, reader);
     }

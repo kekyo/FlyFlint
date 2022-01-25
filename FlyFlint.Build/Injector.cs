@@ -36,7 +36,6 @@ namespace FlyFlint
         private readonly TypeDefinition synchronizedQueryFacadeExtensionType;
         private readonly TypeDefinition staticQueryFacadeType;
         private readonly Dictionary<MethodReference, MethodDefinition> queryFacadeMapping;
-        private readonly HashSet<MethodReference> queryFacadeGenericMethods;
 
         // System.Runtime.Serialization.DataContractAttribute.
 
@@ -85,9 +84,6 @@ namespace FlyFlint
                     (MethodReference)entry.qfm,
                     entry => entry.sqfm,
                     SignatureDroppedGenericTypeEqualityComparer.Instance);
-            this.queryFacadeGenericMethods = new HashSet<MethodReference>(
-                this.queryFacadeMapping.Keys.Where(m => m.HasGenericParameters),
-                SignatureDroppedGenericTypeEqualityComparer.Instance);
         }
 
         private static U[] ParallelSelect<T, U>(

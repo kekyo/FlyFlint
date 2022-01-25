@@ -56,7 +56,7 @@ namespace FlyFlint.Internal.Dynamic
             return ps;
         }
 
-        public override InjectorDelegate<TElement> GetDataInjector<TElement>(
+        public override DataInjectorDelegate<TElement> GetDataInjector<TElement>(
             ConversionContext cc,
             IComparer<string> fieldComparer,
             DbDataReader reader) =>
