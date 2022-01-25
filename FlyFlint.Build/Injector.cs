@@ -158,7 +158,8 @@ namespace FlyFlint
                 new SignatureDroppedGenericTypeEqualityComparer();
         }
 
-        private IEnumerable<(TypeReference[], TypeReference[])> EnumerateTargetTypes(AssemblyDefinition targetAssembly)
+        private (TypeReference[] parametersTypes, TypeReference[] elementTypes) GetTargetTypes(
+            AssemblyDefinition targetAssembly)
         {
             var dataContractTypes =
                 targetAssembly.Modules.
@@ -180,12 +181,13 @@ namespace FlyFlint
                 method =>
                 {
                     var facadeMethodCallers = method.Body.Instructions.
-                        Select((i, index) => (i, index, mr: i.Operand as MethodReference)).
+                        Select((i, index) => (i, index, mr: i.Operand as GenericInstanceMethod)).
                         Where(entry =>
                             (entry.i.OpCode == OpCodes.Call || entry.i.OpCode == OpCodes.Callvirt) &&
                             entry.mr != null &&
                             this.queryFacadeMapping.ContainsKey(entry.mr)).
                         ToArray();
+#if false
                     foreach (var (i, index, mr) in facadeMethodCallers)
                     {
                         static MethodReference MakeGenericMethod(
@@ -231,11 +233,43 @@ namespace FlyFlint
                             Select((ga, index) => (gim: gim!, ga, index))).
                         Where(entry => entry.gim.ReturnType == entry.ga).
                         ToArray();
-                    var r = (new TypeReference[0], new TypeReference[0]);
-                    return r;
+#endif
+                    var parametersTypes = facadeMethodCallers.
+                        Where(inst => inst.mr!.Name.StartsWith("Parameter")).
+                        Select(inst => inst.mr!.GenericArguments.Last()).
+                        Cast<TypeReference>().
+                        ToArray();
+
+                    var parameterTElementTypes = facadeMethodCallers.
+                        Where(inst =>
+                            inst.mr!.Name.StartsWith("Parameter") &&
+                            inst.mr!.GenericParameters.Count == 1).
+                        Select(inst => inst.mr!.GenericArguments.First()).
+                        Cast<TypeReference>();
+                    var executeTElementTypes = facadeMethodCallers.
+                        Where(inst =>
+                            inst.mr!.Name.StartsWith("Parameter") ||
+                            inst.mr!.Name.StartsWith("Execute")).
+                        Select(inst => inst.mr!.GenericArguments.Last()).
+                        Cast<TypeReference>();
+                    var elementTypes =
+                        parameterTElementTypes.
+                        Concat(executeTElementTypes).
+                        ToArray();
+
+                    return (parametersTypes, elementTypes);
                 });
 
-            return usingQueryTypes;
+            var parametersTypes = usingQueryTypes.
+                SelectMany(entry => entry.parametersTypes).
+                Distinct().
+                ToArray();
+            var elementTypes = usingQueryTypes.
+                SelectMany(entry => entry.elementTypes).
+                Distinct().
+                ToArray();
+
+            return (parametersTypes, elementTypes);
         }
 
         public bool Inject(string targetAssemblyPath, string? injectedAssemblyPath = null)
@@ -256,14 +290,30 @@ namespace FlyFlint
                     AssemblyResolver = this.assemblyResolver,
                 }))
             {
-                var targetTypes = EnumerateTargetTypes(targetAssembly).
-                    ToArray();
+                var (parametersTypes, elementTypes) = GetTargetTypes(targetAssembly);
 
-                if (targetTypes.Length >= 1)
+                if ((parametersTypes.Length >= 1) || (elementTypes.Length >= 1))
                 {
-                    var injected = true;
+                    var injected = false;
 
-                    foreach (var targetType in targetTypes)
+                    foreach (var parametersType in parametersTypes)
+                    {
+                        //if (this.InjectIntoType(targetAssembly.MainModule, targetType))
+                        //{
+                        //    injected = true;
+                        //    this.message(
+                        //        LogLevels.Trace,
+                        //        $"Injected a view model: Assembly={targetAssemblyName}, Type={targetType.FullName}");
+                        //}
+                        //else
+                        //{
+                        //    this.message(
+                        //        LogLevels.Trace,
+                        //        $"InjectProperties: Ignored a type: Assembly={targetAssemblyName}, Type={targetType.FullName}");
+                        //}
+                    }
+
+                    foreach (var elementType in elementTypes)
                     {
                         //if (this.InjectIntoType(targetAssembly.MainModule, targetType))
                         //{

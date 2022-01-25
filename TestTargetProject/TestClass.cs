@@ -68,8 +68,8 @@ namespace TestTargetProject
         {
             using var connection = await CreateTestTableAsync();
 
-            var query = connection.Query("SELECT * FROM target");
-            var result = query.ExecuteNonQuery();
+            var query = connection.Query<TargetValueTypes>("SELECT * FROM target");
+            var result = query.Execute();
         }
 
 #if false
