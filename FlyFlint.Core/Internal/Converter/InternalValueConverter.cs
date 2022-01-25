@@ -131,8 +131,8 @@ namespace FlyFlint.Internal.Converter
             }
         }
 
-        public abstract T Convert(ConversionContext context, object? value);
-        public abstract T UnsafeConvert(ConversionContext context, object value);
+        public abstract T ConvertTo(ConversionContext context, object? value);
+        public abstract T UnsafeConvertTo(ConversionContext context, object value);
     }
 
     internal sealed class InvalidOperationExceptionConverter<T> : InternalValueConverter<T>
@@ -140,12 +140,12 @@ namespace FlyFlint.Internal.Converter
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public override T Convert(ConversionContext context, object? value) =>
+        public override T ConvertTo(ConversionContext context, object? value) =>
             throw new InvalidOperationException($"Could not convert to {typeof(T).FullName}");
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public override T UnsafeConvert(ConversionContext context, object value) =>
+        public override T UnsafeConvertTo(ConversionContext context, object value) =>
             throw new InvalidOperationException($"Could not convert to {typeof(T).FullName}");
     }
 
@@ -164,7 +164,7 @@ namespace FlyFlint.Internal.Converter
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public override sealed T Convert(ConversionContext context, object? value) =>
+        public override sealed T ConvertTo(ConversionContext context, object? value) =>
             value is null ? throw new NullReferenceException($"Could not convert from null to {typeof(T).FullName}.") :
             value is DBNull ? throw new NullReferenceException($"Could not convert from DBNull to {typeof(T).FullName}.") :
             value is T v ? v :
@@ -173,7 +173,7 @@ namespace FlyFlint.Internal.Converter
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public override sealed T UnsafeConvert(ConversionContext context, object value) =>
+        public override sealed T UnsafeConvertTo(ConversionContext context, object value) =>
             value is T v ? v :
             convert(value, context.FormatProvider);
     }
@@ -297,7 +297,7 @@ namespace FlyFlint.Internal.Converter
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public override sealed T Convert(ConversionContext context, object? value) =>
+        public override sealed T ConvertTo(ConversionContext context, object? value) =>
             value is null ? default! :
             value is DBNull ? default! :
             value is TUnderlying v ? cast(v) :
@@ -306,7 +306,7 @@ namespace FlyFlint.Internal.Converter
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public override sealed T UnsafeConvert(ConversionContext context, object value) =>
+        public override sealed T UnsafeConvertTo(ConversionContext context, object value) =>
             value is TUnderlying v ? cast(v) :
             convert(value, context.FormatProvider);
     }
@@ -475,7 +475,7 @@ namespace FlyFlint.Internal.Converter
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public override T Convert(ConversionContext context, object? value) =>
+        public override T ConvertTo(ConversionContext context, object? value) =>
             value is null ? default! :
             value is DBNull ? default! :
             value is T v ? v :
@@ -484,7 +484,7 @@ namespace FlyFlint.Internal.Converter
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public override T UnsafeConvert(ConversionContext context, object value) =>
+        public override T UnsafeConvertTo(ConversionContext context, object value) =>
             value is T v ? v :
             convert(value!, context.FormatProvider);
     }
@@ -495,7 +495,7 @@ namespace FlyFlint.Internal.Converter
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public override T Convert(ConversionContext context, object? value) =>
+        public override T ConvertTo(ConversionContext context, object? value) =>
             value is null ? default! :
             value is DBNull ? default! :
             value is T v ? v :
@@ -504,7 +504,7 @@ namespace FlyFlint.Internal.Converter
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public override T UnsafeConvert(ConversionContext context, object value) =>
+        public override T UnsafeConvertTo(ConversionContext context, object value) =>
             value is T v ? v :
             EnumConverter<T>.convert(value, context.FormatProvider);
     }
@@ -519,7 +519,7 @@ namespace FlyFlint.Internal.Converter
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public override T Convert(ConversionContext context, object? value) =>
+        public override T ConvertTo(ConversionContext context, object? value) =>
             value is null ? default! :
             value is DBNull ? default! :
             value is T v ? v :
@@ -528,7 +528,7 @@ namespace FlyFlint.Internal.Converter
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public override T UnsafeConvert(ConversionContext context, object value) =>
+        public override T UnsafeConvertTo(ConversionContext context, object value) =>
             value is T v ? v :
             convert(context, value);
     }

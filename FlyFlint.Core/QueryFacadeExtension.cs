@@ -9,17 +9,12 @@
 
 using FlyFlint.Context;
 using FlyFlint.Internal;
-using FlyFlint.Internal.Converter;
-#if NET35 || NET40
-using FlyFlint.Utilities;
-#endif
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace FlyFlint
 {
@@ -38,8 +33,10 @@ namespace FlyFlint
                 null,
                 FlyFlint.Query.DefaultTrait,
                 sql.Sql,
-                QueryExecutor.Instance.GetParameters(
-                    ref parameters, FlyFlint.Query.DefaultTrait.parameterPrefix));
+                QueryExecutor.GetParameters(
+                    FlyFlint.Query.DefaultTrait.cc,
+                    FlyFlint.Query.DefaultTrait.parameterPrefix,
+                    ref parameters));
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -55,8 +52,10 @@ namespace FlyFlint
                 transaction,
                 FlyFlint.Query.DefaultTrait,
                 sql.Sql,
-                QueryExecutor.Instance.GetParameters(
-                    ref parameters, FlyFlint.Query.DefaultTrait.parameterPrefix));
+                QueryExecutor.GetParameters(
+                    FlyFlint.Query.DefaultTrait.cc,
+                    FlyFlint.Query.DefaultTrait.parameterPrefix,
+                    ref parameters));
 
         /////////////////////////////////////////////////////////////////////////////
 
@@ -70,14 +69,16 @@ namespace FlyFlint
             where TParameters : notnull
         {
             var built = prepared.builder();
-            Debug.Assert(object.ReferenceEquals(built.parameters, Database.defaultParameters));
+            Debug.Assert(object.ReferenceEquals(built.parameters, Trait.defaultParameters));
             return new ParameterizedQueryContext(
                 connection,
                 null,
                 prepared.trait,
                 built.sql,
-                QueryExecutor.Instance.GetParameters(
-                    ref parameters, prepared.trait.parameterPrefix));
+                QueryExecutor.GetParameters(
+                    prepared.trait.cc,
+                    prepared.trait.parameterPrefix,
+                    ref parameters));
         }
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
@@ -91,14 +92,16 @@ namespace FlyFlint
             where TParameters : notnull
         {
             var built = prepared.builder();
-            Debug.Assert(object.ReferenceEquals(built.parameters, Database.defaultParameters));
+            Debug.Assert(object.ReferenceEquals(built.parameters, Trait.defaultParameters));
             return new ParameterizedQueryContext(
                 connection,
                 transaction,
                 prepared.trait,
                 built.sql,
-                QueryExecutor.Instance.GetParameters(
-                    ref parameters, prepared.trait.parameterPrefix));
+                QueryExecutor.GetParameters(
+                    prepared.trait.cc,
+                    prepared.trait.parameterPrefix,
+                    ref parameters));
         }
 
         /////////////////////////////////////////////////////////////////////////////
@@ -114,14 +117,16 @@ namespace FlyFlint
             where TParameters : notnull
         {
             var built = prepared.builder();
-            Debug.Assert(object.ReferenceEquals(built.parameters, Database.defaultParameters));
+            Debug.Assert(object.ReferenceEquals(built.parameters, Trait.defaultParameters));
             return new ParameterizedQueryContext<TElement>(
                 connection,
                 null,
                 prepared.trait,
                 built.sql,
-                QueryExecutor.Instance.GetParameters(
-                    ref parameters, prepared.trait.parameterPrefix));
+                QueryExecutor.GetParameters(
+                    prepared.trait.cc,
+                    prepared.trait.parameterPrefix,
+                    ref parameters));
         }
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
@@ -136,14 +141,16 @@ namespace FlyFlint
             where TParameters : notnull
         {
             var built = prepared.builder();
-            Debug.Assert(object.ReferenceEquals(built.parameters, Database.defaultParameters));
+            Debug.Assert(object.ReferenceEquals(built.parameters, Trait.defaultParameters));
             return new ParameterizedQueryContext<TElement>(
                 connection,
                 transaction,
                 prepared.trait,
                 built.sql,
-                QueryExecutor.Instance.GetParameters(
-                    ref parameters, prepared.trait.parameterPrefix));
+                QueryExecutor.GetParameters(
+                    prepared.trait.cc,
+                    prepared.trait.parameterPrefix,
+                    ref parameters));
         }
 
         /////////////////////////////////////////////////////////////////////////////
@@ -157,9 +164,11 @@ namespace FlyFlint
             where TParameters : notnull
         {
             var (sql, dps) = prepared.builder();
-            Debug.Assert(object.ReferenceEquals(dps, Database.defaultParameters));
-            var constructParameters = QueryExecutor.Instance.GetConstructParameters(
-                () => parameters, prepared.trait.parameterPrefix);
+            Debug.Assert(object.ReferenceEquals(dps, Trait.defaultParameters));
+            var constructParameters = QueryExecutor.GetConstructParameters(
+                prepared.trait.cc,
+                prepared.trait.parameterPrefix,
+                () => parameters);
             return new PreparedParameterizedQueryContext(
                 prepared.trait,
                 () => new QueryParameterBuilderResult(sql, constructParameters()));
@@ -175,9 +184,11 @@ namespace FlyFlint
             where TParameters : notnull
         {
             var (sql, dps) = prepared.builder();
-            Debug.Assert(object.ReferenceEquals(dps, Database.defaultParameters));
-            var constructParameters = QueryExecutor.Instance.GetConstructParameters(
-                () => parameters, prepared.trait.parameterPrefix);
+            Debug.Assert(object.ReferenceEquals(dps, Trait.defaultParameters));
+            var constructParameters = QueryExecutor.GetConstructParameters(
+                prepared.trait.cc,
+                prepared.trait.parameterPrefix,
+                () => parameters);
             return new PreparedParameterizedQueryContext<TElement>(
                 prepared.trait,
                 () => new QueryParameterBuilderResult(sql, constructParameters()));
@@ -194,9 +205,11 @@ namespace FlyFlint
             where TParameters : notnull
         {
             var (sql, dps) = prepared.builder();
-            Debug.Assert(object.ReferenceEquals(dps, Database.defaultParameters));
-            var constructParameters = QueryExecutor.Instance.GetConstructParameters(
-                getter, prepared.trait.parameterPrefix);
+            Debug.Assert(object.ReferenceEquals(dps, Trait.defaultParameters));
+            var constructParameters = QueryExecutor.GetConstructParameters(
+                prepared.trait.cc,
+                prepared.trait.parameterPrefix,
+                getter);
             return new PreparedParameterizedQueryContext(
                 prepared.trait,
                 () => new QueryParameterBuilderResult(sql, constructParameters()));
@@ -212,9 +225,11 @@ namespace FlyFlint
             where TParameters : notnull
         {
             var (sql, dps) = prepared.builder();
-            Debug.Assert(object.ReferenceEquals(dps, Database.defaultParameters));
-            var constructParameters = QueryExecutor.Instance.GetConstructParameters(
-                getter, prepared.trait.parameterPrefix);
+            Debug.Assert(object.ReferenceEquals(dps, Trait.defaultParameters));
+            var constructParameters = QueryExecutor.GetConstructParameters(
+                prepared.trait.cc,
+                prepared.trait.parameterPrefix,
+                getter);
             return new PreparedParameterizedQueryContext<TElement>(
                 prepared.trait,
                 () => new QueryParameterBuilderResult(sql, constructParameters()));
@@ -234,8 +249,10 @@ namespace FlyFlint
                 query.transaction,
                 query.trait,
                 query.sql,
-                QueryExecutor.Instance.GetParameters(
-                    ref parameters, query.trait.parameterPrefix));
+                QueryExecutor.GetParameters(
+                    query.trait.cc,
+                    query.trait.parameterPrefix,
+                    ref parameters));
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -250,37 +267,14 @@ namespace FlyFlint
                 query.transaction,
                 query.trait,
                 query.sql,
-                QueryExecutor.Instance.GetParameters(
-                    ref parameters, query.trait.parameterPrefix));
+                QueryExecutor.GetParameters(
+                    query.trait.cc,
+                    query.trait.parameterPrefix,
+                    ref parameters));
 
         /////////////////////////////////////////////////////////////////////////////
 
-#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-        public static async Task<int> ExecuteNonQueryAsync(
-            this QueryContext query, CancellationToken ct = default)
-        {
-            using var command = QueryHelper.CreateCommand(
-                query.connection, query.transaction, query.sql, query.parameters);
-            return await command.ExecuteNonQueryAsync(ct).ConfigureAwait(false);
-        }
-
-#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-        public static async Task<TElement> ExecuteScalarAsync<TElement>(
-            this QueryContext<TElement> query, CancellationToken ct = default)
-        {
-            using var command = QueryHelper.CreateCommand(
-                query.connection, query.transaction, query.sql, query.parameters);
-            return InternalValueConverter<TElement>.converter.Convert(
-                query.trait.cc,
-                await command.ExecuteScalarAsync(ct).ConfigureAwait(false));
-        }
-
 #if NET461_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static async IAsyncEnumerable<TElement> ExecuteAsync<TElement>(
             this QueryContext<TElement> query,
             [EnumeratorCancellation] CancellationToken ct = default)
@@ -295,7 +289,7 @@ namespace FlyFlint
                     {
                         var element = new TElement();
 
-                        var injector = QueryExecutor.Instance.GetInjector<TElement>(
+                        var injector = QueryExecutor.GetDataInjector(
                             query.trait.cc, query.trait.fieldComparer, reader, ref element);
 
                         injector(ref element);

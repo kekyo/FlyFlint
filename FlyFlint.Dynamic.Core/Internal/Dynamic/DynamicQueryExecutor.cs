@@ -15,16 +15,15 @@ using System.Data.Common;
 
 namespace FlyFlint.Internal.Dynamic
 {
-    internal sealed class DynamicQueryExecutor : QueryExecutor
+    internal sealed class DynamicQueryExecutor : DynamicQueryExecutorFacade
     {
         public override object? Convert(ConversionContext context, object? value, Type targetType) =>
             DynamicValueConverter.GetConverter(targetType).Convert(context, value);
 
-        public override object? UnsafeConvert(ConversionContext context, object value, Type targetType) =>
-            DynamicValueConverter.GetConverter(targetType).UnsafeConvert(context, value);
-
         public override Func<KeyValuePair<string, object?>[]> GetConstructParameters<TParameters>(
-            Func<TParameters> getter, string parameterPrefix)
+            ConversionContext cc,
+            string parameterPrefix,
+            Func<TParameters> getter)
         {
             var members = DynamicHelper.GetGetterMetadataList<TParameters>();
             return () =>
@@ -35,14 +34,16 @@ namespace FlyFlint.Internal.Dynamic
                 {
                     var m = members[index];
                     ps[index] = new KeyValuePair<string, object?>(
-                        parameterPrefix + m.FieldName, m.Accessor(ref parameters));
+                        parameterPrefix + m.FieldName, m.Accessor(ref parameters, cc));
                 }
                 return ps;
             };
         }
 
         public override KeyValuePair<string, object?>[] GetParameters<TParameters>(
-            ref TParameters parameters, string parameterPrefix)
+            ConversionContext cc,
+            string parameterPrefix,
+            ref TParameters parameters)
         {
             var members = DynamicHelper.GetGetterMetadataList<TParameters>();
             var ps = new KeyValuePair<string, object?>[members.Length];
@@ -50,16 +51,15 @@ namespace FlyFlint.Internal.Dynamic
             {
                 var m = members[index];
                 ps[index] = new KeyValuePair<string, object?>(
-                    parameterPrefix + m.FieldName, m.Accessor(ref parameters));
+                    parameterPrefix + m.FieldName, m.Accessor(ref parameters, cc));
             }
             return ps;
         }
 
-        public override InjectorDelegate<TElement> GetInjector<TElement>(
+        public override InjectorDelegate<TElement> GetDataInjector<TElement>(
             ConversionContext cc,
             IComparer<string> fieldComparer,
-            DbDataReader reader,
-            ref TElement element) =>
+            DbDataReader reader) =>
             new DynamicDataInjectionContext<TElement>(
                 cc, fieldComparer, reader).Inject;
     }

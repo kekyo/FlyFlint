@@ -7,6 +7,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
+using FlyFlint.Context;
 using System;
 using System.Linq;
 using System.Reflection;
@@ -17,7 +18,7 @@ namespace FlyFlint.Internal.Dynamic
 {
     internal static class DynamicHelper
     {
-        public delegate object? MemberGetter<T>(ref T element);
+        public delegate object? MemberGetter<T>(ref T element, ConversionContext cc);
         public delegate void MemberSetter<T>(ref T element, object? value);
 
         public struct Metadata<TAccessor>

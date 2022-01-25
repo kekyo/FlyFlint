@@ -12,38 +12,38 @@ using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Runtime.CompilerServices;
-using System.Threading;
 
 namespace FlyFlint.Internal.Static
 {
-    internal sealed class StaticQueryExecutor : QueryExecutor
+    internal static class StaticQueryExecutor
     {
-        public new static readonly QueryExecutor Instance = new StaticQueryExecutor();
-
-        private StaticQueryExecutor()
-        {
-        }
-
-        public override object? Convert(ConversionContext context, object? value, Type targetType) =>
-            throw new NotImplementedException();
-
-        public override object? UnsafeConvert(ConversionContext context, object value, Type targetType) =>
-            throw new NotImplementedException();
-
-        public override Func<KeyValuePair<string, object?>[]> GetConstructParameters<TParameters>(
-            Func<TParameters> getter, string parameterPrefix)
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public static Func<KeyValuePair<string, object?>[]> GetConstructParameters<TParameters>(
+            ConversionContext cc,
+            string parameterPrefix,
+            Func<TParameters> getter)
+            where TParameters : notnull, IParameterExtractable
         {
             return () =>
             {
-                var parameters = (IParameterExtractable)getter();
-                return GetParameters(ref parameters, parameterPrefix);
+                var parameters = getter();
+                return GetParameters(cc, parameterPrefix, ref parameters);
             };
         }
 
-        public override KeyValuePair<string, object?>[] GetParameters<TParameters>(
-            ref TParameters parameters, string parameterPrefix)
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public static KeyValuePair<string, object?>[] GetParameters<TParameters>(
+            ConversionContext cc,
+            string parameterPrefix,
+            ref TParameters parameters)
+            where TParameters : notnull, IParameterExtractable
         {
-            var extracted = ((IParameterExtractable)parameters).Extract();
+            var context = new StaticParameterExtractionContext(cc);
+            var extracted = parameters.Extract(context);
             for (var index = 0; index < extracted.Length; index++)
             {
                 extracted[index] = new KeyValuePair<string, object?>(
@@ -51,16 +51,23 @@ namespace FlyFlint.Internal.Static
             }
             return extracted;
         }
- 
-        public override InjectorDelegate<TElement> GetInjector<TElement>(
+
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public static InjectorDelegate<TElement> GetDataInjector<TElement>(
             ConversionContext cc,
             IComparer<string> fieldComparer,
             DbDataReader reader,
             ref TElement element)
+            where TElement : notnull
         {
+            var di = (IDataInjectable)element;
+
             var context = new StaticDataInjectionContext<TElement>(
                 cc, fieldComparer, reader);
-            ((IDataInjectable)element).Prepare(context);
+            di.Prepare(context);
+
             return context.Inject;
         }
     }

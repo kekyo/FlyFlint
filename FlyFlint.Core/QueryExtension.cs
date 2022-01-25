@@ -8,10 +8,16 @@
 ////////////////////////////////////////////////////////////////////////////
 
 using FlyFlint.Context;
+using FlyFlint.Internal;
+#if NET35 || NET40
+using FlyFlint.Utilities;
+#endif
 using System;
 using System.Data.Common;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace FlyFlint
 {
@@ -121,7 +127,7 @@ namespace FlyFlint
             PreparedPartialQueryContext prepared)
         {
             var built = prepared.builder();
-            Debug.Assert(object.ReferenceEquals(built.parameters, Database.defaultParameters));
+            Debug.Assert(object.ReferenceEquals(built.parameters, Trait.defaultParameters));
             return new PartialQueryContext(
                 connection,
                 null,
@@ -157,7 +163,7 @@ namespace FlyFlint
             PreparedPartialQueryContext prepared)
         {
             var built = prepared.builder();
-            Debug.Assert(object.ReferenceEquals(built.parameters, Database.defaultParameters));
+            Debug.Assert(object.ReferenceEquals(built.parameters, Trait.defaultParameters));
             return new PartialQueryContext(
                 connection,
                 transaction,
@@ -193,7 +199,7 @@ namespace FlyFlint
             where TElement : new()
         {
             var built = prepared.builder();
-            Debug.Assert(object.ReferenceEquals(built.parameters, Database.defaultParameters));
+            Debug.Assert(object.ReferenceEquals(built.parameters, Trait.defaultParameters));
             return new PartialQueryContext<TElement>(
                 connection,
                 null,
@@ -231,12 +237,32 @@ namespace FlyFlint
             where TElement : new()
         {
             var built = prepared.builder();
-            Debug.Assert(object.ReferenceEquals(built.parameters, Database.defaultParameters));
+            Debug.Assert(object.ReferenceEquals(built.parameters, Trait.defaultParameters));
             return new PartialQueryContext<TElement>(
                 connection,
                 transaction,
                 prepared.trait,
                 built.sql);
+        }
+
+        /////////////////////////////////////////////////////////////////////////////
+
+        public static async Task<int> ExecuteNonQueryAsync(
+            this QueryContext query, CancellationToken ct = default)
+        {
+            using var command = QueryHelper.CreateCommand(
+                query.connection, query.transaction, query.sql, query.parameters);
+            return await command.ExecuteNonQueryAsync(ct).ConfigureAwait(false);
+        }
+
+        public static async Task<TElement> ExecuteScalarAsync<TElement>(
+            this QueryContext<TElement> query, CancellationToken ct = default)
+        {
+            using var command = QueryHelper.CreateCommand(
+                query.connection, query.transaction, query.sql, query.parameters);
+            return QueryExecutor.ConvertTo<TElement>(
+                query.trait.cc,
+                await command.ExecuteScalarAsync(ct).ConfigureAwait(false));
         }
     }
 }

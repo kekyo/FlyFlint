@@ -56,7 +56,8 @@ namespace FlyFlint
         {
             public int idparam { get; set; }
 
-            public KeyValuePair<string, object?>[] Extract() =>
+            public KeyValuePair<string, object?>[] Extract(
+                StaticParameterExtractionContext context) =>
                 new[] { new KeyValuePair<string, object?>("idparam", this.idparam) };
         }
 

@@ -21,7 +21,7 @@ namespace FlyFlint.Context
         internal ParameterizedQueryContext(
             DbConnection connection,
             DbTransaction? transaction,
-            Database trait,
+            Trait trait,
             string sql,
             KeyValuePair<string, object?>[] parameters) :
             base(connection, transaction, trait, sql, parameters)
@@ -48,7 +48,7 @@ namespace FlyFlint.Context
         internal ParameterizedQueryContext(
             DbConnection connection,
             DbTransaction? transaction,
-            Database trait,
+            Trait trait,
             string sql,
             KeyValuePair<string, object?>[] parameters) :
             base(connection, transaction, trait, sql, parameters)

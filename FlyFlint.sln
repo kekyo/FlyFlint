@@ -4,6 +4,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 17.0.32014.148
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FlyFlint.Build", "FlyFlint.Build\FlyFlint.Build.csproj", "{AFB7B061-0083-485F-8F8A-3DAE98C2011F}"
+	ProjectSection(ProjectDependencies) = postProject
+		{8C738F56-4759-4323-AEC3-748F354A15FA} = {8C738F56-4759-4323-AEC3-748F354A15FA}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FlyFlint.Core", "FlyFlint.Core\FlyFlint.Core.csproj", "{64243225-5D28-4719-B6D0-425C20A257B8}"
 EndProject
@@ -20,6 +23,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FlyFlint.Dynamic.Core", "FlyFlint.Dynamic.Core\FlyFlint.Dynamic.Core.csproj", "{34007FD3-9DEC-4E96-A947-C3BF8E738AEE}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FlyFlint.Dynamic.Core.Tests", "FlyFlint.Dynamic.Core.Tests\FlyFlint.Dynamic.Core.Tests.csproj", "{35C873E3-ED09-4480-9824-F27E790A9C0C}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestTargetProject", "TestTargetProject\TestTargetProject.csproj", "{8C738F56-4759-4323-AEC3-748F354A15FA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -47,6 +52,10 @@ Global
 		{35C873E3-ED09-4480-9824-F27E790A9C0C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{35C873E3-ED09-4480-9824-F27E790A9C0C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{35C873E3-ED09-4480-9824-F27E790A9C0C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8C738F56-4759-4323-AEC3-748F354A15FA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8C738F56-4759-4323-AEC3-748F354A15FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8C738F56-4759-4323-AEC3-748F354A15FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8C738F56-4759-4323-AEC3-748F354A15FA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

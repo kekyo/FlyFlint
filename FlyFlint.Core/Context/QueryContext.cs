@@ -17,7 +17,7 @@ namespace FlyFlint.Context
     {
         internal readonly DbConnection connection;
         internal readonly DbTransaction? transaction;
-        internal readonly Database trait;
+        internal readonly Trait trait;
         internal readonly string sql;
         internal readonly KeyValuePair<string, object?>[] parameters;
 
@@ -27,7 +27,7 @@ namespace FlyFlint.Context
         private protected QueryContext(
             DbConnection connection,
             DbTransaction? transaction,
-            Database trait,
+            Trait trait,
             string sql,
             KeyValuePair<string, object?>[] parameters)
         {
@@ -43,7 +43,7 @@ namespace FlyFlint.Context
     {
         internal readonly DbConnection connection;
         internal readonly DbTransaction? transaction;
-        internal readonly Database trait;
+        internal readonly Trait trait;
         internal readonly string sql;
         internal readonly KeyValuePair<string, object?>[] parameters;
 
@@ -53,7 +53,7 @@ namespace FlyFlint.Context
         private protected QueryContext(
             DbConnection connection,
             DbTransaction? transaction,
-            Database trait,
+            Trait trait,
             string sql,
             KeyValuePair<string, object?>[] parameters)
         {

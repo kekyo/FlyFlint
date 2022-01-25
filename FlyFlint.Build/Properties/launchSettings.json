@@ -1,0 +1,8 @@
+{
+    "profiles": {
+        "FlyFlint.Build": {
+            "commandName": "Project",
+            "commandLineArgs": "..\\..\\..\\..\\TestTargetProject\\bin\\Debug\\net48 ..\\..\\..\\..\\TestTargetProject\\bin\\Debug\\net48\\TestTargetProject.dll"
+        }
+    }
+}

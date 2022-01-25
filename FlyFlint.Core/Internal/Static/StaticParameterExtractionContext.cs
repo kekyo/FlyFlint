@@ -7,22 +7,22 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
-using System.Collections.Generic;
+using FlyFlint.Context;
 using System.ComponentModel;
+using System.Runtime.CompilerServices;
 
 namespace FlyFlint.Internal.Static
 {
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public interface IParameterExtractable
+    public sealed class StaticParameterExtractionContext
     {
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        KeyValuePair<string, object?>[] Extract(StaticParameterExtractionContext context);
-    }
+        private readonly ConversionContext cc;
 
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public interface IDataInjectable
-    {
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        void Prepare(StaticDataInjectionContext context);
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        internal StaticParameterExtractionContext(
+            ConversionContext cc) =>
+            this.cc = cc;
     }
 }

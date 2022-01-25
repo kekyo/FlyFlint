@@ -7,6 +7,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
+using FlyFlint.Context;
 using System.Reflection;
 using System.Reflection.Emit;
 
@@ -20,7 +21,7 @@ namespace FlyFlint.Internal.Dynamic
             var dm = new DynamicMethod(
                 fullName,
                 typeof(object),
-                new[] { fi.DeclaringType.MakeByRefType() },
+                new[] { fi.DeclaringType.MakeByRefType(), typeof(ConversionContext) }, // TODO: cc is not used
                 true);
             var ig = dm.GetILGenerator();
             ig.Emit(OpCodes.Ldarg_0);
@@ -71,7 +72,7 @@ namespace FlyFlint.Internal.Dynamic
             var dm = new DynamicMethod(
                 fullName,
                 typeof(object),
-                new[] { pi.DeclaringType.MakeByRefType() },
+                new[] { pi.DeclaringType.MakeByRefType(), typeof(ConversionContext) }, // TODO: cc is not used
                 true);
             var ig = dm.GetILGenerator();
             var getter = pi.GetGetMethod(true)!;

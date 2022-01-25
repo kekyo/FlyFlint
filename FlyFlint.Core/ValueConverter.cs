@@ -9,7 +9,6 @@
 
 using FlyFlint.Context;
 using FlyFlint.Internal;
-using FlyFlint.Internal.Converter;
 using System;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -21,13 +20,13 @@ namespace FlyFlint
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static T Convert<T>(IFormatProvider fp, Encoding encoding, object? value) =>
-            InternalValueConverter<T>.converter.Convert(new ConversionContext(fp, encoding), value);
+        public static T ConvertTo<T>(IFormatProvider fp, Encoding encoding, object? value) =>
+            QueryExecutor.ConvertTo<T>(new ConversionContext(fp, encoding), value);
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static object? Convert(IFormatProvider fp, Encoding encoding, object? value, Type targetType) =>
-            QueryExecutor.Instance.Convert(new ConversionContext(fp, encoding), value, targetType);
+        public static object? ConvertTo(IFormatProvider fp, Encoding encoding, object? value, Type targetType) =>
+            QueryExecutor.ConvertTo(new ConversionContext(fp, encoding), value, targetType);
     }
 }

@@ -15,7 +15,7 @@ namespace FlyFlint
 {
     public static class Query
     {
-        public static Database DefaultTrait =
+        public static Trait DefaultTrait =
             Database.Default;
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER

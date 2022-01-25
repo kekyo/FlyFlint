@@ -20,9 +20,9 @@ namespace FlyFlint.Context
         internal PartialQueryContext(
             DbConnection connection,
             DbTransaction? transaction,
-            Database trait,
+            Trait trait,
             string sql) :
-            base(connection, transaction, trait, sql, Database.defaultParameters)
+            base(connection, transaction, trait, sql, Trait.defaultParameters)
         {
         }
 
@@ -45,9 +45,9 @@ namespace FlyFlint.Context
         internal PartialQueryContext(
             DbConnection connection,
             DbTransaction? transaction,
-            Database trait,
+            Trait trait,
             string sql) :
-            base(connection, transaction, trait, sql, Database.defaultParameters)
+            base(connection, transaction, trait, sql, Trait.defaultParameters)
         {
         }
 
