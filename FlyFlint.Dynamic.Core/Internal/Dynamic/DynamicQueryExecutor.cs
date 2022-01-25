@@ -20,7 +20,7 @@ namespace FlyFlint.Internal.Dynamic
         public override object? Convert(ConversionContext context, object? value, Type targetType) =>
             DynamicValueConverter.GetConverter(targetType).Convert(context, value);
 
-        public override Func<KeyValuePair<string, object?>[]> GetConstructParameters<TParameters>(
+        public override Func<ExtractedParameter[]> GetConstructParameters<TParameters>(
             ConversionContext cc,
             string parameterPrefix,
             Func<TParameters> getter)
@@ -29,28 +29,28 @@ namespace FlyFlint.Internal.Dynamic
             return () =>
             {
                 var parameters = getter();
-                var ps = new KeyValuePair<string, object?>[members.Length];
+                var ps = new ExtractedParameter[members.Length];
                 for (var index = 0; index < ps.Length; index++)
                 {
                     var m = members[index];
-                    ps[index] = new KeyValuePair<string, object?>(
+                    ps[index] = new ExtractedParameter(
                         parameterPrefix + m.FieldName, m.Accessor(ref parameters, cc));
                 }
                 return ps;
             };
         }
 
-        public override KeyValuePair<string, object?>[] GetParameters<TParameters>(
+        public override ExtractedParameter[] GetParameters<TParameters>(
             ConversionContext cc,
             string parameterPrefix,
             ref TParameters parameters)
         {
             var members = DynamicHelper.GetGetterMetadataList<TParameters>();
-            var ps = new KeyValuePair<string, object?>[members.Length];
+            var ps = new ExtractedParameter[members.Length];
             for (var index = 0; index < ps.Length; index++)
             {
                 var m = members[index];
-                ps[index] = new KeyValuePair<string, object?>(
+                ps[index] = new ExtractedParameter(
                     parameterPrefix + m.FieldName, m.Accessor(ref parameters, cc));
             }
             return ps;

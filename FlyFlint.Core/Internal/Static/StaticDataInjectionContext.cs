@@ -41,7 +41,7 @@ namespace FlyFlint.Internal.Static
         }
 
         private protected void RegisterMemberMetadata(
-            KeyValuePair<string, Type>[] members)
+            MemberMetadata[] members)
         {
             Debug.Assert(this.metadataList == null);    // TODO: combine multiple
 
@@ -53,12 +53,12 @@ namespace FlyFlint.Internal.Static
             {
                 var member = members[index];
                 var dbFieldNameIndiciesIndex =
-                    Array.BinarySearch(metadataMap.FieldNames, member.Key, this.fieldComparer);
+                    Array.BinarySearch(metadataMap.FieldNames, member.Name, this.fieldComparer);
                 if (dbFieldNameIndiciesIndex >= 0)
                 {
                     var dbFieldMetadata = metadataMap.MetadataList[dbFieldNameIndiciesIndex];
 
-                    var ut = Nullable.GetUnderlyingType(member.Value) ?? member.Value;
+                    var ut = Nullable.GetUnderlyingType(member.Type) ?? member.Type;
                     dbFieldMetadata.StoreDirect = ut == dbFieldMetadata.DbType;
 
                     candidates.Add(dbFieldMetadata);
@@ -69,7 +69,7 @@ namespace FlyFlint.Internal.Static
         }
 
         public abstract void RegisterMetadata(
-            KeyValuePair<string, Type>[] members,
+            MemberMetadata[] members,
             Delegate injector);   // StaticInjectDelegate<TElement>
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
@@ -422,7 +422,7 @@ namespace FlyFlint.Internal.Static
 #endif
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override void RegisterMetadata(
-            KeyValuePair<string, Type>[] members,
+            MemberMetadata[] members,
             Delegate injector)   // StaticDataInjectorDelegate<TElement>
         {
             Debug.Assert(this.injector == null);    // TODO: combine multiple

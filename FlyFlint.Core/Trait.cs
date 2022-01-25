@@ -18,7 +18,7 @@ namespace FlyFlint
 {
     public sealed class Trait
     {
-        internal static readonly KeyValuePair<string, object?>[] defaultParameters = { };
+        internal static readonly ExtractedParameter[] defaultParameters = { };
 
         internal readonly ConversionContext cc;
         internal readonly IComparer<string> fieldComparer;

@@ -47,7 +47,7 @@ namespace FlyFlint.Internal.Dynamic
             throw new InvalidOperationException(
                 $"Dynamic query feature is not enabled: Type={targetType.FullName}");
 
-        public virtual Func<KeyValuePair<string, object?>[]> GetConstructParameters<TParameters>(
+        public virtual Func<ExtractedParameter[]> GetConstructParameters<TParameters>(
             ConversionContext cc,
             string parameterPrefix,
             Func<TParameters> getter)
@@ -55,7 +55,7 @@ namespace FlyFlint.Internal.Dynamic
             throw new InvalidOperationException(
                 $"Dynamic query feature is not enabled: Type={typeof(TParameters).FullName}");
 
-        public virtual KeyValuePair<string, object?>[] GetParameters<TParameters>(
+        public virtual ExtractedParameter[] GetParameters<TParameters>(
             ConversionContext cc,
             string parameterPrefix,
             ref TParameters parameters)

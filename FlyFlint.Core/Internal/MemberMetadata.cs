@@ -11,38 +11,46 @@ using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
-namespace FlyFlint.Internal.Static
+namespace FlyFlint.Internal
 {
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public struct MemberMetadata
+    public struct ExtractedParameter
     {
         [EditorBrowsable(EditorBrowsableState.Never)]
         public readonly string Name;
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public readonly Type Type;
+        public readonly object? Value;
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public MemberMetadata(string name, Type type)
+        public ExtractedParameter(string name, object? value)
         {
             this.Name = name;
-            this.Type = type;
+            this.Value = value;
         }
     }
 
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public interface IParameterExtractable
+    public sealed class DataInjectionMetadata
     {
         [EditorBrowsable(EditorBrowsableState.Never)]
-        ExtractedParameter[] Extract(StaticParameterExtractionContext context);
-    }
+        public readonly int DbFieldIndex;
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public bool StoreDirect;
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public readonly Type DbType;
 
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public interface IDataInjectable
-    {
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
         [EditorBrowsable(EditorBrowsableState.Never)]
-        void Prepare(StaticDataInjectionContext context);
+        public DataInjectionMetadata(int dbfieldIndex, Type dbType)
+        {
+            this.DbFieldIndex = dbfieldIndex;
+            this.StoreDirect = false;
+            this.DbType = dbType;
+        }
     }
 }

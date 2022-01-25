@@ -31,11 +31,11 @@ namespace FlyFlint
             public string? Name;
             public DateTime Birth;
 
-            private static readonly KeyValuePair<string, Type>[] members = new[]
+            private static readonly MemberMetadata[] members = new[]
             {
-                 new KeyValuePair<string, Type>(nameof(Id), typeof(int)),
-                 new KeyValuePair<string, Type>(nameof(Name), typeof(string)),
-                 new KeyValuePair<string, Type>(nameof(Birth), typeof(DateTime)),
+                 new MemberMetadata(nameof(Id), typeof(int)),
+                 new MemberMetadata(nameof(Name), typeof(string)),
+                 new MemberMetadata(nameof(Birth), typeof(DateTime)),
             };
 
             private static readonly StaticDataInjectorDelegate<Target> injector = Inject;
@@ -56,9 +56,9 @@ namespace FlyFlint
         {
             public int idparam { get; set; }
 
-            public KeyValuePair<string, object?>[] Extract(
+            public ExtractedParameter[] Extract(
                 StaticParameterExtractionContext context) =>
-                new[] { new KeyValuePair<string, object?>("idparam", this.idparam) };
+                new[] { new ExtractedParameter("idparam", this.idparam) };
         }
 
         /////////////////////////////////////////////////////////////////////////////

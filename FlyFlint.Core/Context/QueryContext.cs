@@ -7,7 +7,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
-using System.Collections.Generic;
+using FlyFlint.Internal;
 using System.Data.Common;
 using System.Runtime.CompilerServices;
 
@@ -19,7 +19,7 @@ namespace FlyFlint.Context
         internal readonly DbTransaction? transaction;
         internal readonly Trait trait;
         internal readonly string sql;
-        internal readonly KeyValuePair<string, object?>[] parameters;
+        internal readonly ExtractedParameter[] parameters;
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -29,7 +29,7 @@ namespace FlyFlint.Context
             DbTransaction? transaction,
             Trait trait,
             string sql,
-            KeyValuePair<string, object?>[] parameters)
+            ExtractedParameter[] parameters)
         {
             this.connection = connection;
             this.transaction = transaction;
@@ -45,7 +45,7 @@ namespace FlyFlint.Context
         internal readonly DbTransaction? transaction;
         internal readonly Trait trait;
         internal readonly string sql;
-        internal readonly KeyValuePair<string, object?>[] parameters;
+        internal readonly ExtractedParameter[] parameters;
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -55,7 +55,7 @@ namespace FlyFlint.Context
             DbTransaction? transaction,
             Trait trait,
             string sql,
-            KeyValuePair<string, object?>[] parameters)
+            ExtractedParameter[] parameters)
         {
             this.connection = connection;
             this.transaction = transaction;

@@ -37,7 +37,7 @@ namespace FlyFlint.Internal
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static Func<KeyValuePair<string, object?>[]> GetConstructParameters<TParameters>(
+        public static Func<ExtractedParameter[]> GetConstructParameters<TParameters>(
             ConversionContext cc, 
             string parameterPrefix,
             Func<TParameters> getter)
@@ -55,7 +55,7 @@ namespace FlyFlint.Internal
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static KeyValuePair<string, object?>[] GetParameters<TParameters>(
+        public static ExtractedParameter[] GetParameters<TParameters>(
             ConversionContext cc,
             string parameterPrefix,
             ref TParameters parameters)

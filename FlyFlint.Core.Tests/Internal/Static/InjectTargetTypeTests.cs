@@ -10,7 +10,6 @@
 using FlyFlint.Context;
 using NUnit.Framework;
 using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
 using System.Threading.Tasks;
@@ -46,23 +45,23 @@ namespace FlyFlint.Internal.Static
             public EnumValue Value14;
             public string Value15;
 
-            private static readonly KeyValuePair<string, Type>[] members = new[]
+            private static readonly MemberMetadata[] members = new[]
             {
-                new KeyValuePair<string, Type>(nameof(Value1), typeof(bool)),
-                new KeyValuePair<string, Type>(nameof(Value2), typeof(byte)),
-                new KeyValuePair<string, Type>(nameof(Value3), typeof(short)),
-                new KeyValuePair<string, Type>(nameof(Value4), typeof(int)),
-                new KeyValuePair<string, Type>(nameof(Value5), typeof(long)),
-                new KeyValuePair<string, Type>(nameof(Value6), typeof(float)),
-                new KeyValuePair<string, Type>(nameof(Value7), typeof(double)),
-                new KeyValuePair<string, Type>(nameof(Value8), typeof(decimal)),
-                new KeyValuePair<string, Type>(nameof(Value9), typeof(Guid)),
-                new KeyValuePair<string, Type>(nameof(Value10), typeof(DateTime)),
-                new KeyValuePair<string, Type>(nameof(Value11), typeof(EnumValue)),
-                new KeyValuePair<string, Type>(nameof(Value12), typeof(EnumValue)),
-                new KeyValuePair<string, Type>(nameof(Value13), typeof(EnumValue)),
-                new KeyValuePair<string, Type>(nameof(Value14), typeof(EnumValue)),
-                new KeyValuePair<string, Type>(nameof(Value15), typeof(string)),
+                new MemberMetadata(nameof(Value1), typeof(bool)),
+                new MemberMetadata(nameof(Value2), typeof(byte)),
+                new MemberMetadata(nameof(Value3), typeof(short)),
+                new MemberMetadata(nameof(Value4), typeof(int)),
+                new MemberMetadata(nameof(Value5), typeof(long)),
+                new MemberMetadata(nameof(Value6), typeof(float)),
+                new MemberMetadata(nameof(Value7), typeof(double)),
+                new MemberMetadata(nameof(Value8), typeof(decimal)),
+                new MemberMetadata(nameof(Value9), typeof(Guid)),
+                new MemberMetadata(nameof(Value10), typeof(DateTime)),
+                new MemberMetadata(nameof(Value11), typeof(EnumValue)),
+                new MemberMetadata(nameof(Value12), typeof(EnumValue)),
+                new MemberMetadata(nameof(Value13), typeof(EnumValue)),
+                new MemberMetadata(nameof(Value14), typeof(EnumValue)),
+                new MemberMetadata(nameof(Value15), typeof(string)),
             };
 
             private static readonly StaticDataInjectorDelegate<TargetValueTypes> injector = Inject;
@@ -146,23 +145,23 @@ namespace FlyFlint.Internal.Static
             public EnumValue? Value14;
             public string? Value15;
 
-            private static readonly KeyValuePair<string, Type>[] members = new[]
+            private static readonly MemberMetadata[] members = new[]
             {
-                new KeyValuePair<string, Type>(nameof(Value1), typeof(bool)),
-                new KeyValuePair<string, Type>(nameof(Value2), typeof(byte)),
-                new KeyValuePair<string, Type>(nameof(Value3), typeof(short)),
-                new KeyValuePair<string, Type>(nameof(Value4), typeof(int)),
-                new KeyValuePair<string, Type>(nameof(Value5), typeof(long)),
-                new KeyValuePair<string, Type>(nameof(Value6), typeof(float)),
-                new KeyValuePair<string, Type>(nameof(Value7), typeof(double)),
-                new KeyValuePair<string, Type>(nameof(Value8), typeof(decimal)),
-                new KeyValuePair<string, Type>(nameof(Value9), typeof(Guid)),
-                new KeyValuePair<string, Type>(nameof(Value10), typeof(DateTime)),
-                new KeyValuePair<string, Type>(nameof(Value11), typeof(EnumValue)),
-                new KeyValuePair<string, Type>(nameof(Value12), typeof(EnumValue)),
-                new KeyValuePair<string, Type>(nameof(Value13), typeof(EnumValue)),
-                new KeyValuePair<string, Type>(nameof(Value14), typeof(EnumValue)),
-                new KeyValuePair<string, Type>(nameof(Value15), typeof(string)),
+                new MemberMetadata(nameof(Value1), typeof(bool)),
+                new MemberMetadata(nameof(Value2), typeof(byte)),
+                new MemberMetadata(nameof(Value3), typeof(short)),
+                new MemberMetadata(nameof(Value4), typeof(int)),
+                new MemberMetadata(nameof(Value5), typeof(long)),
+                new MemberMetadata(nameof(Value6), typeof(float)),
+                new MemberMetadata(nameof(Value7), typeof(double)),
+                new MemberMetadata(nameof(Value8), typeof(decimal)),
+                new MemberMetadata(nameof(Value9), typeof(Guid)),
+                new MemberMetadata(nameof(Value10), typeof(DateTime)),
+                new MemberMetadata(nameof(Value11), typeof(EnumValue)),
+                new MemberMetadata(nameof(Value12), typeof(EnumValue)),
+                new MemberMetadata(nameof(Value13), typeof(EnumValue)),
+                new MemberMetadata(nameof(Value14), typeof(EnumValue)),
+                new MemberMetadata(nameof(Value15), typeof(string)),
             };
 
             private static readonly StaticDataInjectorDelegate<TargetNullableValueTypes> injector = Inject;

@@ -43,14 +43,14 @@ namespace FlyFlint.Internal
             return string.Format(fs.Format, formatArgs);
         }
 
-        public static KeyValuePair<string, object?>[] GetSqlParameters(
+        public static ExtractedParameter[] GetSqlParameters(
             FormattableString fs, string parameterPrefix)
         {
             var args = fs.GetArguments();
-            var parameters = new KeyValuePair<string, object?>[args.Length];
+            var parameters = new ExtractedParameter[args.Length];
             for (var index = 0; index < parameters.Length; index++)
             {
-                parameters[index] = new KeyValuePair<string, object?>(
+                parameters[index] = new ExtractedParameter(
                     parameterPrefix + "a" + index, args[index]);
             }
             return parameters;
@@ -60,7 +60,7 @@ namespace FlyFlint.Internal
 
         public static DbCommand CreateCommand(
             DbConnection connection, DbTransaction? transaction,
-            string sql, KeyValuePair<string, object?>[] parameters)
+            string sql, ExtractedParameter[] parameters)
         {
             var command = connection.CreateCommand();
             command.CommandType = CommandType.Text;
@@ -71,7 +71,7 @@ namespace FlyFlint.Internal
             foreach (var parameter in parameters)
             {
                 var p = command.CreateParameter();
-                p.ParameterName = parameter.Key;
+                p.ParameterName = parameter.Name;
                 p.Value = parameter.Value;
                 pc.Add(p);
             }

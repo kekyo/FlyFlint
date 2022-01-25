@@ -20,7 +20,7 @@ namespace FlyFlint.Internal.Static
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static Func<KeyValuePair<string, object?>[]> GetConstructParameters<TParameters>(
+        public static Func<ExtractedParameter[]> GetConstructParameters<TParameters>(
             ConversionContext cc,
             string parameterPrefix,
             Func<TParameters> getter)
@@ -36,7 +36,7 @@ namespace FlyFlint.Internal.Static
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static KeyValuePair<string, object?>[] GetParameters<TParameters>(
+        public static ExtractedParameter[] GetParameters<TParameters>(
             ConversionContext cc,
             string parameterPrefix,
             ref TParameters parameters)
@@ -46,8 +46,8 @@ namespace FlyFlint.Internal.Static
             var extracted = parameters.Extract(context);
             for (var index = 0; index < extracted.Length; index++)
             {
-                extracted[index] = new KeyValuePair<string, object?>(
-                    parameterPrefix + extracted[index].Key, extracted[index].Value);
+                extracted[index] = new ExtractedParameter(
+                    parameterPrefix + extracted[index].Name, extracted[index].Value);
             }
             return extracted;
         }
