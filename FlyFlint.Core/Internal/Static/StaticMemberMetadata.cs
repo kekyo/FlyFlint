@@ -14,7 +14,7 @@ using System.Runtime.CompilerServices;
 namespace FlyFlint.Internal.Static
 {
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public struct MemberMetadata
+    public struct StaticMemberMetadata
     {
         [EditorBrowsable(EditorBrowsableState.Never)]
         public readonly string Name;
@@ -25,7 +25,7 @@ namespace FlyFlint.Internal.Static
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public MemberMetadata(string name, Type type)
+        public StaticMemberMetadata(string name, Type type)
         {
             this.Name = name;
             this.Type = type;

@@ -38,8 +38,8 @@ namespace TestTargetProject
             public decimal Value8;
             public Guid Value9;
             public DateTime Value10;
-            public EnumValue Value11;
-            public EnumValue Value12;
+            //public EnumValue Value11;
+            //public EnumValue Value12;
             public string Value13;
         }
 

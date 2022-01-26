@@ -9,6 +9,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -27,14 +28,53 @@ namespace FlyFlint
 
     public sealed class Injector
     {
+        private sealed class TypeKey : IEquatable<TypeKey?>
+        {
+            public readonly TypeReference Type;
+            public readonly bool IsNullable;
+
+            public TypeKey(TypeReference type, bool isNullable)
+            {
+                this.Type = type;
+                this.IsNullable = isNullable;
+            }
+
+            public override int GetHashCode() =>
+                GetTypeName(this.Type).GetHashCode() ^ this.IsNullable.GetHashCode();
+
+            public bool Equals(TypeKey? other) =>
+                other is TypeKey o &&
+                GetTypeName(this.Type).Equals(GetTypeName(o.Type)) &&
+                this.IsNullable == o.IsNullable;
+
+            public override string ToString() =>
+                $"{GetTypeName(this.Type)}{(!this.Type.IsValueType ? this.IsNullable ? "?" : "" : "")}";
+        }
+
         private readonly Action<LogLevels, string> message;
         private readonly DefaultAssemblyResolver assemblyResolver = new();
 
         private readonly TypeSystem typeSystem;
+        private readonly TypeDefinition typeType;
+        private readonly MethodDefinition getTypeFromHandleMethod;
 
         private readonly TypeDefinition queryFacadeExtensionType;
         private readonly TypeDefinition synchronizedQueryFacadeExtensionType;
         private readonly TypeDefinition staticQueryFacadeType;
+        private readonly TypeDefinition extractedParameterType;
+        private readonly TypeDefinition dataInjectorDelegateType;
+        private readonly TypeDefinition staticMemberMetadataType;
+        private readonly MethodDefinition staticMemberMetadataConstructor;
+        private readonly TypeDefinition staticDataInjectorDelegateType;
+        private readonly MethodDefinition staticDataInjectorDelegateConstructor;
+        private readonly TypeDefinition staticDataInjectionContextType;
+        private readonly MethodDefinition registerMetadataMethod;
+        private readonly TypeDefinition parameterExtractableType;
+        private readonly TypeDefinition dataInjectableType;
+        private readonly MethodDefinition prepareMethod;
+        private readonly Dictionary<TypeKey, MethodDefinition> getValueMethods;
+        private readonly MethodDefinition getEnumValueMethod;
+        private readonly MethodDefinition getNullableEnumValueMethod;
         private readonly Dictionary<MethodReference, MethodDefinition> queryFacadeMapping;
 
         // System.Runtime.Serialization.DataContractAttribute.
@@ -66,6 +106,11 @@ namespace FlyFlint
 
             this.typeSystem = flyFlintCoreAssembly.MainModule.TypeSystem;
 
+            this.typeType = typeSystem.Object.Resolve().Module.Types.First(
+                t => t.FullName == "System.Type");
+            this.getTypeFromHandleMethod = this.typeType.Methods.First(
+                m => m.Name == "GetTypeFromHandle");
+
             this.queryFacadeExtensionType = flyFlintCoreAssembly.MainModule.GetType(
                 "FlyFlint.QueryFacadeExtension")!;
             this.synchronizedQueryFacadeExtensionType = flyFlintCoreAssembly.MainModule.GetType(
@@ -84,6 +129,45 @@ namespace FlyFlint
                     (MethodReference)entry.qfm,
                     entry => entry.sqfm,
                     SignatureDroppedGenericTypeEqualityComparer.Instance);
+
+            this.extractedParameterType = flyFlintCoreAssembly.MainModule.GetType(
+                "FlyFlint.Internal.ExtractedParameter")!;
+
+            this.dataInjectorDelegateType = flyFlintCoreAssembly.MainModule.Types.
+                First(t => t.FullName.StartsWith("FlyFlint.Internal.DataInjectorDelegate"));
+
+            this.staticMemberMetadataType = flyFlintCoreAssembly.MainModule.GetType(
+                "FlyFlint.Internal.Static.StaticMemberMetadata")!;
+            this.staticMemberMetadataConstructor = staticMemberMetadataType.Methods.
+                First(m => m.IsConstructor);
+
+            this.staticDataInjectorDelegateType = flyFlintCoreAssembly.MainModule.Types.
+                First(t => t.FullName.StartsWith("FlyFlint.Internal.Static.StaticDataInjectorDelegate"));
+            this.staticDataInjectorDelegateConstructor = this.staticDataInjectorDelegateType.Methods.
+                First(m => m.IsConstructor && !m.IsStatic);
+
+            this.staticDataInjectionContextType = flyFlintCoreAssembly.MainModule.GetType(
+                "FlyFlint.Internal.Static.StaticDataInjectionContext")!;
+            this.registerMetadataMethod = staticDataInjectionContextType.Methods.
+                First(m => m.IsPublic && m.IsVirtual && m.Name.StartsWith("RegisterMetadata"));
+
+            this.parameterExtractableType = flyFlintCoreAssembly.MainModule.GetType(
+                "FlyFlint.Internal.Static.IParameterExtractable")!;
+            this.dataInjectableType = flyFlintCoreAssembly.MainModule.GetType(
+                "FlyFlint.Internal.Static.IDataInjectable")!;
+            this.prepareMethod = this.dataInjectableType.Methods.
+                First(m => m.Name.StartsWith("Prepare"));
+
+            this.getValueMethods = this.staticDataInjectionContextType.
+                Methods.
+                Where(m => m.IsPublic && !m.IsStatic && !m.HasGenericParameters && m.Name.StartsWith("Get")).
+                ToDictionary(m => new TypeKey(m.ReturnType, m.Name.StartsWith("GetNullable")));
+            this.getEnumValueMethod = this.staticDataInjectionContextType.
+                Methods.
+                First(m => m.IsPublic && !m.IsStatic && m.Name.StartsWith("GetEnum"));
+            this.getNullableEnumValueMethod = this.staticDataInjectionContextType.
+                Methods.
+                First(m => m.IsPublic && !m.IsStatic && m.Name.StartsWith("GetNullableEnum"));
         }
 
         private static U[] ParallelSelect<T, U>(
@@ -158,7 +242,291 @@ namespace FlyFlint
                 new SignatureDroppedGenericTypeEqualityComparer();
         }
 
-        private (TypeReference[] parametersTypes, TypeReference[] elementTypes) GetTargetTypes(
+        private static TypeReference GetMemberType(
+            ModuleDefinition module, MemberReference member) =>
+            module.ImportReference(
+                member is FieldReference fr ? fr.FieldType :
+                ((PropertyReference)member).PropertyType);
+
+        private FieldReference InjectStaticMemberField(
+            ModuleDefinition module,
+            TypeDefinition targetType, MethodDefinition cctor, MemberReference[] targetMembers)
+        {
+            var staticMemberMetadatasType = new ArrayType(
+                module.ImportReference(this.staticMemberMetadataType));
+
+            var membersField = new FieldDefinition(
+                "flyflint_members__",
+                FieldAttributes.Private | FieldAttributes.Static | FieldAttributes.InitOnly,
+                staticMemberMetadatasType);
+            targetType.Fields.Add(membersField);
+
+            var cctorInsts = cctor.Body.Instructions;
+
+            var instIndex = 0;
+            cctorInsts.Insert(instIndex++,
+                Instruction.Create(OpCodes.Ldc_I4_S, (sbyte)targetMembers.Length));
+            cctorInsts.Insert(instIndex++,
+                Instruction.Create(
+                    OpCodes.Newarr,
+                    module.ImportReference(this.staticMemberMetadataType)));
+
+            for (var metadataIndex = 0; metadataIndex < targetMembers.Length; metadataIndex++)
+            {
+                var targetMember = targetMembers[metadataIndex];
+
+                cctorInsts.Insert(instIndex++,
+                    Instruction.Create(OpCodes.Dup));
+                cctorInsts.Insert(instIndex++,
+                    Instruction.Create(OpCodes.Ldc_I4_S, (sbyte)metadataIndex));
+                cctorInsts.Insert(instIndex++,
+                    Instruction.Create(OpCodes.Ldstr, targetMember.Name));  // TODO: DataMemberAttribute
+                cctorInsts.Insert(instIndex++,
+                    Instruction.Create(
+                        OpCodes.Ldtoken,
+                        GetMemberType(module, targetMember)));
+                cctorInsts.Insert(instIndex++,
+                    Instruction.Create(
+                        OpCodes.Call,
+                        module.ImportReference(this.getTypeFromHandleMethod)));
+                cctorInsts.Insert(instIndex++,
+                    Instruction.Create(
+                        OpCodes.Newobj,
+                        module.ImportReference(this.staticMemberMetadataConstructor)));
+                cctorInsts.Insert(instIndex++,
+                    Instruction.Create(
+                        OpCodes.Stelem_Any,
+                        module.ImportReference(this.staticMemberMetadataType)));
+            }
+
+            cctorInsts.Insert(instIndex++,
+                Instruction.Create(OpCodes.Stsfld, membersField));
+
+            return module.ImportReference(membersField);
+        }
+
+        private FieldReference InjectInjectorMethod(
+            ModuleDefinition module,
+            TypeDefinition targetType, MethodDefinition cctor, MemberReference[] targetMembers)
+        {
+            var staticDataInjectorDelegateType =
+                new GenericInstanceType(
+                    module.ImportReference(this.staticDataInjectorDelegateType));
+            staticDataInjectorDelegateType.GenericArguments.
+                Add(targetType);
+
+            var staticDataInjectorDelegateConstructor =
+                new GenericInstanceMethod(
+                    module.ImportReference(this.staticDataInjectorDelegateConstructor));
+            staticDataInjectorDelegateConstructor.GenericArguments.
+                Add(targetType);
+
+            var injectorField = new FieldDefinition(
+                "flyflint_injector__",
+                FieldAttributes.Private | FieldAttributes.Static | FieldAttributes.InitOnly,
+                staticDataInjectorDelegateType);
+            targetType.Fields.Add(injectorField);
+
+            //////////////////////////////////////////////
+
+            var injectMethod = new MethodDefinition(
+                "flyflint_inject__",
+                MethodAttributes.Private | MethodAttributes.Static,
+                this.typeSystem.Void);
+            injectMethod.Parameters.Add(
+                new ParameterDefinition(
+                    "context",
+                    ParameterAttributes.None,
+                    module.ImportReference(this.staticDataInjectionContextType)));
+            injectMethod.Parameters.Add(
+                new ParameterDefinition(
+                    "element",
+                    ParameterAttributes.None,
+                    new ByReferenceType(targetType)));
+
+            targetType.Methods.Add(injectMethod);
+
+            var injectMethodInsts = injectMethod.Body.Instructions;
+
+            static bool IsNullableForMember(
+                MemberReference targetMember, TypeReference memberType)
+            {
+                if (memberType.IsValueType)
+                {
+                    return memberType.FullName.StartsWith("System.Nullable");
+                }
+                else
+                {
+                    return
+                        (targetMember is FieldDefinition f ? f.CustomAttributes :
+                         ((PropertyDefinition)targetMember).CustomAttributes).
+                        Any(ca => ca.AttributeType.FullName.StartsWith("System.Runtime.CompilerServices.NullableAttribute"));
+                }
+            }
+
+            MethodReference GetValueMethod(
+                MemberReference targetMember, TypeReference memberType)
+            {
+                var key = new TypeKey(memberType, IsNullableForMember(targetMember, memberType));
+
+                if (this.getValueMethods.TryGetValue(key, out var gvm))
+                {
+                    return module.ImportReference(gvm);
+                }
+                else if (memberType.Resolve().IsEnum)
+                {
+                    var m = new GenericInstanceMethod(
+                        module.ImportReference(this.getEnumValueMethod));
+                    m.GenericArguments.Add(memberType);
+                    return m;
+                }
+                else
+                {
+                    Debug.Assert(memberType.FullName.StartsWith("System.Nullable"));
+                    var m = new GenericInstanceMethod(
+                        module.ImportReference(this.getNullableEnumValueMethod));
+                    m.GenericArguments.Add(memberType);   // TODO: dereferenced generic argument type
+                    return m;
+                }
+            }
+
+            for (var metadataIndex = 0; metadataIndex < targetMembers.Length; metadataIndex++)
+            {
+                var targetMember = targetMembers[metadataIndex];
+                injectMethodInsts.Add(
+                    Instruction.Create(OpCodes.Ldarg_1));
+                injectMethodInsts.Add(
+                    Instruction.Create(OpCodes.Ldarg_0));
+                injectMethodInsts.Add(
+                    Instruction.Create(OpCodes.Ldc_I4_S, (sbyte)metadataIndex));
+                var memberType = GetMemberType(module, targetMember);
+                var getValueMethod = GetValueMethod(targetMember, memberType);
+                injectMethodInsts.Add(
+                    Instruction.Create(OpCodes.Call, getValueMethod));
+
+                if (targetMember is FieldDefinition f)
+                {
+                    injectMethodInsts.Add(
+                        Instruction.Create(OpCodes.Stfld, f));
+                }
+                else
+                {
+                    var p = (PropertyDefinition)targetMember;
+                    var sm = p.SetMethod;
+                    Debug.Assert(sm != null);
+
+                    injectMethodInsts.Add(
+                        Instruction.Create(
+                            sm!.IsVirtual ? OpCodes.Callvirt : OpCodes.Call,
+                            sm));
+                }
+            }
+
+            injectMethodInsts.Add(
+                Instruction.Create(OpCodes.Ret));
+
+            var cctorInsts = cctor.Body.Instructions;
+
+            var instIndex = 0;
+            cctorInsts.Insert(instIndex++,
+                Instruction.Create(OpCodes.Ldnull));
+            cctorInsts.Insert(instIndex++,
+                Instruction.Create(OpCodes.Ldftn, injectMethod));
+            cctorInsts.Insert(instIndex++,
+                Instruction.Create(OpCodes.Newobj, staticDataInjectorDelegateConstructor));
+            cctorInsts.Insert(instIndex++,
+                Instruction.Create(OpCodes.Stsfld, injectorField));
+
+            return module.ImportReference(injectorField);
+        }
+
+        private bool InjectPrepareMethod(
+            ModuleDefinition module,
+            TypeDefinition targetType)
+        {
+            if (targetType.Interfaces.Any(
+                i => i.InterfaceType.FullName == "FlyFlint.Internal.Static.IDataInjectable"))
+            {
+                return false;
+            }
+
+            var targetFields = targetType.Fields.
+                Where(f => f.IsPublic && !f.IsStatic && !f.IsInitOnly).
+                Cast<MemberReference>();
+            var targetProperties = targetType.Properties.
+                Where(p =>
+                    p.SetMethod is MethodReference mr &&
+                    mr.Resolve() is { } m &&
+                    m.IsPublic && !m.IsStatic).   // TODO: DataMemberAttribute
+                Cast<MemberReference>();
+
+            var targetMembers = targetFields.Concat(targetProperties).ToArray();
+            if (targetMembers.Length == 0)
+            {
+                return false;
+            }
+
+            //////////////////////////////////////////////
+
+            var cctor = targetType.Methods.
+                FirstOrDefault(m => m.IsStatic && m.IsConstructor);
+            if (cctor == null)
+            {
+                cctor = new MethodDefinition(
+                    ".cctor",
+                    MethodAttributes.HideBySig | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName | MethodAttributes.Public | MethodAttributes.Static,
+                    this.typeSystem.Void);
+                targetType.Methods.Add(cctor);
+                cctor.Body.Instructions.Add(
+                    Instruction.Create(OpCodes.Ret));
+            }
+
+            //////////////////////////////////////////////
+
+            var injectorField = InjectInjectorMethod(module, targetType, cctor, targetMembers);
+            var membersField = InjectStaticMemberField(module, targetType, cctor, targetMembers);
+
+            //////////////////////////////////////////////
+
+            var prepareMethod = new MethodDefinition(
+                "flyflint_prepare__",
+                MethodAttributes.Family | MethodAttributes.Virtual | MethodAttributes.NewSlot,
+                this.typeSystem.Void);
+            prepareMethod.Parameters.Add(
+                new ParameterDefinition(
+                    "context",
+                    ParameterAttributes.None,
+                    module.ImportReference(this.staticDataInjectionContextType)));
+            targetType.Methods.Add(prepareMethod);
+
+            var prepareMethodInsts = prepareMethod.Body.Instructions;
+
+            prepareMethodInsts.Add(
+                Instruction.Create(OpCodes.Ldarg_1));
+            prepareMethodInsts.Add(
+                Instruction.Create(OpCodes.Ldsfld, membersField));
+            prepareMethodInsts.Add(
+                Instruction.Create(OpCodes.Ldsfld, injectorField));
+            prepareMethodInsts.Add(
+                Instruction.Create(
+                    OpCodes.Callvirt,
+                    module.ImportReference(this.registerMetadataMethod)));
+            prepareMethodInsts.Add(
+                Instruction.Create(OpCodes.Ret));
+
+            //////////////////////////////////////////////
+
+            var ii = new InterfaceImplementation(
+                module.ImportReference(this.dataInjectableType));
+            targetType.Interfaces.Add(ii);
+
+            prepareMethod.Overrides.Add(
+                module.ImportReference(this.prepareMethod));
+
+            return true;
+        }
+
+        private (TypeDefinition[] parametersTypes, TypeDefinition[] elementTypes) GetTargetTypes(
             AssemblyDefinition targetAssembly)
         {
             var dataContractTypes =
@@ -263,10 +631,12 @@ namespace FlyFlint
             var parametersTypes = usingQueryTypes.
                 SelectMany(entry => entry.parametersTypes).
                 Distinct().
+                Select(t => t.Resolve()).
                 ToArray();
             var elementTypes = usingQueryTypes.
                 SelectMany(entry => entry.elementTypes).
                 Distinct().
+                Select(t => t.Resolve()).
                 ToArray();
 
             return (parametersTypes, elementTypes);
@@ -315,19 +685,19 @@ namespace FlyFlint
 
                     foreach (var elementType in elementTypes)
                     {
-                        //if (this.InjectIntoType(targetAssembly.MainModule, targetType))
-                        //{
-                        //    injected = true;
-                        //    this.message(
-                        //        LogLevels.Trace,
-                        //        $"Injected a view model: Assembly={targetAssemblyName}, Type={targetType.FullName}");
-                        //}
-                        //else
-                        //{
-                        //    this.message(
-                        //        LogLevels.Trace,
-                        //        $"InjectProperties: Ignored a type: Assembly={targetAssemblyName}, Type={targetType.FullName}");
-                        //}
+                        if (this.InjectPrepareMethod(targetAssembly.MainModule, elementType))
+                        {
+                            injected = true;
+                            this.message(
+                                LogLevels.Trace,
+                                $"Injected a view model: Assembly={targetAssemblyName}, Type={elementType.FullName}");
+                        }
+                        else
+                        {
+                            this.message(
+                                LogLevels.Trace,
+                                $"InjectProperties: Ignored a type: Assembly={targetAssemblyName}, Type={elementType.FullName}");
+                        }
                     }
 
                     if (injected)

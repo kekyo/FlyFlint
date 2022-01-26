@@ -25,11 +25,11 @@ namespace FlyFlint.Internal.Static
             public string? Name;
             public DateTime Birth;
 
-            private static readonly MemberMetadata[] members = new[]
+            private static readonly StaticMemberMetadata[] members = new[]
             {
-                new MemberMetadata(nameof(Id), typeof(int)),
-                new MemberMetadata(nameof(Name), typeof(string)),
-                new MemberMetadata(nameof(Birth), typeof(DateTime)),
+                new StaticMemberMetadata(nameof(Id), typeof(int)),
+                new StaticMemberMetadata(nameof(Name), typeof(string)),
+                new StaticMemberMetadata(nameof(Birth), typeof(DateTime)),
             };
 
             private static readonly StaticDataInjectorDelegate<TargetValueType> injector = Inject;
@@ -75,11 +75,11 @@ namespace FlyFlint.Internal.Static
             public string? Name;
             public DateTime Birth;
 
-            private static readonly MemberMetadata[] members = new[]
+            private static readonly StaticMemberMetadata[] members = new[]
             {
-                new MemberMetadata(nameof(Id), typeof(int)),
-                new MemberMetadata(nameof(Name), typeof(string)),
-                new MemberMetadata(nameof(Birth), typeof(DateTime)),
+                new StaticMemberMetadata(nameof(Id), typeof(int)),
+                new StaticMemberMetadata(nameof(Name), typeof(string)),
+                new StaticMemberMetadata(nameof(Birth), typeof(DateTime)),
             };
 
             private static readonly StaticDataInjectorDelegate<TargetReferenceType> injector = Inject;

@@ -45,23 +45,23 @@ namespace FlyFlint.Internal.Static
             public EnumValue Value14;
             public string Value15;
 
-            private static readonly MemberMetadata[] members = new[]
+            private static readonly StaticMemberMetadata[] members = new[]
             {
-                new MemberMetadata(nameof(Value1), typeof(bool)),
-                new MemberMetadata(nameof(Value2), typeof(byte)),
-                new MemberMetadata(nameof(Value3), typeof(short)),
-                new MemberMetadata(nameof(Value4), typeof(int)),
-                new MemberMetadata(nameof(Value5), typeof(long)),
-                new MemberMetadata(nameof(Value6), typeof(float)),
-                new MemberMetadata(nameof(Value7), typeof(double)),
-                new MemberMetadata(nameof(Value8), typeof(decimal)),
-                new MemberMetadata(nameof(Value9), typeof(Guid)),
-                new MemberMetadata(nameof(Value10), typeof(DateTime)),
-                new MemberMetadata(nameof(Value11), typeof(EnumValue)),
-                new MemberMetadata(nameof(Value12), typeof(EnumValue)),
-                new MemberMetadata(nameof(Value13), typeof(EnumValue)),
-                new MemberMetadata(nameof(Value14), typeof(EnumValue)),
-                new MemberMetadata(nameof(Value15), typeof(string)),
+                new StaticMemberMetadata(nameof(Value1), typeof(bool)),
+                new StaticMemberMetadata(nameof(Value2), typeof(byte)),
+                new StaticMemberMetadata(nameof(Value3), typeof(short)),
+                new StaticMemberMetadata(nameof(Value4), typeof(int)),
+                new StaticMemberMetadata(nameof(Value5), typeof(long)),
+                new StaticMemberMetadata(nameof(Value6), typeof(float)),
+                new StaticMemberMetadata(nameof(Value7), typeof(double)),
+                new StaticMemberMetadata(nameof(Value8), typeof(decimal)),
+                new StaticMemberMetadata(nameof(Value9), typeof(Guid)),
+                new StaticMemberMetadata(nameof(Value10), typeof(DateTime)),
+                new StaticMemberMetadata(nameof(Value11), typeof(EnumValue)),
+                new StaticMemberMetadata(nameof(Value12), typeof(EnumValue)),
+                new StaticMemberMetadata(nameof(Value13), typeof(EnumValue)),
+                new StaticMemberMetadata(nameof(Value14), typeof(EnumValue)),
+                new StaticMemberMetadata(nameof(Value15), typeof(string)),
             };
 
             private static readonly StaticDataInjectorDelegate<TargetValueTypes> injector = Inject;
@@ -145,23 +145,23 @@ namespace FlyFlint.Internal.Static
             public EnumValue? Value14;
             public string? Value15;
 
-            private static readonly MemberMetadata[] members = new[]
+            private static readonly StaticMemberMetadata[] members = new[]
             {
-                new MemberMetadata(nameof(Value1), typeof(bool)),
-                new MemberMetadata(nameof(Value2), typeof(byte)),
-                new MemberMetadata(nameof(Value3), typeof(short)),
-                new MemberMetadata(nameof(Value4), typeof(int)),
-                new MemberMetadata(nameof(Value5), typeof(long)),
-                new MemberMetadata(nameof(Value6), typeof(float)),
-                new MemberMetadata(nameof(Value7), typeof(double)),
-                new MemberMetadata(nameof(Value8), typeof(decimal)),
-                new MemberMetadata(nameof(Value9), typeof(Guid)),
-                new MemberMetadata(nameof(Value10), typeof(DateTime)),
-                new MemberMetadata(nameof(Value11), typeof(EnumValue)),
-                new MemberMetadata(nameof(Value12), typeof(EnumValue)),
-                new MemberMetadata(nameof(Value13), typeof(EnumValue)),
-                new MemberMetadata(nameof(Value14), typeof(EnumValue)),
-                new MemberMetadata(nameof(Value15), typeof(string)),
+                new StaticMemberMetadata(nameof(Value1), typeof(bool)),
+                new StaticMemberMetadata(nameof(Value2), typeof(byte)),
+                new StaticMemberMetadata(nameof(Value3), typeof(short)),
+                new StaticMemberMetadata(nameof(Value4), typeof(int)),
+                new StaticMemberMetadata(nameof(Value5), typeof(long)),
+                new StaticMemberMetadata(nameof(Value6), typeof(float)),
+                new StaticMemberMetadata(nameof(Value7), typeof(double)),
+                new StaticMemberMetadata(nameof(Value8), typeof(decimal)),
+                new StaticMemberMetadata(nameof(Value9), typeof(Guid)),
+                new StaticMemberMetadata(nameof(Value10), typeof(DateTime)),
+                new StaticMemberMetadata(nameof(Value11), typeof(EnumValue)),
+                new StaticMemberMetadata(nameof(Value12), typeof(EnumValue)),
+                new StaticMemberMetadata(nameof(Value13), typeof(EnumValue)),
+                new StaticMemberMetadata(nameof(Value14), typeof(EnumValue)),
+                new StaticMemberMetadata(nameof(Value15), typeof(string)),
             };
 
             private static readonly StaticDataInjectorDelegate<TargetNullableValueTypes> injector = Inject;

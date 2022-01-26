@@ -41,7 +41,7 @@ namespace FlyFlint.Internal.Static
         }
 
         private protected void RegisterMemberMetadata(
-            MemberMetadata[] members)
+            StaticMemberMetadata[] members)
         {
             Debug.Assert(this.metadataList == null);    // TODO: combine multiple
 
@@ -69,7 +69,7 @@ namespace FlyFlint.Internal.Static
         }
 
         public abstract void RegisterMetadata(
-            MemberMetadata[] members,
+            StaticMemberMetadata[] members,
             Delegate injector);   // StaticInjectDelegate<TElement>
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
@@ -422,7 +422,7 @@ namespace FlyFlint.Internal.Static
 #endif
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override void RegisterMetadata(
-            MemberMetadata[] members,
+            StaticMemberMetadata[] members,
             Delegate injector)   // StaticDataInjectorDelegate<TElement>
         {
             Debug.Assert(this.injector == null);    // TODO: combine multiple
