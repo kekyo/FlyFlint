@@ -8,11 +8,7 @@
 ////////////////////////////////////////////////////////////////////////////
 
 using FlyFlint.Context;
-using FlyFlint.Internal;
 using System;
-using System.Collections.Generic;
-using System.Data.Common;
-using System.Runtime.CompilerServices;
 
 namespace FlyFlint
 {

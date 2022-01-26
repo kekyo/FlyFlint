@@ -16,11 +16,11 @@ using System.Threading.Tasks;
 
 #pragma warning disable CS1998
 
-namespace FlyFlint.Utilities
+namespace FlyFlint.Collections
 {
     // Simple and fun staff for easy usable async LINQ.
     // If you need for more complex usage, please use `System.Linq.Async` NuGet package instead.
-    public static class AsyncEnumerableExtension
+    public static class Enumerable
     {
         public static async IAsyncEnumerable<T> AsAsyncEnumerable<T>(
             this IEnumerable<T> enumerable,
@@ -47,6 +47,143 @@ namespace FlyFlint.Utilities
                 result.Add(item);
             }
             return result.ToArray();
+        }
+
+        ////////////////////////////////////////////////////////////////////////////
+
+        public static async ValueTask<ReadOnlyHashSet<T>> ToHashSetAsync<T>(
+            this IAsyncEnumerable<T> enumerable,
+            IEqualityComparer<T>? comparer = default,
+            CancellationToken ct = default)
+        {
+            var result = new HashSet<T>(comparer ?? EqualityComparer<T>.Default);
+            await foreach (var item in enumerable.
+                WithCancellation(ct).
+                ConfigureAwait(false))
+            {
+                result.Add(item);
+            }
+            return new ReadOnlyHashSet<T>(result);
+        }
+
+        ////////////////////////////////////////////////////////////////////////////
+
+        public static async ValueTask<ReadOnlyDictionary<TKey, T>> ToDictionaryAsync<T, TKey>(
+            this IAsyncEnumerable<T> enumerable,
+            Func<T, TKey> keySelector,
+            IEqualityComparer<TKey>? comparer = default,
+            CancellationToken ct = default)
+            where TKey : notnull
+        {
+            var result = new Dictionary<TKey, T>(comparer ?? EqualityComparer<TKey>.Default);
+            await foreach (var item in enumerable.
+                WithCancellation(ct).
+                ConfigureAwait(false))
+            {
+                result.Add(
+                    keySelector(item),
+                    item);
+            }
+            return new ReadOnlyDictionary<TKey, T>(result);
+        }
+
+        public static async ValueTask<ReadOnlyDictionary<TKey, TValue>> ToDictionaryAsync<T, TKey, TValue>(
+            this IAsyncEnumerable<T> enumerable,
+            Func<T, TKey> keySelector,
+            Func<T, TValue> valueSelector,
+            IEqualityComparer<TKey>? comparer = default,
+            CancellationToken ct = default)
+            where TKey : notnull
+        {
+            var result = new Dictionary<TKey, TValue>(comparer ?? EqualityComparer<TKey>.Default);
+            await foreach (var item in enumerable.
+                WithCancellation(ct).
+                ConfigureAwait(false))
+            {
+                result.Add(
+                    keySelector(item),
+                    valueSelector(item));
+            }
+            return new ReadOnlyDictionary<TKey, TValue>(result);
+        }
+
+        public static async ValueTask<ReadOnlyDictionary<TKey, T>> ToDictionaryAsync<T, TKey>(
+            this IAsyncEnumerable<T> enumerable,
+            Func<T, ValueTask<TKey>> keySelector,
+            IEqualityComparer<TKey>? comparer = default,
+            CancellationToken ct = default)
+            where TKey : notnull
+        {
+            var result = new Dictionary<TKey, T>(comparer ?? EqualityComparer<TKey>.Default);
+            await foreach (var item in enumerable.
+                WithCancellation(ct).
+                ConfigureAwait(false))
+            {
+                result.Add(
+                    await keySelector(item).ConfigureAwait(false),
+                    item);
+            }
+            return new ReadOnlyDictionary<TKey, T>(result);
+        }
+
+        public static async ValueTask<ReadOnlyDictionary<TKey, TValue>> ToDictionaryAsync<T, TKey, TValue>(
+            this IAsyncEnumerable<T> enumerable,
+            Func<T, ValueTask<TKey>> keySelector,
+            Func<T, TValue> valueSelector,
+            IEqualityComparer<TKey>? comparer = default,
+            CancellationToken ct = default)
+            where TKey : notnull
+        {
+            var result = new Dictionary<TKey, TValue>(comparer ?? EqualityComparer<TKey>.Default);
+            await foreach (var item in enumerable.
+                WithCancellation(ct).
+                ConfigureAwait(false))
+            {
+                result.Add(
+                    await keySelector(item).ConfigureAwait(false),
+                    valueSelector(item));
+            }
+            return new ReadOnlyDictionary<TKey, TValue>(result);
+        }
+
+        public static async ValueTask<ReadOnlyDictionary<TKey, TValue>> ToDictionaryAsync<T, TKey, TValue>(
+            this IAsyncEnumerable<T> enumerable,
+            Func<T, TKey> keySelector,
+            Func<T, ValueTask<TValue>> valueSelector,
+            IEqualityComparer<TKey>? comparer = default,
+            CancellationToken ct = default)
+            where TKey : notnull
+        {
+            var result = new Dictionary<TKey, TValue>(comparer ?? EqualityComparer<TKey>.Default);
+            await foreach (var item in enumerable.
+                WithCancellation(ct).
+                ConfigureAwait(false))
+            {
+                result.Add(
+                    keySelector(item),
+                    await valueSelector(item).ConfigureAwait(false));
+            }
+            return new ReadOnlyDictionary<TKey, TValue>(result);
+        }
+
+        public static async ValueTask<ReadOnlyDictionary<TKey, TValue>> ToDictionaryAsync<T, TKey, TValue>(
+            this IAsyncEnumerable<T> enumerable,
+            Func<T, ValueTask<TKey>> keySelector,
+            Func<T, ValueTask<TValue>> valueSelector,
+            IEqualityComparer<TKey>? comparer = default,
+            CancellationToken ct = default)
+            where TKey : notnull
+        {
+            var result = new Dictionary<TKey, TValue>(comparer ?? EqualityComparer<TKey>.Default);
+            await foreach (var item in enumerable.
+                WithCancellation(ct).
+                ConfigureAwait(false))
+            {
+                result.Add(
+                    await keySelector(item).ConfigureAwait(false),
+                    await valueSelector(item).ConfigureAwait(false));
+            }
+            return new ReadOnlyDictionary<TKey, TValue>(result);
         }
 
         ////////////////////////////////////////////////////////////////////////////

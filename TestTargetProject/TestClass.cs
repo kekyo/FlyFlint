@@ -9,7 +9,6 @@
 
 using FlyFlint;
 using FlyFlint.Synchronized;
-using FlyFlint.Utilities;
 using System;
 using System.Data;
 using System.Data.SQLite;

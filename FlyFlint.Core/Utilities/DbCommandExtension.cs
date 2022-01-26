@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace FlyFlint.Utilities
 {
-    internal static class DbCommandExtension
+    public static class DbCommandExtension
     {
         public static Task<int> ExecuteNonQueryAsync(this DbCommand command, CancellationToken ct) =>
             Task.Factory.StartNew(command.ExecuteNonQuery, ct);
