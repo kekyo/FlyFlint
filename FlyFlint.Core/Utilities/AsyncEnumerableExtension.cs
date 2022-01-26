@@ -10,7 +10,11 @@
 #if NET461_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
+
+#pragma warning disable CS1998
 
 namespace FlyFlint.Utilities
 {
@@ -18,11 +22,27 @@ namespace FlyFlint.Utilities
     // If you need for more complex usage, please use `System.Linq.Async` NuGet package instead.
     public static class AsyncEnumerableExtension
     {
+        public static async IAsyncEnumerable<T> AsAsyncEnumerable<T>(
+            this IEnumerable<T> enumerable,
+            [EnumeratorCancellation] CancellationToken ct = default)
+        {
+            foreach (var item in enumerable)
+            {
+                ct.ThrowIfCancellationRequested();
+                yield return item;
+            }
+        }
+
+        ////////////////////////////////////////////////////////////////////////////
+
         public static async ValueTask<T[]> ToArrayAsync<T>(
-            this IAsyncEnumerable<T> enumerable)
+            this IAsyncEnumerable<T> enumerable,
+            CancellationToken ct = default)
         {
             var result = new List<T>();
-            await foreach (var item in enumerable.ConfigureAwait(false))
+            await foreach (var item in enumerable.
+                WithCancellation(ct).
+                ConfigureAwait(false))
             {
                 result.Add(item);
             }
@@ -32,9 +52,12 @@ namespace FlyFlint.Utilities
         ////////////////////////////////////////////////////////////////////////////
 
         public static async IAsyncEnumerable<T> Where<T>(
-            this IAsyncEnumerable<T> enumerable, Func<T, bool> predicate)
+            this IAsyncEnumerable<T> enumerable,
+            Func<T, bool> predicate,
+            [EnumeratorCancellation] CancellationToken ct = default)
         {
-            await foreach (var item in enumerable)
+            await foreach (var item in enumerable.
+                WithCancellation(ct))
             {
                 if (predicate(item))
                 {
@@ -44,9 +67,12 @@ namespace FlyFlint.Utilities
         }
 
         public static async IAsyncEnumerable<T> Where<T>(
-            this IAsyncEnumerable<T> enumerable, Func<T, ValueTask<bool>> predicate)
+            this IAsyncEnumerable<T> enumerable,
+            Func<T, ValueTask<bool>> predicate,
+            [EnumeratorCancellation] CancellationToken ct = default)
         {
-            await foreach (var item in enumerable)
+            await foreach (var item in enumerable.
+                WithCancellation(ct))
             {
                 if (await predicate(item))
                 {
@@ -58,18 +84,24 @@ namespace FlyFlint.Utilities
         ////////////////////////////////////////////////////////////////////////////
 
         public static async IAsyncEnumerable<U> Select<T, U>(
-            this IAsyncEnumerable<T> enumerable, Func<T, U> mapper)
+            this IAsyncEnumerable<T> enumerable,
+            Func<T, U> mapper,
+            [EnumeratorCancellation] CancellationToken ct = default)
         {
-            await foreach (var item in enumerable)
+            await foreach (var item in enumerable.
+                WithCancellation(ct))
             {
                 yield return mapper(item);
             }
         }
 
         public static async IAsyncEnumerable<U> Select<T, U>(
-            this IAsyncEnumerable<T> enumerable, Func<T, ValueTask<U>> mapper)
+            this IAsyncEnumerable<T> enumerable,
+            Func<T, ValueTask<U>> mapper,
+            [EnumeratorCancellation] CancellationToken ct = default)
         {
-            await foreach (var item in enumerable)
+            await foreach (var item in enumerable.
+                WithCancellation(ct))
             {
                 yield return await mapper(item);
             }
@@ -78,9 +110,12 @@ namespace FlyFlint.Utilities
         ////////////////////////////////////////////////////////////////////////////
 
         public static async IAsyncEnumerable<U> SelectMany<T, U>(
-            this IAsyncEnumerable<T> enumerable, Func<T, IEnumerable<U>> binder)
+            this IAsyncEnumerable<T> enumerable,
+            Func<T, IEnumerable<U>> binder,
+            [EnumeratorCancellation] CancellationToken ct = default)
         {
-            await foreach (var item in enumerable)
+            await foreach (var item in enumerable.
+                WithCancellation(ct))
             {
                 foreach (var inner in binder(item))
                 {
@@ -90,11 +125,14 @@ namespace FlyFlint.Utilities
         }
 
         public static async IAsyncEnumerable<U> SelectMany<T, U>(
-            this IEnumerable<T> enumerable, Func<T, IAsyncEnumerable<U>> binder)
+            this IEnumerable<T> enumerable,
+            Func<T, IAsyncEnumerable<U>> binder,
+            [EnumeratorCancellation] CancellationToken ct = default)
         {
             foreach (var item in enumerable)
             {
-                await foreach (var inner in binder(item).ConfigureAwait(false))
+                await foreach (var inner in binder(item).
+                    WithCancellation(ct))
                 {
                     yield return inner;
                 }
@@ -102,11 +140,14 @@ namespace FlyFlint.Utilities
         }
 
         public static async IAsyncEnumerable<U> SelectMany<T, U>(
-            this IAsyncEnumerable<T> enumerable, Func<T, IAsyncEnumerable<U>> binder)
+            this IAsyncEnumerable<T> enumerable,
+            Func<T, IAsyncEnumerable<U>> binder,
+            [EnumeratorCancellation] CancellationToken ct = default)
         {
-            await foreach (var item in enumerable)
+            await foreach (var item in enumerable.WithCancellation(ct))
             {
-                await foreach (var inner in binder(item).ConfigureAwait(false))
+                await foreach (var inner in binder(item).
+                    WithCancellation(ct))
                 {
                     yield return inner;
                 }
@@ -116,9 +157,12 @@ namespace FlyFlint.Utilities
         ////////////////////////////////////////////////////////////////////////////
 
         public static async ValueTask<T> FirstAsync<T>(
-            this IAsyncEnumerable<T> enumerable)
+            this IAsyncEnumerable<T> enumerable,
+            CancellationToken ct = default)
         {
-            await foreach (var item in enumerable.ConfigureAwait(false))
+            await foreach (var item in enumerable.
+                WithCancellation(ct).
+                ConfigureAwait(false))
             {
                 return item;
             }
@@ -126,9 +170,12 @@ namespace FlyFlint.Utilities
         }
 
         public static async ValueTask<T> FirstAsync<T>(
-            this IAsyncEnumerable<T> enumerable, Func<T, bool> predicate)
+            this IAsyncEnumerable<T> enumerable,
+            Func<T, bool> predicate,
+            CancellationToken ct = default)
         {
-            await foreach (var item in enumerable)
+            await foreach (var item in enumerable.
+                WithCancellation(ct))
             {
                 if (predicate(item))
                 {
@@ -139,9 +186,12 @@ namespace FlyFlint.Utilities
         }
 
         public static async ValueTask<T> FirstAsync<T>(
-            this IAsyncEnumerable<T> enumerable, Func<T, ValueTask<bool>> predicate)
+            this IAsyncEnumerable<T> enumerable,
+            Func<T, ValueTask<bool>> predicate,
+            CancellationToken ct = default)
         {
-            await foreach (var item in enumerable)
+            await foreach (var item in enumerable.
+                WithCancellation(ct))
             {
                 if (await predicate(item))
                 {
@@ -154,9 +204,13 @@ namespace FlyFlint.Utilities
         ////////////////////////////////////////////////////////////////////////////
 
         public static async ValueTask<T> FirstOrDefaultAsync<T>(
-            this IAsyncEnumerable<T> enumerable, T defaultValue = default!)
+            this IAsyncEnumerable<T> enumerable,
+            T defaultValue = default!,
+            CancellationToken ct = default)
         {
-            await foreach (var item in enumerable.ConfigureAwait(false))
+            await foreach (var item in enumerable.
+                WithCancellation(ct).
+                ConfigureAwait(false))
             {
                 return item;
             }
@@ -164,9 +218,13 @@ namespace FlyFlint.Utilities
         }
 
         public static async ValueTask<T> FirstOrDefaultAsync<T>(
-            this IAsyncEnumerable<T> enumerable, Func<T, bool> predicate, T defaultValue = default!)
+            this IAsyncEnumerable<T> enumerable,
+            Func<T, bool> predicate,
+            T defaultValue = default!,
+            CancellationToken ct = default)
         {
-            await foreach (var item in enumerable)
+            await foreach (var item in
+                enumerable.WithCancellation(ct))
             {
                 if (predicate(item))
                 {
@@ -177,9 +235,13 @@ namespace FlyFlint.Utilities
         }
 
         public static async ValueTask<T> FirstOrDefaultAsync<T>(
-            this IAsyncEnumerable<T> enumerable, Func<T, ValueTask<bool>> predicate, T defaultValue = default!)
+            this IAsyncEnumerable<T> enumerable,
+            Func<T, ValueTask<bool>> predicate,
+            T defaultValue = default!,
+            CancellationToken ct = default)
         {
-            await foreach (var item in enumerable)
+            await foreach (var item in enumerable.
+                WithCancellation(ct))
             {
                 if (await predicate(item))
                 {
