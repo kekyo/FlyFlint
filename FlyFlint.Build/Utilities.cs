@@ -46,6 +46,13 @@ namespace FlyFlint
 #endif
         }
 
+        public static IEnumerable<TypeDefinition> GetAllTypes(this ModuleDefinition module)
+        {
+            static IEnumerable<TypeDefinition> GetAllTypesRecursive(TypeDefinition type) =>
+                new[] { type }.Concat(type.NestedTypes.SelectMany(GetAllTypesRecursive));
+            return module.Types.SelectMany(GetAllTypesRecursive);
+        }
+
         public static string GetTypeName(TypeReference type)
         {
             if (type is GenericParameter gp)

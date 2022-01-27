@@ -12,6 +12,7 @@ using FlyFlint.Synchronized;
 using System;
 using System.Data;
 using System.Data.SQLite;
+using System.Runtime.Serialization;
 using System.Threading.Tasks;
 
 namespace TestTargetProject
@@ -95,6 +96,25 @@ namespace TestTargetProject
             var query = connection.Query<TargetReferenceTypes>("SELECT * FROM target");
             var result = query.Execute();
         }
+
+        [DataContract]
+        public struct TargetValueTypesWithoutUsing
+        {
+            public bool Value1;
+            public byte Value2;
+            public short Value3;
+            public int Value4;
+            public long Value5;
+            public float Value6;
+            public double Value7;
+            public decimal Value8;
+            public Guid Value9;
+            public DateTime Value10;
+            //public EnumValue Value11;
+            //public EnumValue Value12;
+            public string Value13;
+        }
+
 
 #if false
         public async Task InjectValueTypeVaries()

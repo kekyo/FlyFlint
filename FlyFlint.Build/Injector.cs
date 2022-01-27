@@ -417,6 +417,7 @@ namespace FlyFlint
 
             //////////////////////////////////////////////
 
+            // TODO: requires detection or sorting inheritance if contains same assembly.
             var requiredOverrideMethod = targetType.
                 Traverse(t => t.BaseType?.Resolve()).
                 FirstOrDefault(t =>
@@ -435,6 +436,19 @@ namespace FlyFlint
             targetType.Methods.Add(prepareMethod);
 
             var prepareMethodInsts = prepareMethod.Body.Instructions;
+
+            if (requiredOverrideMethod != null)
+            {
+                // Chaining prepare methods.
+                prepareMethodInsts.Add(
+                    Instruction.Create(OpCodes.Ldarg_0));
+                prepareMethodInsts.Add(
+                    Instruction.Create(OpCodes.Ldarg_1));
+                prepareMethodInsts.Add(
+                    Instruction.Create(OpCodes.Ldarg_2));
+                prepareMethodInsts.Add(
+                    Instruction.Create(OpCodes.Call, requiredOverrideMethod));
+            }
 
             prepareMethodInsts.Add(
                 Instruction.Create(OpCodes.Ldarg_1));
@@ -466,7 +480,7 @@ namespace FlyFlint
         {
             var dataContractTypes =
                 targetAssembly.Modules.
-                    SelectMany(module => module.Types).
+                    SelectMany(Utilities.GetAllTypes).
                 Where(type =>
                     type.CustomAttributes.Any(ca => ca.AttributeType.FullName == "System.Runtime.Serialization.DataContractAttribute") ||
                     type.Fields.Any(f => f.CustomAttributes.Any(ca => ca.AttributeType.FullName == "System.Runtime.Serialization.DataMemberAttribute")) ||
@@ -478,7 +492,7 @@ namespace FlyFlint
 
             var usingQueryTypes = Utilities.ParallelSelect(
                 targetAssembly.Modules.
-                    SelectMany(module => module.Types).
+                    SelectMany(Utilities.GetAllTypes).
                     SelectMany(type => new[] { type }.Concat(type.NestedTypes).SelectMany(t => t.Methods)).
                     Where(method => method.HasBody),
                 method =>
@@ -570,6 +584,7 @@ namespace FlyFlint
                 ToArray();
             var elementTypes = usingQueryTypes.
                 SelectMany(entry => entry.elementTypes).
+                Concat(dataContractTypes).
                 Distinct().
                 Select(t => t.Resolve()).
                 ToArray();
