@@ -12,7 +12,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 
@@ -58,6 +57,12 @@ namespace FlyFlint
         private readonly TypeDefinition typeType;
         private readonly MethodDefinition getTypeFromHandleMethod;
 
+        private readonly TypeDefinition debuggerHiddenAttributeType;
+        private readonly TypeDefinition compilerGeneratedAttributeType;
+        private readonly MethodDefinition compilerGeneratedAttributeConstructor;
+        private readonly TypeDefinition debuggerBrowsableAttributeType;
+        private readonly TypeDefinition debuggerBrowsableStateType;
+
         private readonly TypeDefinition queryFacadeExtensionType;
         private readonly TypeDefinition synchronizedQueryFacadeExtensionType;
         private readonly TypeDefinition staticQueryFacadeType;
@@ -76,8 +81,6 @@ namespace FlyFlint
         private readonly MethodDefinition getEnumValueMethod;
         private readonly MethodDefinition getNullableEnumValueMethod;
         private readonly Dictionary<MethodReference, MethodDefinition> queryFacadeMapping;
-
-        // System.Runtime.Serialization.DataContractAttribute.
 
         public Injector(string[] referencesBasePath, Action<LogLevels, string> message)
         {
@@ -110,6 +113,17 @@ namespace FlyFlint
                 t => t.FullName == "System.Type");
             this.getTypeFromHandleMethod = this.typeType.Methods.First(
                 m => m.Name == "GetTypeFromHandle");
+
+            this.debuggerHiddenAttributeType = typeSystem.Object.Resolve().Module.Types.First(
+                t => t.FullName == "System.Diagnostics.DebuggerHiddenAttribute");
+            this.compilerGeneratedAttributeType = typeSystem.Object.Resolve().Module.Types.First(
+                t => t.FullName == "System.Runtime.CompilerServices.CompilerGeneratedAttribute");
+            this.compilerGeneratedAttributeConstructor = this.compilerGeneratedAttributeType.Methods.
+                First(m => m.IsConstructor);
+            this.debuggerBrowsableAttributeType = typeSystem.Object.Resolve().Module.Types.First(
+                t => t.FullName == "System.Diagnostics.DebuggerBrowsableAttribute");
+            this.debuggerBrowsableStateType = typeSystem.Object.Resolve().Module.Types.First(
+                t => t.FullName == "System.Diagnostics.DebuggerBrowsableState");
 
             this.queryFacadeExtensionType = flyFlintCoreAssembly.MainModule.GetType(
                 "FlyFlint.QueryFacadeExtension")!;
@@ -178,9 +192,12 @@ namespace FlyFlint
                 module.ImportReference(this.staticMemberMetadataType));
 
             var membersField = new FieldDefinition(
-                "flyflint_members__",
+                "@<>flyflint_members__",
                 FieldAttributes.Private | FieldAttributes.Static | FieldAttributes.InitOnly,
                 staticMemberMetadatasType);
+            membersField.CustomAttributes.Add(
+                new CustomAttribute(
+                    module.ImportReference(this.compilerGeneratedAttributeConstructor)));
             targetType.Fields.Add(membersField);
 
             var cctorInsts = cctor.Body.Instructions;
@@ -244,15 +261,18 @@ namespace FlyFlint
                 Add(targetType);
 
             var injectorField = new FieldDefinition(
-                "flyflint_injector__",
+                "@<>flyflint_injector__",
                 FieldAttributes.Private | FieldAttributes.Static | FieldAttributes.InitOnly,
                 staticDataInjectorDelegateType);
+            injectorField.CustomAttributes.Add(
+                new CustomAttribute(
+                    module.ImportReference(this.compilerGeneratedAttributeConstructor)));
             targetType.Fields.Add(injectorField);
 
             //////////////////////////////////////////////
 
             var injectMethod = new MethodDefinition(
-                "flyflint_inject__",
+                "@<>flyflint_inject__",
                 MethodAttributes.Private | MethodAttributes.Static,
                 this.typeSystem.Void);
             injectMethod.Parameters.Add(
@@ -266,6 +286,9 @@ namespace FlyFlint
                     ParameterAttributes.None,
                     new ByReferenceType(targetType)));
             injectMethod.ImplAttributes = MethodImplAttributes.AggressiveInlining;
+            injectMethod.CustomAttributes.Add(
+                new CustomAttribute(
+                    module.ImportReference(this.compilerGeneratedAttributeConstructor)));
             targetType.Methods.Add(injectMethod);
 
             var injectMethodInsts = injectMethod.Body.Instructions;
@@ -405,6 +428,9 @@ namespace FlyFlint
                     ".cctor",
                     MethodAttributes.HideBySig | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName | MethodAttributes.Public | MethodAttributes.Static,
                     this.typeSystem.Void);
+                cctor.CustomAttributes.Add(
+                    new CustomAttribute(
+                        module.ImportReference(this.compilerGeneratedAttributeConstructor)));
                 targetType.Methods.Add(cctor);
                 cctor.Body.Instructions.Add(
                     Instruction.Create(OpCodes.Ret));
@@ -421,11 +447,11 @@ namespace FlyFlint
                 Traverse(t => t.BaseType?.Resolve()).
                 Where(t => t.Interfaces.Any(ii =>
                     ii.InterfaceType.FullName == "FlyFlint.Internal.Static.IDataInjectable")).
-                Select(t => t.Methods.First(m => m.Name.StartsWith("`<>flyflint_prepare__"))).
+                Select(t => t.Methods.First(m => m.Name.StartsWith("@<>flyflint_prepare__"))).
                 FirstOrDefault();
 
             var prepareMethod = new MethodDefinition(
-                "`<>flyflint_prepare__",   // Makes dirty symbol name, it will dodge failure usage.
+                "@<>flyflint_prepare__",   // Makes dirty symbol name, it will dodge failure usage.
                 MethodAttributes.HideBySig | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName | MethodAttributes.Family |
                 ((requiredOverrideMethod != null) ? MethodAttributes.Virtual : MethodAttributes.NewSlot | MethodAttributes.Virtual),
                 this.typeSystem.Void);
@@ -435,6 +461,9 @@ namespace FlyFlint
                     ParameterAttributes.None,
                     module.ImportReference(this.staticDataInjectionContextType)));
             prepareMethod.ImplAttributes = MethodImplAttributes.AggressiveInlining;
+            prepareMethod.CustomAttributes.Add(
+                new CustomAttribute(
+                    module.ImportReference(this.compilerGeneratedAttributeConstructor)));
             targetType.Methods.Add(prepareMethod);
 
             var prepareMethodInsts = prepareMethod.Body.Instructions;

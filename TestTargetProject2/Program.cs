@@ -11,11 +11,16 @@ using System;
 
 namespace TestTargetProject2
 {
-    public sealed class Inherited : TestTargetProject.TestClass.TargetReferenceTypes
+    public sealed class Inherited : TestTargetProject.TestClass.TargetReferenceTypesDerived2
     {
+        [System.Diagnostics.DebuggerHidden]
+        [System.Runtime.CompilerServices.CompilerGenerated]
         public Inherited()
         {
         }
+
+        //[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]
+        //private static readonly string hoge;
     }
 
     public static class Program
