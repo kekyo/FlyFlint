@@ -56,6 +56,7 @@ namespace FlyFlint
         private readonly TypeSystem typeSystem;
         private readonly TypeDefinition typeType;
         private readonly MethodDefinition getTypeFromHandleMethod;
+        private readonly TypeDefinition delegateType;
 
         private readonly TypeDefinition debuggerHiddenAttributeType;
         private readonly TypeDefinition compilerGeneratedAttributeType;
@@ -113,6 +114,8 @@ namespace FlyFlint
                 t => t.FullName == "System.Type");
             this.getTypeFromHandleMethod = this.typeType.Methods.First(
                 m => m.Name == "GetTypeFromHandle");
+            this.delegateType = typeSystem.Object.Resolve().Module.Types.First(
+                t => t.FullName == "System.Delegate");
 
             this.debuggerHiddenAttributeType = typeSystem.Object.Resolve().Module.Types.First(
                 t => t.FullName == "System.Diagnostics.DebuggerHiddenAttribute");
@@ -263,7 +266,7 @@ namespace FlyFlint
             var injectorField = new FieldDefinition(
                 "@<>flyflint_injector__",
                 FieldAttributes.Private | FieldAttributes.Static | FieldAttributes.InitOnly,
-                staticDataInjectorDelegateType);
+                module.ImportReference(this.delegateType));
             injectorField.CustomAttributes.Add(
                 new CustomAttribute(
                     module.ImportReference(this.compilerGeneratedAttributeConstructor)));
@@ -273,7 +276,7 @@ namespace FlyFlint
 
             var injectMethod = new MethodDefinition(
                 "@<>flyflint_inject__",
-                MethodAttributes.Private | MethodAttributes.Static,
+                MethodAttributes.HideBySig | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName | MethodAttributes.Private | MethodAttributes.Static,
                 this.typeSystem.Void);
             injectMethod.Parameters.Add(
                 new ParameterDefinition(
