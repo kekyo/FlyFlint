@@ -265,7 +265,7 @@ namespace FlyFlint
                     "element",
                     ParameterAttributes.None,
                     new ByReferenceType(targetType)));
-
+            injectMethod.ImplAttributes = MethodImplAttributes.AggressiveInlining;
             targetType.Methods.Add(injectMethod);
 
             var injectMethodInsts = injectMethod.Body.Instructions;
@@ -424,7 +424,7 @@ namespace FlyFlint
                     t.Interfaces.Any(ii => ii.InterfaceType.FullName == "FlyFlint.Internal.Static.IDataInjectable"));
 
             var prepareMethod = new MethodDefinition(
-                "flyflint_prepare__",
+                "`<>flyflint_prepare__",   // Makes dirty symbol name, it will dodge failure usage.
                 MethodAttributes.HideBySig | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName | MethodAttributes.Family |
                 ((requiredOverrideMethod != null) ? MethodAttributes.Virtual : MethodAttributes.NewSlot | MethodAttributes.Virtual),
                 this.typeSystem.Void);
@@ -433,6 +433,7 @@ namespace FlyFlint
                     "context",
                     ParameterAttributes.None,
                     module.ImportReference(this.staticDataInjectionContextType)));
+            prepareMethod.ImplAttributes = MethodImplAttributes.AggressiveInlining;
             targetType.Methods.Add(prepareMethod);
 
             var prepareMethodInsts = prepareMethod.Body.Instructions;
