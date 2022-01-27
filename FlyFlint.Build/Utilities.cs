@@ -113,4 +113,19 @@ namespace FlyFlint
         public static readonly SignatureDroppedGenericTypeEqualityComparer Instance =
             new SignatureDroppedGenericTypeEqualityComparer();
     }
+
+    public sealed class TypeInheritanceDepthComparer : IComparer<TypeReference?>
+    {
+        public int Compare(TypeReference? x, TypeReference? y)
+        {
+            var rx = x!.Resolve();
+            var ry = y!.Resolve();
+            var xDepthCount = rx.Traverse(t => t.BaseType?.Resolve()).Count();
+            var yDepthCount = ry.Traverse(t => t.BaseType?.Resolve()).Count();
+            return xDepthCount.CompareTo(yDepthCount);
+        }
+
+        public static readonly TypeInheritanceDepthComparer Instance =
+            new TypeInheritanceDepthComparer();
+    }
 }

@@ -417,11 +417,12 @@ namespace FlyFlint
 
             //////////////////////////////////////////////
 
-            // TODO: requires detection or sorting inheritance if contains same assembly.
             var requiredOverrideMethod = targetType.
                 Traverse(t => t.BaseType?.Resolve()).
-                FirstOrDefault(t =>
-                    t.Interfaces.Any(ii => ii.InterfaceType.FullName == "FlyFlint.Internal.Static.IDataInjectable"));
+                Where(t => t.Interfaces.Any(ii =>
+                    ii.InterfaceType.FullName == "FlyFlint.Internal.Static.IDataInjectable")).
+                Select(t => t.Methods.First(m => m.Name.StartsWith("`<>flyflint_prepare__"))).
+                FirstOrDefault();
 
             var prepareMethod = new MethodDefinition(
                 "`<>flyflint_prepare__",   // Makes dirty symbol name, it will dodge failure usage.
@@ -446,9 +447,9 @@ namespace FlyFlint
                 prepareMethodInsts.Add(
                     Instruction.Create(OpCodes.Ldarg_1));
                 prepareMethodInsts.Add(
-                    Instruction.Create(OpCodes.Ldarg_2));
-                prepareMethodInsts.Add(
-                    Instruction.Create(OpCodes.Call, requiredOverrideMethod));
+                    Instruction.Create(
+                        OpCodes.Call,
+                        module.ImportReference(requiredOverrideMethod)));
             }
 
             prepareMethodInsts.Add(
@@ -617,7 +618,8 @@ namespace FlyFlint
                 {
                     var injected = false;
 
-                    foreach (var parametersType in parametersTypes)
+                    foreach (var parametersType in parametersTypes.
+                        OrderBy(t => t, TypeInheritanceDepthComparer.Instance))
                     {
                         //if (this.InjectIntoType(targetAssembly.MainModule, targetType))
                         //{
@@ -634,7 +636,8 @@ namespace FlyFlint
                         //}
                     }
 
-                    foreach (var elementType in elementTypes)
+                    foreach (var elementType in elementTypes.
+                        OrderBy(t => t, TypeInheritanceDepthComparer.Instance))
                     {
                         if (this.InjectPrepareMethod(targetAssembly.MainModule, elementType))
                         {

@@ -115,6 +115,58 @@ namespace TestTargetProject
             public string Value13;
         }
 
+        [DataContract]
+        public class TargetReferenceTypesDerived2 : TargetReferenceTypesDerived1
+        {
+            public bool Value31;
+            public byte Value32;
+            public short Value33;
+            public int Value34;
+            public long Value35;
+
+            protected override void foo()
+            {
+                base.foo();
+            }
+        }
+
+        [DataContract]
+        public class TargetReferenceTypesDerived1 : TargetReferenceTypesBase
+        {
+            public bool Value21;
+            public byte Value22;
+            public short Value23;
+            public int Value24;
+            public long Value25;
+
+            protected override void foo()
+            {
+                base.foo();
+            }
+        }
+
+        [DataContract]
+        public class TargetReferenceTypesBase
+        {
+            public bool Value1;
+            public byte Value2;
+            public short Value3;
+            public int Value4;
+            public long Value5;
+            public float Value6;
+            public double Value7;
+            public decimal Value8;
+            public Guid Value9;
+            public DateTime Value10;
+            //public EnumValue Value11;
+            //public EnumValue Value12;
+            public string Value13 = null!;
+
+            protected virtual void foo()
+            {
+            }
+        }
+
 
 #if false
         public async Task InjectValueTypeVaries()
