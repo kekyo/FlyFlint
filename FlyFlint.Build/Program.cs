@@ -7,6 +7,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
+using Mono.Options;
 using System;
 using System.IO;
 using System.Linq;
@@ -36,31 +37,54 @@ namespace FlyFlint
 
             try
             {
-                var referencesBasePath = args[0].Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
-                var targetAssemblyPath = args[1];
-                isTrace = args.ElementAtOrDefault(2) is { } arg2 && bool.TryParse(arg2, out var v) && v;
-
-                var injector = new Injector(referencesBasePath, Message);
-
-                if (injector.Inject(targetAssemblyPath))
+                var options = new OptionSet()
                 {
-                    Message(
-                        LogLevels.Information,
-                        $"Replaced injected assembly: Assembly={Path.GetFileName(targetAssemblyPath)}");
+                    { "t|trace", "Trace diagnosis message", _ => isTrace = true },
+                };
+
+                var extra = options.Parse(args);
+                if (extra.Count < 1)
+                {
+                    Console.WriteLine("usage: ff.exe [options] <referenceBasePaths> <assembly_path> [<output_path>]");
+                    options.WriteOptionDescriptions(Console.Out);
                 }
                 else
                 {
-                    Message(LogLevels.Information,
-                        $"Injection target isn't found: Assembly={Path.GetFileName(targetAssemblyPath)}");
-                }
+                    var referencesBasePath = extra[0].Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+                    var targetAssemblyPath = extra[1];
+                    var injectedAssemblyPath = extra.ElementAtOrDefault(2);
 
-                return 0;
+                    var injector = new Injector(referencesBasePath, Message);
+
+                    if (injector.Inject(targetAssemblyPath, injectedAssemblyPath))
+                    {
+                        if (injectedAssemblyPath != null)
+                        {
+                            Message(
+                                LogLevels.Information,
+                                $"Injected assembly: Assembly={Path.GetFileName(targetAssemblyPath)}, Output={Path.GetFileName(injectedAssemblyPath)}");
+                        }
+                        else
+                        {
+                            Message(
+                                LogLevels.Information,
+                                $"Replaced injected assembly: Assembly={Path.GetFileName(targetAssemblyPath)}");
+                        }
+                    }
+                    else
+                    {
+                        Message(LogLevels.Information,
+                            $"Injection target isn't found: Assembly={Path.GetFileName(targetAssemblyPath)}");
+                    }
+                }
             }
             catch (Exception ex)
             {
                 Message(LogLevels.Error, $"{ex.GetType().Name}: {ex.Message}");
                 return Marshal.GetHRForException(ex);
             }
+
+            return 0;
         }
     }
 }

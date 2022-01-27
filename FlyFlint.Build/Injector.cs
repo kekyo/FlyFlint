@@ -690,13 +690,13 @@ namespace FlyFlint
                             injected = true;
                             this.message(
                                 LogLevels.Trace,
-                                $"Injected a view model: Assembly={targetAssemblyName}, Type={elementType.FullName}");
+                                $"Injected an element type: Assembly={targetAssemblyName}, Type={elementType.FullName}");
                         }
                         else
                         {
                             this.message(
                                 LogLevels.Trace,
-                                $"InjectProperties: Ignored a type: Assembly={targetAssemblyName}, Type={elementType.FullName}");
+                                $"Ignored an element type: Assembly={targetAssemblyName}, Type={elementType.FullName}");
                         }
                     }
 
