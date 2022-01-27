@@ -40,15 +40,15 @@ namespace FlyFlint
             }
 
             public override int GetHashCode() =>
-                GetTypeName(this.Type).GetHashCode() ^ this.IsNullable.GetHashCode();
+                Utilities.GetTypeName(this.Type).GetHashCode() ^ this.IsNullable.GetHashCode();
 
             public bool Equals(TypeKey? other) =>
                 other is TypeKey o &&
-                GetTypeName(this.Type).Equals(GetTypeName(o.Type)) &&
+                Utilities.GetTypeName(this.Type).Equals(Utilities.GetTypeName(o.Type)) &&
                 this.IsNullable == o.IsNullable;
 
             public override string ToString() =>
-                $"{GetTypeName(this.Type)}{(!this.Type.IsValueType ? this.IsNullable ? "?" : "" : "")}";
+                $"{Utilities.GetTypeName(this.Type)}{(!this.Type.IsValueType ? this.IsNullable ? "?" : "" : "")}";
         }
 
         private readonly Action<LogLevels, string> message;
@@ -170,84 +170,6 @@ namespace FlyFlint
                 First(m => m.IsPublic && !m.IsStatic && m.Name.StartsWith("GetNullableEnum"));
         }
 
-        private static U[] ParallelSelect<T, U>(
-            IEnumerable<T> enumerable, Func<T, U> mapper)
-        {
-#if DEBUG
-            return enumerable.Select(mapper).ToArray();
-#else
-            var results = new List<U>();
-            Parallel.ForEach(enumerable, value =>
-            {
-                var result = mapper(value);
-                lock (results)
-                {
-                    results.Add(result);
-                }
-            });
-            return results.ToArray();
-#endif
-        }
-
-        private static string GetTypeName(TypeReference type)
-        {
-            if (type is GenericParameter gp)
-            {
-                var index = gp.DeclaringType is { } t ?
-                    t.GenericParameters.IndexOf(gp) :
-                    gp.DeclaringMethod.GenericParameters.IndexOf(gp);
-                return $"`t{index}";
-            }
-
-            var parentName = type.DeclaringType is { } ? GetTypeName(type.DeclaringType) : type.Namespace;
-            if (type is GenericInstanceType git)
-            {
-                var name = git.Name.Substring(0, git.Name.LastIndexOf('`'));
-                return $"{parentName}.{name}<{string.Join(",", git.GenericArguments.Select(GetTypeName))}>";
-            }
-            else if (type is ArrayType array)
-            {
-                return $"{parentName}.{array.Name}[{new string(',', array.Dimensions.Count - 1)}]";
-            }
-            else if (type.IsByReference)
-            {
-                return $"{parentName}.{type.Name}&";
-            }
-            else if (type.IsPointer)
-            {
-                return $"{parentName}.{type.Name}*";
-            }
-            else
-            {
-                return $"{parentName}.{type.Name}";
-            }
-        }
-
-        private static string GetSignatureDroppedGenericType(MethodReference mr)
-        {
-            var m = mr.GetElementMethod();
-            var sig = $"{GetTypeName(m.ReturnType)} {m.Name}{(m.HasGenericParameters ? $"<{string.Join(",", m.GenericParameters.Select(GetTypeName))}>" : "")}({string.Join(",", m.Parameters.Select(p => GetTypeName(p.ParameterType)))})";
-            return sig;
-        }
-
-        private sealed class SignatureDroppedGenericTypeEqualityComparer : IEqualityComparer<MethodReference?>
-        {
-            public bool Equals(MethodReference? x, MethodReference? y) =>
-                GetSignatureDroppedGenericType(x!) == GetSignatureDroppedGenericType(y!);
-
-            public int GetHashCode(MethodReference? obj) =>
-                GetSignatureDroppedGenericType(obj!).GetHashCode();
-
-            public static readonly SignatureDroppedGenericTypeEqualityComparer Instance =
-                new SignatureDroppedGenericTypeEqualityComparer();
-        }
-
-        private static TypeReference GetMemberType(
-            ModuleDefinition module, MemberReference member) =>
-            module.ImportReference(
-                member is FieldReference fr ? fr.FieldType :
-                ((PropertyReference)member).PropertyType);
-
         private FieldReference InjectStaticMemberField(
             ModuleDefinition module,
             TypeDefinition targetType, MethodDefinition cctor, MemberReference[] targetMembers)
@@ -284,7 +206,7 @@ namespace FlyFlint
                 cctorInsts.Insert(instIndex++,
                     Instruction.Create(
                         OpCodes.Ldtoken,
-                        GetMemberType(module, targetMember)));
+                        Utilities.GetMemberType(module, targetMember)));
                 cctorInsts.Insert(instIndex++,
                     Instruction.Create(
                         OpCodes.Call,
@@ -393,14 +315,21 @@ namespace FlyFlint
             for (var metadataIndex = 0; metadataIndex < targetMembers.Length; metadataIndex++)
             {
                 var targetMember = targetMembers[metadataIndex];
+
+                var memberType = Utilities.GetMemberType(module, targetMember);
+                var getValueMethod = GetValueMethod(targetMember, memberType);
+
                 injectMethodInsts.Add(
                     Instruction.Create(OpCodes.Ldarg_1));
+                if (!targetType.IsValueType)
+                {
+                    injectMethodInsts.Add(
+                        Instruction.Create(OpCodes.Ldind_Ref));
+                }
                 injectMethodInsts.Add(
                     Instruction.Create(OpCodes.Ldarg_0));
                 injectMethodInsts.Add(
                     Instruction.Create(OpCodes.Ldc_I4_S, (sbyte)metadataIndex));
-                var memberType = GetMemberType(module, targetMember);
-                var getValueMethod = GetValueMethod(targetMember, memberType);
                 injectMethodInsts.Add(
                     Instruction.Create(OpCodes.Call, getValueMethod));
 
@@ -488,9 +417,15 @@ namespace FlyFlint
 
             //////////////////////////////////////////////
 
+            var requiredOverrideMethod = targetType.
+                Traverse(t => t.BaseType?.Resolve()).
+                FirstOrDefault(t =>
+                    t.Interfaces.Any(ii => ii.InterfaceType.FullName == "FlyFlint.Internal.Static.IDataInjectable"));
+
             var prepareMethod = new MethodDefinition(
                 "flyflint_prepare__",
-                MethodAttributes.Family | MethodAttributes.Virtual | MethodAttributes.NewSlot,
+                MethodAttributes.HideBySig | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName | MethodAttributes.Family |
+                ((requiredOverrideMethod != null) ? MethodAttributes.Virtual : MethodAttributes.NewSlot | MethodAttributes.Virtual),
                 this.typeSystem.Void);
             prepareMethod.Parameters.Add(
                 new ParameterDefinition(
@@ -541,7 +476,7 @@ namespace FlyFlint
             //static MethodReference GetGenericMethodDefinitionIfApplicable(MethodReference method) =>
             //    method.IsGenericInstance ? method.GetElementMethod() : method;
 
-            var usingQueryTypes = ParallelSelect(
+            var usingQueryTypes = Utilities.ParallelSelect(
                 targetAssembly.Modules.
                     SelectMany(module => module.Types).
                     SelectMany(type => new[] { type }.Concat(type.NestedTypes).SelectMany(t => t.Methods)).
@@ -703,6 +638,18 @@ namespace FlyFlint
                     if (injected)
                     {
                         injectedAssemblyPath = injectedAssemblyPath ?? targetAssemblyPath;
+
+                        var outputBasePath = Path.GetDirectoryName(injectedAssemblyPath)!;
+                        if (!Directory.Exists(outputBasePath))
+                        {
+                            try
+                            {
+                                Directory.CreateDirectory(outputBasePath);
+                            }
+                            catch
+                            {
+                            }
+                        }
 
                         targetAssembly.Write(
                             injectedAssemblyPath,

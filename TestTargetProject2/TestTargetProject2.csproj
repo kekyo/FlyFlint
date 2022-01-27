@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+      <OutputType>WinExe</OutputType>
+      <TargetFrameworks>net48;net6.0</TargetFrameworks>
+      <NoWarn>$(NoWarn);CS0649</NoWarn>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <Reference Include="TestTargetProject">
+        <HintPath>..\TestTargetProject\bin\Debug\net48\Injected\TestTargetProject.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+
+    <!--
+    <ItemGroup>
+      <Reference Include="TestTargetProject">
+        <HintPath>..\TestTargetProject\bin\$(Configuration)\$(TargetFramework)\TestTargetProject.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+    -->
+  
+  </Project>
+  
