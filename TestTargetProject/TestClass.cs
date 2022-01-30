@@ -71,7 +71,9 @@ namespace TestTargetProject
             using var connection = CreateTestTable();
 
             var query = connection.Query<TargetValueTypes>("SELECT * FROM target");
-            return query.Execute().ToArray();
+            var r = query.Execute().ToArray();
+
+            return r;
         }
 
         public class TargetReferenceTypes
