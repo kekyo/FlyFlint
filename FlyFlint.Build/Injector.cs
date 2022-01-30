@@ -757,40 +757,76 @@ namespace FlyFlint
                         var targetDebuggingPath = Path.Combine(
                             outputBasePath,
                             Path.GetFileNameWithoutExtension(targetAssemblyPath) + ".pdb");
-                        var tempAssemblyPath = Path.Combine(
+                        var backupAssemblyPath = Path.Combine(
                             outputBasePath,
-                            Path.GetFileNameWithoutExtension(targetAssemblyPath) + "_output" +
+                            Path.GetFileNameWithoutExtension(targetAssemblyPath) + "_backup" +
                                 Path.GetExtension(targetAssemblyPath));
-                        var tempDebuggingPath = Path.Combine(
+                        var backupDebuggingPath = Path.Combine(
                             outputBasePath,
-                            Path.GetFileNameWithoutExtension(targetAssemblyPath) + "_output.pdb");
+                            Path.GetFileNameWithoutExtension(targetAssemblyPath) + "_backup.pdb");
 
-                        if (File.Exists(tempAssemblyPath))
+                        if (File.Exists(backupAssemblyPath))
                         {
-                            File.Delete(tempAssemblyPath);
+                            File.Delete(backupAssemblyPath);
                         }
-
-                        targetAssembly.Write(
-                            tempAssemblyPath,
-                            new WriterParameters
-                            {
-                                WriteSymbols = true,
-                                DeterministicMvid = true,
-                            });
+                        if (File.Exists(backupDebuggingPath))
+                        {
+                            File.Delete(backupDebuggingPath);
+                        }
 
                         if (File.Exists(targetAssemblyPath))
                         {
-                            File.Delete(targetAssemblyPath);
+                            File.Move(targetAssemblyPath, backupAssemblyPath);
                         }
-                        File.Move(tempAssemblyPath, targetAssemblyPath);
+                        try
+                        {
+                            if (File.Exists(targetDebuggingPath))
+                            {
+                                File.Move(targetDebuggingPath, backupDebuggingPath);
+                            }
+                            try
+                            {
+                                targetAssembly.Write(
+                                    targetAssemblyPath,
+                                    new WriterParameters
+                                    {
+                                        WriteSymbols = true,
+                                        DeterministicMvid = true,
+                                    });
+                            }
+                            catch
+                            {
+                                if (File.Exists(targetDebuggingPath))
+                                {
+                                    File.Delete(targetDebuggingPath);
+                                }
+                                if (File.Exists(backupDebuggingPath))
+                                {
+                                    File.Move(backupDebuggingPath, targetDebuggingPath);
+                                }
+                                throw;
+                            }
+                        }
+                        catch
+                        {
+                            if (File.Exists(targetAssemblyPath))
+                            {
+                                File.Delete(targetAssemblyPath);
+                            }
+                            if (File.Exists(backupAssemblyPath))
+                            {
+                                File.Move(backupAssemblyPath, targetAssemblyPath);
+                            }
+                            throw;
+                        }
 
-                        if (File.Exists(targetDebuggingPath))
+                        if (File.Exists(backupAssemblyPath))
                         {
-                            File.Delete(targetDebuggingPath);
+                            File.Delete(backupAssemblyPath);
                         }
-                        if (File.Exists(tempDebuggingPath))
+                        if (File.Exists(backupDebuggingPath))
                         {
-                            File.Move(tempDebuggingPath, targetDebuggingPath);
+                            File.Delete(backupDebuggingPath);
                         }
 
                         return true;
