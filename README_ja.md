@@ -1,5 +1,9 @@
 # FlyFlint
 
+![FlyFlint](images/FlyFlint-128.png)
+
+[![NuGet FlyFlint](https://img.shields.io/nuget/v/FlyFlint.svg?style=flat)](https://www.nuget.org/packages/FlyFlint)
+
 [![Project Status: Concept – Minimal or no implementation has been done yet, or the repository is only intended to be a limited example, demo, or proof-of-concept.](https://www.repostatus.org/badges/latest/concept.svg)](https://www.repostatus.org/#concept)
 
 ## これは何？
@@ -10,8 +14,9 @@ FlyFlintは、データへのアクセサコードをコンパイル時に生成
 実行時にリフレクションAPIを一切使いません。
 つまりこれは、AOT環境と親和性があり、高速で、軽量なO/Rマッパーです。
 
-使用する場合は、レコードの器としての `モデル` 型
-（しばしば、 `エンティティ` 型や `エレメント` 型と呼ばれます）を定義するだけです。
+使用する場合は、レコードの器としてのモデル型（しばしば、エンティティ型やエレメント型と呼ばれます）
+を定義して、[FlyFlintのNuGetパッケージ](https://www.nuget.org/packages/FlyFlint)を導入するだけです。
+追加の作業は一切必要ありません！
 
 ```csharp
 using FlyFlint;
@@ -38,7 +43,8 @@ public async Task<Model[]> GetModelsFromDatabaseAsync()
 
     // 非同期でクエリを実行して、結果を列挙します。
     // （内部では高速なprefetcherが動作します）
-    return await query.ExecuteAsync(query).
+    return await query.
+        ExecuteAsync(query).
         ToArrayAsync();
 }
 ```
@@ -48,6 +54,9 @@ FlyFlintは、レコードデータを `Model` に格納するときに、
 `DbDataReader` から得られたレコードデータは、
 コンパイル時に生成されたコードで、直接格納されます。
 
+これは、`DbDataReader.GetInt32()`などを手動で呼び出すコードとほぼ同等のコードを、
+自動的に挿入することで実現しています。
+
 ## 対応環境
 
 ### 実行環境
@@ -56,6 +65,8 @@ FlyFlintは、レコードデータを `Model` に格納するときに、
 * .NET Core 3.1/3.0/2.1/2.0
 * .NET Standard 2.1/2.0
 * .NET Framework 4.8/4.6.1/4.6/4.5/4.0/3.5
+* 全ての、`DbConnection`を提供する、ADO.NETデータベースドライバ
+  * SQL Server, Oracle, SQLite など...
 
 #### 制限
 
