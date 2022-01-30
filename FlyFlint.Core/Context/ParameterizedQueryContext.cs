@@ -7,7 +7,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
-using System.Collections.Generic;
+using FlyFlint.Internal;
 using System.Data.Common;
 using System.Runtime.CompilerServices;
 
@@ -21,9 +21,9 @@ namespace FlyFlint.Context
         internal ParameterizedQueryContext(
             DbConnection connection,
             DbTransaction? transaction,
-            Database trait,
+            Trait trait,
             string sql,
-            KeyValuePair<string, object?>[] parameters) :
+            ExtractedParameter[] parameters) :
             base(connection, transaction, trait, sql, parameters)
         {
         }
@@ -48,9 +48,9 @@ namespace FlyFlint.Context
         internal ParameterizedQueryContext(
             DbConnection connection,
             DbTransaction? transaction,
-            Database trait,
+            Trait trait,
             string sql,
-            KeyValuePair<string, object?>[] parameters) :
+            ExtractedParameter[] parameters) :
             base(connection, transaction, trait, sql, parameters)
         {
         }

@@ -42,11 +42,11 @@ namespace FlyFlint.Internal.Converter
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public override object? Convert(ConversionContext context, object? value) =>
-            InternalValueConverter<T>.converter.Convert(context, value);
+            InternalValueConverter<T>.converter.ConvertTo(context, value);
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public override object? UnsafeConvert(ConversionContext context, object value) =>
-            InternalValueConverter<T>.converter.UnsafeConvert(context, value);
+            InternalValueConverter<T>.converter.UnsafeConvertTo(context, value);
     }
 }

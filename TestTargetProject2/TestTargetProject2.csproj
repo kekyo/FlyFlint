@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+      <OutputType>WinExe</OutputType>
+      <TargetFrameworks>net48;net6.0</TargetFrameworks>
+      <NoWarn>$(NoWarn);CS0649</NoWarn>
+    </PropertyGroup>
+  
+    <ItemGroup>
+      <PackageReference Include="System.Data.SQLite.Core" Version="1.0.111" GeneratePathProperty="true" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\TestTargetProject\TestTargetProject.csproj" />
+    </ItemGroup>
+  
+  </Project>
+  

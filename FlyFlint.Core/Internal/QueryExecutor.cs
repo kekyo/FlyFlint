@@ -8,6 +8,8 @@
 ////////////////////////////////////////////////////////////////////////////
 
 using FlyFlint.Context;
+using FlyFlint.Internal.Converter;
+using FlyFlint.Internal.Dynamic;
 using FlyFlint.Internal.Static;
 using System;
 using System.Collections.Generic;
@@ -16,43 +18,67 @@ using System.Runtime.CompilerServices;
 
 namespace FlyFlint.Internal
 {
-    internal abstract class QueryExecutor
+    internal static class QueryExecutor
     {
-        private static QueryExecutor executor = StaticQueryExecutor.Instance;
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public static T ConvertTo<T>(
+            ConversionContext cc, object? value) =>
+            InternalValueConverter<T>.converter.ConvertTo(cc, value);
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static void SetQueryExecutor(QueryExecutor executor) =>
-            QueryExecutor.executor = executor;
-        
-        public static QueryExecutor Instance
-        {
+        public static object? ConvertTo(
+            ConversionContext cc, object? value, Type targetType) =>
+            DynamicQueryExecutorFacade.Instance.Convert(cc, value, targetType);
+
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-            get => QueryExecutor.executor;
-        }
+        public static Func<ExtractedParameter[]> GetConstructParameters<TParameters>(
+            ConversionContext cc, 
+            string parameterPrefix,
+            Func<TParameters> getter)
+            where TParameters : notnull =>
+            () =>
+            {
+                var parameters = getter();
+                return parameters is IParameterExtractable pe ?
+                    StaticQueryExecutor.GetParameters(
+                        cc, parameterPrefix, ref pe) :
+                    DynamicQueryExecutorFacade.Instance.GetParameters(
+                        cc, parameterPrefix, ref parameters);
+            };
 
-        /////////////////////////////////////////////////////////////////////
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public static ExtractedParameter[] GetParameters<TParameters>(
+            ConversionContext cc,
+            string parameterPrefix,
+            ref TParameters parameters)
+            where TParameters : notnull =>
+            parameters is IParameterExtractable pe ?
+                StaticQueryExecutor.GetParameters(
+                    cc, parameterPrefix, ref pe) :
+                DynamicQueryExecutorFacade.Instance.GetParameters(
+                    cc, parameterPrefix, ref parameters);
 
-        public abstract object? Convert(
-            ConversionContext context, object? value, Type targetType);
-        public abstract object? UnsafeConvert(
-            ConversionContext context, object value, Type targetType);
-
-        public abstract Func<KeyValuePair<string, object?>[]> GetConstructParameters<TParameters>(
-            Func<TParameters> getter, string parameterPrefix)
-            where TParameters : notnull;
-        public abstract KeyValuePair<string, object?>[] GetParameters<TParameters>(
-            ref TParameters parameters, string parameterPrefix)
-            where TParameters : notnull;
-
-        public abstract InjectorDelegate<TElement> GetInjector<TElement>(
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public static DataInjectorDelegate<TElement> GetDataInjector<TElement>(
             ConversionContext cc,
             IComparer<string> fieldComparer,
             DbDataReader reader,
             ref TElement element)
-            where TElement : notnull;
+            where TElement : notnull =>
+            element is IDataInjectable di ?
+                StaticQueryExecutor.GetDataInjector<TElement>(
+                    cc, fieldComparer, reader, di) :
+                DynamicQueryExecutorFacade.Instance.GetDataInjector<TElement>(
+                    cc, fieldComparer, reader);
     }
 }

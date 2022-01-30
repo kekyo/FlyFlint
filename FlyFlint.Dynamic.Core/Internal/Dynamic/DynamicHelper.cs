@@ -7,6 +7,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
+using FlyFlint.Context;
 using System;
 using System.Linq;
 using System.Reflection;
@@ -17,7 +18,7 @@ namespace FlyFlint.Internal.Dynamic
 {
     internal static class DynamicHelper
     {
-        public delegate object? MemberGetter<T>(ref T element);
+        public delegate object? MemberGetter<T>(ref T element, ConversionContext cc);
         public delegate void MemberSetter<T>(ref T element, object? value);
 
         public struct Metadata<TAccessor>
@@ -44,18 +45,16 @@ namespace FlyFlint.Internal.Dynamic
 
             static GetterMetadata()
             {
-                var requiredDataMemberAttribute =
-                    typeof(T).GetCustomAttributes(typeof(DataContractAttribute), true).Length >= 1;
                 Members = typeof(T).
                     GetMembers(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance).
-                    Select(m => GetTargetMember(m, requiredDataMemberAttribute)).
+                    Select(m => GetTargetMember(m)).
                     Where(entry => entry != null).
                     Select(entry => entry!.Value).
                     ToArray()!;
             }
 
             private static Metadata<MemberGetter<T>>? GetTargetMember(
-                MemberInfo member, bool requiredDataMemberAttribute)
+                MemberInfo member)
             {
                 if (member is FieldInfo fi)
                 {
@@ -69,7 +68,8 @@ namespace FlyFlint.Internal.Dynamic
                             (MemberGetter<T>)DynamicMemberAccessor.CreateDirectGetter(fi).
                                 CreateDelegate(typeof(MemberGetter<T>)));
                     }
-                    else if (!requiredDataMemberAttribute && fi.IsPublic)
+                    else if (fi.IsPublic &&
+                        !fi.IsDefined(typeof(IgnoreDataMemberAttribute), true))
                     {
                         return new Metadata<MemberGetter<T>>(
                             fi.Name,
@@ -93,7 +93,8 @@ namespace FlyFlint.Internal.Dynamic
                                 (MemberGetter<T>)DynamicMemberAccessor.CreateDirectGetter(pi).
                                     CreateDelegate(typeof(MemberGetter<T>)));
                         }
-                        else if (!requiredDataMemberAttribute && getter.IsPublic)
+                        else if (getter.IsPublic &&
+                            !pi.IsDefined(typeof(IgnoreDataMemberAttribute), true))
                         {
                             return new Metadata<MemberGetter<T>>(
                                 pi.Name,
@@ -114,18 +115,16 @@ namespace FlyFlint.Internal.Dynamic
 
             static SetterMetadata()
             {
-                var requiredDataMemberAttribute =
-                    typeof(T).GetCustomAttributes(typeof(DataContractAttribute), true).Length >= 1;
                 Members = typeof(T).
                     GetMembers(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance).
-                    Select(m => GetTargetMember(m, requiredDataMemberAttribute)).
+                    Select(m => GetTargetMember(m)).
                     Where(entry => entry != null).
                     Select(entry => entry!.Value).
                     ToArray()!;
             }
 
             private static Metadata<MemberSetter<T>>? GetTargetMember(
-                MemberInfo member, bool requiredDataMemberAttribute)
+                MemberInfo member)
             {
                 if (member is FieldInfo fi)
                 {
@@ -141,7 +140,8 @@ namespace FlyFlint.Internal.Dynamic
                                 (MemberSetter<T>)DynamicMemberAccessor.CreateDirectSetter(fi).
                                     CreateDelegate(typeof(MemberSetter<T>)));
                         }
-                        else if (!requiredDataMemberAttribute && fi.IsPublic)
+                        else if (fi.IsPublic &&
+                            !fi.IsDefined(typeof(IgnoreDataMemberAttribute), true))
                         {
                             return new Metadata<MemberSetter<T>>(
                                 fi.Name,
@@ -166,7 +166,8 @@ namespace FlyFlint.Internal.Dynamic
                                 (MemberSetter<T>)DynamicMemberAccessor.CreateDirectSetter(pi).
                                     CreateDelegate(typeof(MemberSetter<T>)));
                         }
-                        else if (!requiredDataMemberAttribute && setter.IsPublic)
+                        else if (setter.IsPublic &&
+                            !pi.IsDefined(typeof(IgnoreDataMemberAttribute), true))
                         {
                             return new Metadata<MemberSetter<T>>(
                                 pi.Name,

@@ -7,9 +7,9 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
+using FlyFlint.Collections;
 using FlyFlint.Internal;
 using FlyFlint.Internal.Static;
-using FlyFlint.Utilities;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
@@ -30,11 +30,11 @@ namespace FlyFlint
             public string? Name;
             public DateTime Birth;
 
-            private static readonly KeyValuePair<string, Type>[] members = new[]
+            private static readonly StaticMemberMetadata[] members = new[]
             {
-                 new KeyValuePair<string, Type>(nameof(Id), typeof(int)),
-                 new KeyValuePair<string, Type>(nameof(Name), typeof(string)),
-                 new KeyValuePair<string, Type>(nameof(Birth), typeof(DateTime)),
+                 new StaticMemberMetadata(nameof(Id), typeof(int)),
+                 new StaticMemberMetadata(nameof(Name), typeof(string)),
+                 new StaticMemberMetadata(nameof(Birth), typeof(DateTime)),
             };
 
             private static readonly StaticDataInjectorDelegate<Target> injector = Inject;
@@ -79,8 +79,12 @@ namespace FlyFlint
         {
             public int idparam { get; set; }
 
-            public KeyValuePair<string, object?>[] Extract() =>
-                new[] { new KeyValuePair<string, object?>( "idparam", this.idparam ) };
+            public void Extract(
+                StaticParameterExtractionContext context)
+            {
+                //base.Extract(context);
+                context.RegisterParameter<int>(nameof(idparam), this.idparam);
+            }
         }
 
         [Test]
@@ -101,6 +105,10 @@ namespace FlyFlint
             c.CommandText = "INSERT INTO target VALUES (3,'CCCCC','2022/01/23 12:34:58.789')";
             await c.ExecuteNonQueryAsync();
 
+            //var query = QueryFacadeExtension.Parameter(
+            //    QueryExtension.Query<Target>(
+            //        connection, "SELECT * FROM target WHERE Id = @idparam"),
+            //        new Parameter { idparam = 2 });
             var query = QueryFacadeExtension.Parameter(
                 QueryExtension.Query<Target>(
                     connection, "SELECT * FROM target WHERE Id = @idparam"),

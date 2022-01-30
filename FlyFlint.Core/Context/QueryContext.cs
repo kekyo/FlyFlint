@@ -7,7 +7,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
-using System.Collections.Generic;
+using FlyFlint.Internal;
 using System.Data.Common;
 using System.Runtime.CompilerServices;
 
@@ -17,9 +17,9 @@ namespace FlyFlint.Context
     {
         internal readonly DbConnection connection;
         internal readonly DbTransaction? transaction;
-        internal readonly Database trait;
+        internal readonly Trait trait;
         internal readonly string sql;
-        internal readonly KeyValuePair<string, object?>[] parameters;
+        internal readonly ExtractedParameter[] parameters;
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -27,9 +27,9 @@ namespace FlyFlint.Context
         private protected QueryContext(
             DbConnection connection,
             DbTransaction? transaction,
-            Database trait,
+            Trait trait,
             string sql,
-            KeyValuePair<string, object?>[] parameters)
+            ExtractedParameter[] parameters)
         {
             this.connection = connection;
             this.transaction = transaction;
@@ -43,9 +43,9 @@ namespace FlyFlint.Context
     {
         internal readonly DbConnection connection;
         internal readonly DbTransaction? transaction;
-        internal readonly Database trait;
+        internal readonly Trait trait;
         internal readonly string sql;
-        internal readonly KeyValuePair<string, object?>[] parameters;
+        internal readonly ExtractedParameter[] parameters;
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -53,9 +53,9 @@ namespace FlyFlint.Context
         private protected QueryContext(
             DbConnection connection,
             DbTransaction? transaction,
-            Database trait,
+            Trait trait,
             string sql,
-            KeyValuePair<string, object?>[] parameters)
+            ExtractedParameter[] parameters)
         {
             this.connection = connection;
             this.transaction = transaction;

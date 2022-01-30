@@ -2,16 +2,10 @@
 
   <PropertyGroup>
     <TargetFrameworks>net461;net48;netcoreapp2.1;netcoreapp3.1;net5.0;net6.0</TargetFrameworks>
-    <LangVersion>latest</LangVersion>
-    <Nullable>Enable</Nullable>
-    <DebugSymbols>true</DebugSymbols>
-    <RootNamespace>FlyFlint</RootNamespace>
-    <NoWarn>CS0649</NoWarn>
+    <NoWarn>$(NoWarn);CS0649</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.2" PrivateAssets="All" />
-    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="6.0.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.0.0" />
     <PackageReference Include="NUnit" Version="3.13.2" />
     <PackageReference Include="NUnit3TestAdapter" Version="4.2.0" />

@@ -10,7 +10,6 @@
 using FlyFlint.Context;
 using NUnit.Framework;
 using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
 using System.Threading.Tasks;
@@ -26,11 +25,11 @@ namespace FlyFlint.Internal.Static
             public string? Name;
             public DateTime Birth;
 
-            private static readonly KeyValuePair<string, Type>[] members = new[]
+            private static readonly StaticMemberMetadata[] members = new[]
             {
-                new KeyValuePair<string, Type>(nameof(Id), typeof(int)),
-                new KeyValuePair<string, Type>(nameof(Name), typeof(string)),
-                new KeyValuePair<string, Type>(nameof(Birth), typeof(DateTime)),
+                new StaticMemberMetadata(nameof(Id), typeof(int)),
+                new StaticMemberMetadata(nameof(Name), typeof(string)),
+                new StaticMemberMetadata(nameof(Birth), typeof(DateTime)),
             };
 
             private static readonly StaticDataInjectorDelegate<TargetValueType> injector = Inject;
@@ -76,11 +75,11 @@ namespace FlyFlint.Internal.Static
             public string? Name;
             public DateTime Birth;
 
-            private static readonly KeyValuePair<string, Type>[] members = new[]
+            private static readonly StaticMemberMetadata[] members = new[]
             {
-                new KeyValuePair<string, Type>(nameof(Id), typeof(int)),
-                new KeyValuePair<string, Type>(nameof(Name), typeof(string)),
-                new KeyValuePair<string, Type>(nameof(Birth), typeof(DateTime)),
+                new StaticMemberMetadata(nameof(Id), typeof(int)),
+                new StaticMemberMetadata(nameof(Name), typeof(string)),
+                new StaticMemberMetadata(nameof(Birth), typeof(DateTime)),
             };
 
             private static readonly StaticDataInjectorDelegate<TargetReferenceType> injector = Inject;

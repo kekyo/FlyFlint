@@ -33,12 +33,18 @@ namespace FlyFlint.Context
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public virtual T Convert<T>(object value)
+        public virtual T ConvertTo<T>(object value)
         {
             Debug.Assert(value != null);
             Debug.Assert(value is not DBNull);
-            return InternalValueConverter<T>.converter.UnsafeConvert(this, value!);
+            return InternalValueConverter<T>.converter.UnsafeConvertTo(this, value!);
         }
+
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public virtual object? ConvertFrom<T>(ref T value) =>
+            value;
 
         public static readonly ConversionContext Default =
             new ConversionContext(CultureInfo.InvariantCulture, Encoding.UTF8);

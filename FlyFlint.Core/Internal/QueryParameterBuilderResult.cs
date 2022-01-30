@@ -7,9 +7,6 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
-using FlyFlint.Context;
-using System;
-using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
 namespace FlyFlint.Internal
@@ -17,12 +14,12 @@ namespace FlyFlint.Internal
     internal struct QueryParameterBuilderResult
     {
         public readonly string sql;
-        public readonly KeyValuePair<string, object?>[] parameters;
+        public readonly ExtractedParameter[] parameters;
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public QueryParameterBuilderResult(string sql, KeyValuePair<string, object?>[] parameters)
+        public QueryParameterBuilderResult(string sql, ExtractedParameter[] parameters)
         {
             this.sql = sql;
             this.parameters = parameters;
@@ -31,7 +28,7 @@ namespace FlyFlint.Internal
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public void Deconstruct(out string sql, out KeyValuePair<string, object?>[] parameters)
+        public void Deconstruct(out string sql, out ExtractedParameter[] parameters)
         {
             sql = this.sql;
             parameters = this.parameters;

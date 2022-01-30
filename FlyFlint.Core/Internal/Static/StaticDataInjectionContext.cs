@@ -41,7 +41,7 @@ namespace FlyFlint.Internal.Static
         }
 
         private protected void RegisterMemberMetadata(
-            KeyValuePair<string, Type>[] members)
+            StaticMemberMetadata[] members)
         {
             Debug.Assert(this.metadataList == null);    // TODO: combine multiple
 
@@ -53,12 +53,12 @@ namespace FlyFlint.Internal.Static
             {
                 var member = members[index];
                 var dbFieldNameIndiciesIndex =
-                    Array.BinarySearch(metadataMap.FieldNames, member.Key, this.fieldComparer);
+                    Array.BinarySearch(metadataMap.FieldNames, member.Name, this.fieldComparer);
                 if (dbFieldNameIndiciesIndex >= 0)
                 {
                     var dbFieldMetadata = metadataMap.MetadataList[dbFieldNameIndiciesIndex];
 
-                    var ut = Nullable.GetUnderlyingType(member.Value) ?? member.Value;
+                    var ut = Nullable.GetUnderlyingType(member.Type) ?? member.Type;
                     dbFieldMetadata.StoreDirect = ut == dbFieldMetadata.DbType;
 
                     candidates.Add(dbFieldMetadata);
@@ -69,7 +69,7 @@ namespace FlyFlint.Internal.Static
         }
 
         public abstract void RegisterMetadata(
-            KeyValuePair<string, Type>[] members,
+            StaticMemberMetadata[] members,
             Delegate injector);   // StaticInjectDelegate<TElement>
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
@@ -80,7 +80,7 @@ namespace FlyFlint.Internal.Static
         {
             var metadata = this.metadataList[metadataIndex];
             return metadata.StoreDirect ? this.reader.GetBoolean(metadata.DbFieldIndex) :
-                this.cc.Convert<bool>(this.reader.GetValue(metadata.DbFieldIndex));
+                this.cc.ConvertTo<bool>(this.reader.GetValue(metadata.DbFieldIndex));
         }
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
@@ -91,7 +91,7 @@ namespace FlyFlint.Internal.Static
         {
             var metadata = this.metadataList[metadataIndex];
             return metadata.StoreDirect ? this.reader.GetByte(metadata.DbFieldIndex) :
-                this.cc.Convert<byte>(this.reader.GetValue(metadata.DbFieldIndex));
+                this.cc.ConvertTo<byte>(this.reader.GetValue(metadata.DbFieldIndex));
         }
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
@@ -102,7 +102,7 @@ namespace FlyFlint.Internal.Static
         {
             var metadata = this.metadataList[metadataIndex];
             return metadata.StoreDirect ? this.reader.GetInt16(metadata.DbFieldIndex) :
-                this.cc.Convert<short>(this.reader.GetValue(metadata.DbFieldIndex));
+                this.cc.ConvertTo<short>(this.reader.GetValue(metadata.DbFieldIndex));
         }
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
@@ -113,7 +113,7 @@ namespace FlyFlint.Internal.Static
         {
             var metadata = this.metadataList[metadataIndex];
             return metadata.StoreDirect ? this.reader.GetInt32(metadata.DbFieldIndex) :
-                this.cc.Convert<int>(this.reader.GetValue(metadata.DbFieldIndex));
+                this.cc.ConvertTo<int>(this.reader.GetValue(metadata.DbFieldIndex));
         }
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
@@ -124,7 +124,7 @@ namespace FlyFlint.Internal.Static
         {
             var metadata = this.metadataList[metadataIndex];
             return metadata.StoreDirect ? this.reader.GetInt64(metadata.DbFieldIndex) :
-                this.cc.Convert<long>(this.reader.GetValue(metadata.DbFieldIndex));
+                this.cc.ConvertTo<long>(this.reader.GetValue(metadata.DbFieldIndex));
         }
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
@@ -135,7 +135,7 @@ namespace FlyFlint.Internal.Static
         {
             var metadata = this.metadataList[metadataIndex];
             return metadata.StoreDirect ? this.reader.GetFloat(metadata.DbFieldIndex) :
-                this.cc.Convert<float>(this.reader.GetValue(metadata.DbFieldIndex));
+                this.cc.ConvertTo<float>(this.reader.GetValue(metadata.DbFieldIndex));
         }
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
@@ -146,7 +146,7 @@ namespace FlyFlint.Internal.Static
         {
             var metadata = this.metadataList[metadataIndex];
             return metadata.StoreDirect ? this.reader.GetDouble(metadata.DbFieldIndex) :
-                this.cc.Convert<double>(this.reader.GetValue(metadata.DbFieldIndex));
+                this.cc.ConvertTo<double>(this.reader.GetValue(metadata.DbFieldIndex));
         }
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
@@ -157,7 +157,7 @@ namespace FlyFlint.Internal.Static
         {
             var metadata = this.metadataList[metadataIndex];
             return metadata.StoreDirect ? this.reader.GetDecimal(metadata.DbFieldIndex) :
-                this.cc.Convert<decimal>(this.reader.GetValue(metadata.DbFieldIndex));
+                this.cc.ConvertTo<decimal>(this.reader.GetValue(metadata.DbFieldIndex));
         }
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
@@ -168,7 +168,7 @@ namespace FlyFlint.Internal.Static
         {
             var metadata = this.metadataList[metadataIndex];
             return metadata.StoreDirect ? this.reader.GetChar(metadata.DbFieldIndex) :
-                this.cc.Convert<char>(this.reader.GetValue(metadata.DbFieldIndex));
+                this.cc.ConvertTo<char>(this.reader.GetValue(metadata.DbFieldIndex));
         }
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
@@ -179,7 +179,7 @@ namespace FlyFlint.Internal.Static
         {
             var metadata = this.metadataList[metadataIndex];
             return metadata.StoreDirect ? this.reader.GetGuid(metadata.DbFieldIndex) :
-                this.cc.Convert<Guid>(this.reader.GetValue(metadata.DbFieldIndex));
+                this.cc.ConvertTo<Guid>(this.reader.GetValue(metadata.DbFieldIndex));
         }
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
@@ -190,7 +190,7 @@ namespace FlyFlint.Internal.Static
         {
             var metadata = this.metadataList[metadataIndex];
             return metadata.StoreDirect ? this.reader.GetDateTime(metadata.DbFieldIndex) :
-                this.cc.Convert<DateTime>(this.reader.GetValue(metadata.DbFieldIndex));
+                this.cc.ConvertTo<DateTime>(this.reader.GetValue(metadata.DbFieldIndex));
         }
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
@@ -202,7 +202,7 @@ namespace FlyFlint.Internal.Static
         {
             var metadata = this.metadataList[metadataIndex];
             return metadata.StoreDirect ? (TEnum)this.reader.GetValue(metadata.DbFieldIndex) :
-                this.cc.Convert<TEnum>(this.reader.GetValue(metadata.DbFieldIndex));
+                this.cc.ConvertTo<TEnum>(this.reader.GetValue(metadata.DbFieldIndex));
         }
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
@@ -213,7 +213,7 @@ namespace FlyFlint.Internal.Static
         {
             var metadata = this.metadataList[metadataIndex];
             return metadata.StoreDirect ? this.reader.GetString(metadata.DbFieldIndex) :
-                this.cc.Convert<string>(this.reader.GetValue(metadata.DbFieldIndex));
+                this.cc.ConvertTo<string>(this.reader.GetValue(metadata.DbFieldIndex));
         }
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
@@ -224,7 +224,7 @@ namespace FlyFlint.Internal.Static
         {
             var metadata = this.metadataList[metadataIndex];
             return metadata.StoreDirect ? (byte[])this.reader.GetValue(metadata.DbFieldIndex) :
-                this.cc.Convert<byte[]>(this.reader.GetValue(metadata.DbFieldIndex));
+                this.cc.ConvertTo<byte[]>(this.reader.GetValue(metadata.DbFieldIndex));
         }
 
         /////////////////////////////////////////////////////////////////////////////
@@ -238,7 +238,7 @@ namespace FlyFlint.Internal.Static
             var metadata = this.metadataList[metadataIndex];
             return this.reader.IsDBNull(metadata.DbFieldIndex) ? null :
                 metadata.StoreDirect ? this.reader.GetBoolean(metadata.DbFieldIndex) :
-                    this.cc.Convert<bool?>(this.reader.GetValue(metadata.DbFieldIndex));
+                    this.cc.ConvertTo<bool?>(this.reader.GetValue(metadata.DbFieldIndex));
         }
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
@@ -250,7 +250,7 @@ namespace FlyFlint.Internal.Static
             var metadata = this.metadataList[metadataIndex];
             return this.reader.IsDBNull(metadata.DbFieldIndex) ? null :
                 metadata.StoreDirect ? this.reader.GetByte(metadata.DbFieldIndex) :
-                    this.cc.Convert<byte?>(this.reader.GetValue(metadata.DbFieldIndex));
+                    this.cc.ConvertTo<byte?>(this.reader.GetValue(metadata.DbFieldIndex));
         }
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
@@ -262,7 +262,7 @@ namespace FlyFlint.Internal.Static
             var metadata = this.metadataList[metadataIndex];
             return this.reader.IsDBNull(metadata.DbFieldIndex) ? null :
                 metadata.StoreDirect ? this.reader.GetInt16(metadata.DbFieldIndex) :
-                    this.cc.Convert<short?>(this.reader.GetValue(metadata.DbFieldIndex));
+                    this.cc.ConvertTo<short?>(this.reader.GetValue(metadata.DbFieldIndex));
         }
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
@@ -274,7 +274,7 @@ namespace FlyFlint.Internal.Static
             var metadata = this.metadataList[metadataIndex];
             return this.reader.IsDBNull(metadata.DbFieldIndex) ? null :
                 metadata.StoreDirect ? this.reader.GetInt32(metadata.DbFieldIndex) :
-                    this.cc.Convert<int?>(this.reader.GetValue(metadata.DbFieldIndex));
+                    this.cc.ConvertTo<int?>(this.reader.GetValue(metadata.DbFieldIndex));
         }
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
@@ -286,7 +286,7 @@ namespace FlyFlint.Internal.Static
             var metadata = this.metadataList[metadataIndex];
             return this.reader.IsDBNull(metadata.DbFieldIndex) ? null :
                 metadata.StoreDirect ? this.reader.GetInt64(metadata.DbFieldIndex) :
-                    this.cc.Convert<long?>(this.reader.GetValue(metadata.DbFieldIndex));
+                    this.cc.ConvertTo<long?>(this.reader.GetValue(metadata.DbFieldIndex));
         }
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
@@ -298,7 +298,7 @@ namespace FlyFlint.Internal.Static
             var metadata = this.metadataList[metadataIndex];
             return this.reader.IsDBNull(metadata.DbFieldIndex) ? null :
                 metadata.StoreDirect ? this.reader.GetFloat(metadata.DbFieldIndex) :
-                    this.cc.Convert<float?>(this.reader.GetValue(metadata.DbFieldIndex));
+                    this.cc.ConvertTo<float?>(this.reader.GetValue(metadata.DbFieldIndex));
         }
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
@@ -310,7 +310,7 @@ namespace FlyFlint.Internal.Static
             var metadata = this.metadataList[metadataIndex];
             return this.reader.IsDBNull(metadata.DbFieldIndex) ? null :
                 metadata.StoreDirect ? this.reader.GetDouble(metadata.DbFieldIndex) :
-                    this.cc.Convert<double?>(this.reader.GetValue(metadata.DbFieldIndex));
+                    this.cc.ConvertTo<double?>(this.reader.GetValue(metadata.DbFieldIndex));
         }
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
@@ -322,7 +322,7 @@ namespace FlyFlint.Internal.Static
             var metadata = this.metadataList[metadataIndex];
             return this.reader.IsDBNull(metadata.DbFieldIndex) ? null :
                 metadata.StoreDirect ? this.reader.GetDecimal(metadata.DbFieldIndex) :
-                    this.cc.Convert<decimal?>(this.reader.GetValue(metadata.DbFieldIndex));
+                    this.cc.ConvertTo<decimal?>(this.reader.GetValue(metadata.DbFieldIndex));
         }
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
@@ -334,7 +334,7 @@ namespace FlyFlint.Internal.Static
             var metadata = this.metadataList[metadataIndex];
             return this.reader.IsDBNull(metadata.DbFieldIndex) ? null :
                 metadata.StoreDirect ? this.reader.GetChar(metadata.DbFieldIndex) :
-                    this.cc.Convert<char?>(this.reader.GetValue(metadata.DbFieldIndex));
+                    this.cc.ConvertTo<char?>(this.reader.GetValue(metadata.DbFieldIndex));
         }
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
@@ -346,7 +346,7 @@ namespace FlyFlint.Internal.Static
             var metadata = this.metadataList[metadataIndex];
             return this.reader.IsDBNull(metadata.DbFieldIndex) ? null :
                 metadata.StoreDirect ? this.reader.GetGuid(metadata.DbFieldIndex) :
-                    this.cc.Convert<Guid?>(this.reader.GetValue(metadata.DbFieldIndex));
+                    this.cc.ConvertTo<Guid?>(this.reader.GetValue(metadata.DbFieldIndex));
         }
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
@@ -358,7 +358,7 @@ namespace FlyFlint.Internal.Static
             var metadata = this.metadataList[metadataIndex];
             return this.reader.IsDBNull(metadata.DbFieldIndex) ? null :
                 metadata.StoreDirect ? this.reader.GetDateTime(metadata.DbFieldIndex) :
-                    this.cc.Convert<DateTime?>(this.reader.GetValue(metadata.DbFieldIndex));
+                    this.cc.ConvertTo<DateTime?>(this.reader.GetValue(metadata.DbFieldIndex));
         }
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
@@ -371,7 +371,7 @@ namespace FlyFlint.Internal.Static
             var metadata = this.metadataList[metadataIndex];
             return this.reader.IsDBNull(metadata.DbFieldIndex) ? default(TEnum?) :
                 metadata.StoreDirect ? (TEnum)this.reader.GetValue(metadata.DbFieldIndex) :
-                    this.cc.Convert<TEnum?>(this.reader.GetValue(metadata.DbFieldIndex));
+                    this.cc.ConvertTo<TEnum?>(this.reader.GetValue(metadata.DbFieldIndex));
         }
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
@@ -383,7 +383,7 @@ namespace FlyFlint.Internal.Static
             var metadata = this.metadataList[metadataIndex];
             return this.reader.IsDBNull(metadata.DbFieldIndex) ? null :
                 metadata.StoreDirect ? this.reader.GetString(metadata.DbFieldIndex) :
-                    this.cc.Convert<string?>(this.reader.GetValue(metadata.DbFieldIndex));
+                    this.cc.ConvertTo<string?>(this.reader.GetValue(metadata.DbFieldIndex));
         }
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
@@ -395,7 +395,7 @@ namespace FlyFlint.Internal.Static
             var metadata = this.metadataList[metadataIndex];
             return this.reader.IsDBNull(metadata.DbFieldIndex) ? null :
                 metadata.StoreDirect ? (byte[])this.reader.GetValue(metadata.DbFieldIndex) :
-                    this.cc.Convert<byte[]?>(this.reader.GetValue(metadata.DbFieldIndex));
+                    this.cc.ConvertTo<byte[]?>(this.reader.GetValue(metadata.DbFieldIndex));
         }
     }
 
@@ -422,7 +422,7 @@ namespace FlyFlint.Internal.Static
 #endif
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override void RegisterMetadata(
-            KeyValuePair<string, Type>[] members,
+            StaticMemberMetadata[] members,
             Delegate injector)   // StaticDataInjectorDelegate<TElement>
         {
             Debug.Assert(this.injector == null);    // TODO: combine multiple

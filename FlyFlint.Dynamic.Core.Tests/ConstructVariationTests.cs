@@ -7,7 +7,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
-using FlyFlint.Utilities;
+using FlyFlint.Collections;
 using NUnit.Framework;
 using System;
 using System.Data;

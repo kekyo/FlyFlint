@@ -28,7 +28,7 @@ namespace FlyFlint.Internal.Dynamic
         private sealed class Converter<T> : Converter
         {
             public override object? Convert(ConversionContext cc, object value) =>
-                cc.Convert<T>(value);
+                cc.ConvertTo<T>(value);
         }
 
         private static object? Convert(

@@ -9,31 +9,12 @@
 
 using FlyFlint.Context;
 using FlyFlint.Internal;
-using FlyFlint.Internal.Converter;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 
 namespace FlyFlint.Synchronized
 {
     public static class QueryFacadeExtension
     {
-        public static int ExecuteNonQuery(
-            this QueryContext query)
-        {
-            using var command = QueryHelper.CreateCommand(
-                query.connection, query.transaction, query.sql, query.parameters);
-            return command.ExecuteNonQuery();
-        }
-
-        public static TElement ExecuteScalar<TElement>(
-            this QueryContext<TElement> query)
-        {
-            using var command = QueryHelper.CreateCommand(
-                query.connection, query.transaction, query.sql, query.parameters);
-            return InternalValueConverter<TElement>.converter.Convert(
-                query.trait.cc, command.ExecuteScalar());
-        }
-
         public static IEnumerable<TElement> Execute<TElement>(
             this QueryContext<TElement> query)
             where TElement : notnull, new()
@@ -47,7 +28,7 @@ namespace FlyFlint.Synchronized
                     {
                         var element = new TElement();
 
-                        var injector = QueryExecutor.Instance.GetInjector(
+                        var injector = QueryExecutor.GetDataInjector(
                             query.trait.cc, query.trait.fieldComparer, reader, ref element);
 
                         injector(ref element);
