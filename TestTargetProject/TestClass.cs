@@ -8,10 +8,12 @@
 ////////////////////////////////////////////////////////////////////////////
 
 using FlyFlint;
+using FlyFlint.Collections;
 using FlyFlint.Synchronized;
 using System;
 using System.Data;
 using System.Data.SQLite;
+using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
 
@@ -44,32 +46,32 @@ namespace TestTargetProject
             public string Value13;
         }
 
-        private async Task<SQLiteConnection> CreateTestTableAsync()
+        private static SQLiteConnection CreateTestTable()
         {
             var connection = new SQLiteConnection("Data Source=:memory:");
-            await connection.OpenAsync();
+            connection.Open();
 
             var c = connection.CreateCommand();
             c.CommandType = CommandType.Text;
             c.CommandText = "CREATE TABLE target (Value1 TEXT,Value2 INTEGER,Value3 INTEGER,Value4 INTEGER,Value5 INTEGER,Value6 REAL,Value7 REAL,Value8 REAL,Value9 TEXT,Value10 TEXT,Value11 INTEGER,Value12 TEXT,Value13 TEXT)";
-            await c.ExecuteNonQueryAsync();
+            c.ExecuteNonQuery();
 
             c.CommandText = "INSERT INTO target VALUES ('TRUE',123,12345,12345678,123456789012345,123.45,123.45678901234,123.45678901234,'13B3385A-4D34-42F0-BBAD-6D900A66F191','01/18/2022 12:34:56.789','ValueB',7,'ABC')";
-            await c.ExecuteNonQueryAsync();
+            c.ExecuteNonQuery();
             c.CommandText = "INSERT INTO target VALUES ('FALSE',124,12346,12345679,123456789012346,123.46,123.45678901235,123.45678901235,'13B3385A-4D34-42F0-BBAD-6D900A66F192','01/18/2022 12:34:56.780','ValueC',8,'ABD')";
-            await c.ExecuteNonQueryAsync();
+            c.ExecuteNonQuery();
             c.CommandText = "INSERT INTO target VALUES ('TRUE',125,12347,12345670,123456789012347,123.47,123.45678901236,123.45678901236,'13B3385A-4D34-42F0-BBAD-6D900A66F193','01/18/2022 12:34:56.781','ValueD',11,'ABE')";
-            await c.ExecuteNonQueryAsync();
+            c.ExecuteNonQuery();
 
             return connection;
         }
 
-        public async Task InjectExecuteNonQueryWithValueType()
+        public static TargetValueTypes[] InjectExecuteNonQueryWithValueType()
         {
-            using var connection = await CreateTestTableAsync();
+            using var connection = CreateTestTable();
 
             var query = connection.Query<TargetValueTypes>("SELECT * FROM target");
-            var result = query.Execute();
+            return query.Execute().ToArray();
         }
 
         public class TargetReferenceTypes
@@ -89,9 +91,9 @@ namespace TestTargetProject
             public string Value13 = null!;
         }
 
-        public async Task InjectExecuteNonQueryWithReferenceType()
+        public void InjectExecuteNonQueryWithReferenceType()
         {
-            using var connection = await CreateTestTableAsync();
+            using var connection = CreateTestTable();
 
             var query = connection.Query<TargetReferenceTypes>("SELECT * FROM target");
             var result = query.Execute();

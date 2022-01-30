@@ -43,13 +43,9 @@ namespace FlyFlint.Internal.Static
             where TParameters : notnull, IParameterExtractable
         {
             var context = new StaticParameterExtractionContext(cc);
-            var extracted = parameters.Extract(context);
-            for (var index = 0; index < extracted.Length; index++)
-            {
-                extracted[index] = new ExtractedParameter(
-                    parameterPrefix + extracted[index].Name, extracted[index].Value);
-            }
-            return extracted;
+            parameters.Extract(context);
+
+            return context.ExtractParameters(parameterPrefix);
         }
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER

@@ -7,20 +7,18 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
+using FlyFlint;
+using FlyFlint.Internal.Static;
 using System;
+using System.Threading.Tasks;
 
 namespace TestTargetProject2
 {
     public sealed class Inherited : TestTargetProject.TestClass.TargetReferenceTypesDerived2
     {
-        [System.Diagnostics.DebuggerHidden]
-        [System.Runtime.CompilerServices.CompilerGenerated]
         public Inherited()
         {
         }
-
-        //[System.Diagnostics.DebuggerBrowsable(System.Diagnostics.DebuggerBrowsableState.Never)]
-        //private static readonly string hoge;
     }
 
     public static class Program
@@ -28,8 +26,11 @@ namespace TestTargetProject2
         public static void Main()
         {
             //var targetValueTypes = new TestTargetProject.TestClass.TargetValueTypes();
-            var targetReferenceTypes = new TestTargetProject.TestClass.TargetReferenceTypes();
-            Console.WriteLine(targetReferenceTypes);
+            var targetReferenceTypes = new TestTargetProject.TestClass.TargetReferenceTypesDerived2();
+            var q1 = Query.IsDataInjectable(targetReferenceTypes);
+            var q2 = Query.IsParameterExtractable(targetReferenceTypes);
+            //Console.WriteLine(targetReferenceTypes);
+            var r = TestTargetProject.TestClass.InjectExecuteNonQueryWithValueType();
         }
     }
 }

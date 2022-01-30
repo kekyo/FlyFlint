@@ -8,6 +8,7 @@
 ////////////////////////////////////////////////////////////////////////////
 
 using FlyFlint.Context;
+using FlyFlint.Internal.Static;
 using System;
 using System.Runtime.CompilerServices;
 
@@ -17,6 +18,14 @@ namespace FlyFlint
     {
         public static Trait DefaultTrait =
             Database.Default;
+
+        public static bool IsParameterExtractable<TParameters>(TParameters parameters)
+            where TParameters : notnull, new() =>
+            parameters is IParameterExtractable;
+
+        public static bool IsDataInjectable<TElement>(TElement parameters)
+            where TElement : new() =>
+            parameters is IDataInjectable;
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -53,8 +62,8 @@ namespace FlyFlint
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static PreparedParameterizedQueryContext<T> Prepare<T>(Func<FormattableString> sqlBuilder)
-            where T : new() =>
-            DefaultTrait.Prepare<T>(sqlBuilder);
+        public static PreparedParameterizedQueryContext<TElement> Prepare<TElement>(Func<FormattableString> sqlBuilder)
+            where TElement : new() =>
+            DefaultTrait.Prepare<TElement>(sqlBuilder);
     }
 }

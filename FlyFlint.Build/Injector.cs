@@ -9,6 +9,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -27,6 +28,8 @@ namespace FlyFlint
 
     public sealed class Injector
     {
+        private const string dirtySymbolPrefix = "<>`";
+
         private sealed class TypeKey : IEquatable<TypeKey?>
         {
             public readonly TypeReference Type;
@@ -195,7 +198,7 @@ namespace FlyFlint
                 module.ImportReference(this.staticMemberMetadataType));
 
             var membersField = new FieldDefinition(
-                "@<>flyflint_members__",
+                dirtySymbolPrefix + "flyflint_members__",
                 FieldAttributes.Private | FieldAttributes.Static | FieldAttributes.InitOnly,
                 staticMemberMetadatasType);
             membersField.CustomAttributes.Add(
@@ -257,14 +260,20 @@ namespace FlyFlint
             staticDataInjectorDelegateType.GenericArguments.
                 Add(targetType);
 
+            // Couldn't get constructor reference from instantiated type directly.
             var staticDataInjectorDelegateConstructor =
-                new GenericInstanceMethod(
-                    module.ImportReference(this.staticDataInjectorDelegateConstructor));
-            staticDataInjectorDelegateConstructor.GenericArguments.
-                Add(targetType);
+                new MethodReference(
+                    ".ctor",
+                    this.typeSystem.Void,
+                    staticDataInjectorDelegateType);
+            staticDataInjectorDelegateConstructor.HasThis = true;    // Important
+            staticDataInjectorDelegateConstructor.Parameters.Add(
+                new ParameterDefinition(this.typeSystem.Object));
+            staticDataInjectorDelegateConstructor.Parameters.Add(
+                new ParameterDefinition(this.typeSystem.IntPtr));
 
             var injectorField = new FieldDefinition(
-                "@<>flyflint_injector__",
+                dirtySymbolPrefix + "flyflint_injector__",
                 FieldAttributes.Private | FieldAttributes.Static | FieldAttributes.InitOnly,
                 module.ImportReference(this.delegateType));
             injectorField.CustomAttributes.Add(
@@ -275,8 +284,8 @@ namespace FlyFlint
             //////////////////////////////////////////////
 
             var injectMethod = new MethodDefinition(
-                "@<>flyflint_inject__",
-                MethodAttributes.HideBySig | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName | MethodAttributes.Private | MethodAttributes.Static,
+                dirtySymbolPrefix + "flyflint_inject__",
+                MethodAttributes.HideBySig | MethodAttributes.Private | MethodAttributes.Static,
                 this.typeSystem.Void);
             injectMethod.Parameters.Add(
                 new ParameterDefinition(
@@ -450,13 +459,16 @@ namespace FlyFlint
                 Traverse(t => t.BaseType?.Resolve()).
                 Where(t => t.Interfaces.Any(ii =>
                     ii.InterfaceType.FullName == "FlyFlint.Internal.Static.IDataInjectable")).
-                Select(t => t.Methods.First(m => m.Name.StartsWith("@<>flyflint_prepare__"))).
+                Select(t => t.Methods.First(m => m.Name.StartsWith("Prepare"))).
                 FirstOrDefault();
 
             var prepareMethod = new MethodDefinition(
-                "@<>flyflint_prepare__",   // Makes dirty symbol name, it will dodge failure usage.
-                MethodAttributes.HideBySig | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName | MethodAttributes.Family |
-                ((requiredOverrideMethod != null) ? MethodAttributes.Virtual : MethodAttributes.NewSlot | MethodAttributes.Virtual),
+                // The CLR and CoreCLR, will cause TypeLoadException when uses different name in inferface member method...
+                /* dirtySymbolPrefix + */ "Prepare",
+                MethodAttributes.HideBySig | MethodAttributes.Family | MethodAttributes.Virtual |
+                    ((requiredOverrideMethod != null) ?
+                        MethodAttributes.ReuseSlot :
+                        MethodAttributes.NewSlot),
                 this.typeSystem.Void);
             prepareMethod.Parameters.Add(
                 new ParameterDefinition(
@@ -505,6 +517,57 @@ namespace FlyFlint
 
             prepareMethod.Overrides.Add(
                 module.ImportReference(this.prepareMethod));
+
+            return true;
+        }
+
+        private bool InjectExtractMethod(
+            ModuleDefinition module,
+            TypeDefinition targetType)
+        {
+            if (targetType.Interfaces.Any(
+                i => i.InterfaceType.FullName == "FlyFlint.Internal.Static.IParameterExtractable"))
+            {
+                return false;
+            }
+
+            var targetFields = targetType.Fields.
+                Where(f => f.IsPublic && !f.IsStatic && !f.IsInitOnly).
+                Cast<MemberReference>();
+            var targetProperties = targetType.Properties.
+                Where(p =>
+                    p.SetMethod is MethodReference mr &&
+                    mr.Resolve() is { } m &&
+                    m.IsPublic && !m.IsStatic).   // TODO: DataMemberAttribute
+                Cast<MemberReference>();
+
+            var targetMembers = targetFields.Concat(targetProperties).ToArray();
+            if (targetMembers.Length == 0)
+            {
+                return false;
+            }
+
+            //////////////////////////////////////////////
+
+            var requiredOverrideMethod = targetType.
+                Traverse(t => t.BaseType?.Resolve()).
+                Where(t => t.Interfaces.Any(ii =>
+                    ii.InterfaceType.FullName == "FlyFlint.Internal.Static.IParameterExtractable")).
+                Select(t => t.Methods.First(m => m.Name.StartsWith("Extract"))).
+                FirstOrDefault();
+
+            var extractMethod = new MethodDefinition(
+                // The CLR and CoreCLR, will cause TypeLoadException when uses different name in inferface member method...
+                /* dirtySymbolPrefix + */ "Extract",
+                MethodAttributes.HideBySig | MethodAttributes.Family | MethodAttributes.Virtual |
+                    ((requiredOverrideMethod != null) ?
+                        MethodAttributes.ReuseSlot :
+                        MethodAttributes.NewSlot),
+                this.typeSystem.Void);
+            extractMethod.CustomAttributes.Add(
+                new CustomAttribute(
+                    module.ImportReference(this.compilerGeneratedAttributeConstructor)));
+            targetType.Methods.Add(extractMethod);
 
             return true;
         }
@@ -626,7 +689,7 @@ namespace FlyFlint
             return (parametersTypes, elementTypes);
         }
 
-        public bool Inject(string targetAssemblyPath, string? injectedAssemblyPath = null)
+        public bool Inject(string targetAssemblyPath)
         {
             this.assemblyResolver.AddSearchDirectory(
                 Path.GetDirectoryName(targetAssemblyPath));
@@ -638,6 +701,7 @@ namespace FlyFlint
                 targetAssemblyPath,
                 new ReaderParameters(ReadingMode.Immediate)
                 {
+                    ReadingMode = ReadingMode.Immediate,
                     ReadSymbols = true,
                     ReadWrite = false,
                     InMemory = true,
@@ -653,19 +717,19 @@ namespace FlyFlint
                     foreach (var parametersType in parametersTypes.
                         OrderBy(t => t, TypeInheritanceDepthComparer.Instance))
                     {
-                        //if (this.InjectIntoType(targetAssembly.MainModule, targetType))
-                        //{
-                        //    injected = true;
-                        //    this.message(
-                        //        LogLevels.Trace,
-                        //        $"Injected a view model: Assembly={targetAssemblyName}, Type={targetType.FullName}");
-                        //}
-                        //else
-                        //{
-                        //    this.message(
-                        //        LogLevels.Trace,
-                        //        $"InjectProperties: Ignored a type: Assembly={targetAssemblyName}, Type={targetType.FullName}");
-                        //}
+                        if (this.InjectExtractMethod(targetAssembly.MainModule, parametersType))
+                        {
+                            injected = true;
+                            this.message(
+                                LogLevels.Trace,
+                                $"Injected an parameter type: Assembly={targetAssemblyName}, Type={parametersType.FullName}");
+                        }
+                        else
+                        {
+                            this.message(
+                                LogLevels.Trace,
+                                $"Ignored an parameter type: Assembly={targetAssemblyName}, Type={parametersType.FullName}");
+                        }
                     }
 
                     foreach (var elementType in elementTypes.
@@ -688,27 +752,47 @@ namespace FlyFlint
 
                     if (injected)
                     {
-                        injectedAssemblyPath = injectedAssemblyPath ?? targetAssemblyPath;
+                        var outputBasePath = Path.GetDirectoryName(targetAssemblyPath)!;
 
-                        var outputBasePath = Path.GetDirectoryName(injectedAssemblyPath)!;
-                        if (!Directory.Exists(outputBasePath))
+                        var targetDebuggingPath = Path.Combine(
+                            outputBasePath,
+                            Path.GetFileNameWithoutExtension(targetAssemblyPath) + ".pdb");
+                        var tempAssemblyPath = Path.Combine(
+                            outputBasePath,
+                            Path.GetFileNameWithoutExtension(targetAssemblyPath) + "_output" +
+                                Path.GetExtension(targetAssemblyPath));
+                        var tempDebuggingPath = Path.Combine(
+                            outputBasePath,
+                            Path.GetFileNameWithoutExtension(targetAssemblyPath) + "_output.pdb");
+
+                        if (File.Exists(tempAssemblyPath))
                         {
-                            try
-                            {
-                                Directory.CreateDirectory(outputBasePath);
-                            }
-                            catch
-                            {
-                            }
+                            File.Delete(tempAssemblyPath);
                         }
 
                         targetAssembly.Write(
-                            injectedAssemblyPath,
+                            tempAssemblyPath,
                             new WriterParameters
                             {
                                 WriteSymbols = true,
                                 DeterministicMvid = true,
                             });
+
+                        if (File.Exists(targetAssemblyPath))
+                        {
+                            File.Delete(targetAssemblyPath);
+                        }
+                        File.Move(tempAssemblyPath, targetAssemblyPath);
+
+                        if (File.Exists(targetDebuggingPath))
+                        {
+                            File.Delete(targetDebuggingPath);
+                        }
+                        if (File.Exists(tempDebuggingPath))
+                        {
+                            File.Move(tempDebuggingPath, targetDebuggingPath);
+                        }
+
                         return true;
                     }
                 }

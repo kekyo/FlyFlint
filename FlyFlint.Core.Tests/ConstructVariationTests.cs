@@ -56,9 +56,11 @@ namespace FlyFlint
         {
             public int idparam { get; set; }
 
-            public ExtractedParameter[] Extract(
-                StaticParameterExtractionContext context) =>
-                new[] { new ExtractedParameter("idparam", this.idparam) };
+            public void Extract(
+                StaticParameterExtractionContext context)
+            {
+                context.RegisterParameter(nameof(idparam), this.idparam);
+            }
         }
 
         /////////////////////////////////////////////////////////////////////////////

@@ -27,6 +27,10 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestTargetProject", "TestTargetProject\TestTargetProject.csproj", "{8C738F56-4759-4323-AEC3-748F354A15FA}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestTargetProject2", "TestTargetProject2\TestTargetProject2.csproj", "{574DFA57-630E-4B56-BA9B-1E1ED5584DF8}"
+	ProjectSection(ProjectDependencies) = postProject
+		{8C738F56-4759-4323-AEC3-748F354A15FA} = {8C738F56-4759-4323-AEC3-748F354A15FA}
+		{AFB7B061-0083-485F-8F8A-3DAE98C2011F} = {AFB7B061-0083-485F-8F8A-3DAE98C2011F}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

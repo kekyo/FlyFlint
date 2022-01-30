@@ -79,9 +79,12 @@ namespace FlyFlint
         {
             public int idparam { get; set; }
 
-            public ExtractedParameter[] Extract(
-                StaticParameterExtractionContext context) =>
-                new[] { new ExtractedParameter( "idparam", this.idparam ) };
+            public void Extract(
+                StaticParameterExtractionContext context)
+            {
+                //base.Extract(context);
+                context.RegisterParameter<int>(nameof(idparam), this.idparam);
+            }
         }
 
         [Test]
@@ -102,6 +105,10 @@ namespace FlyFlint
             c.CommandText = "INSERT INTO target VALUES (3,'CCCCC','2022/01/23 12:34:58.789')";
             await c.ExecuteNonQueryAsync();
 
+            //var query = QueryFacadeExtension.Parameter(
+            //    QueryExtension.Query<Target>(
+            //        connection, "SELECT * FROM target WHERE Id = @idparam"),
+            //        new Parameter { idparam = 2 });
             var query = QueryFacadeExtension.Parameter(
                 QueryExtension.Query<Target>(
                     connection, "SELECT * FROM target WHERE Id = @idparam"),

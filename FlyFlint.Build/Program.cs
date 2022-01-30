@@ -45,31 +45,21 @@ namespace FlyFlint
                 var extra = options.Parse(args);
                 if (extra.Count < 1)
                 {
-                    Console.WriteLine("usage: ff.exe [options] <referenceBasePaths> <assembly_path> [<output_path>]");
+                    Console.WriteLine("usage: ff.exe [options] <referenceBasePaths> <assembly_path>");
                     options.WriteOptionDescriptions(Console.Out);
                 }
                 else
                 {
                     var referencesBasePath = extra[0].Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
                     var targetAssemblyPath = extra[1];
-                    var injectedAssemblyPath = extra.ElementAtOrDefault(2);
 
                     var injector = new Injector(referencesBasePath, Message);
 
-                    if (injector.Inject(targetAssemblyPath, injectedAssemblyPath))
+                    if (injector.Inject(targetAssemblyPath))
                     {
-                        if (injectedAssemblyPath != null)
-                        {
-                            Message(
-                                LogLevels.Information,
-                                $"Injected assembly: Assembly={Path.GetFileName(targetAssemblyPath)}, Output={Path.GetFileName(injectedAssemblyPath)}");
-                        }
-                        else
-                        {
-                            Message(
-                                LogLevels.Information,
-                                $"Replaced injected assembly: Assembly={Path.GetFileName(targetAssemblyPath)}");
-                        }
+                        Message(
+                            LogLevels.Information,
+                            $"Replaced injected assembly: Assembly={Path.GetFileName(targetAssemblyPath)}");
                     }
                     else
                     {

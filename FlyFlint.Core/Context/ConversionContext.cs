@@ -43,11 +43,8 @@ namespace FlyFlint.Context
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public virtual object ConvertFrom<T>(T value)
-        {
-            // TODO:
-            throw new NotImplementedException();
-        }
+        public virtual object? ConvertFrom<T>(ref T value) =>
+            value;
 
         public static readonly ConversionContext Default =
             new ConversionContext(CultureInfo.InvariantCulture, Encoding.UTF8);

@@ -36,7 +36,7 @@ namespace FlyFlint.Internal.Static
     public interface IParameterExtractable
     {
         [EditorBrowsable(EditorBrowsableState.Never)]
-        ExtractedParameter[] Extract(StaticParameterExtractionContext context);
+        void Extract(StaticParameterExtractionContext context);
     }
 
     [EditorBrowsable(EditorBrowsableState.Never)]
