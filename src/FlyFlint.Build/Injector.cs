@@ -111,6 +111,22 @@ namespace FlyFlint
                 LogLevels.Trace,
                 $"FlyFlint.Core.dll is loaded: Path={flyFlintCorePath}");
 
+            var flyFlintPath = referencesBasePath.
+                Select(basePath => Path.Combine(basePath, "FlyFlint.dll")).
+                First(File.Exists);
+
+            var flyFlintAssembly = AssemblyDefinition.ReadAssembly(
+                flyFlintPath,
+                new ReaderParameters
+                {
+                    AssemblyResolver = assemblyResolver,
+                }
+            );
+
+            this.message(
+                LogLevels.Trace,
+                $"FlyFlint.dll is loaded: Path={flyFlintPath}");
+
             this.typeSystem = flyFlintCoreAssembly.MainModule.TypeSystem;
 
             this.typeType = typeSystem.Object.Resolve().Module.Types.First(
@@ -131,9 +147,9 @@ namespace FlyFlint
             this.debuggerBrowsableStateType = typeSystem.Object.Resolve().Module.Types.First(
                 t => t.FullName == "System.Diagnostics.DebuggerBrowsableState");
 
-            this.queryFacadeExtensionType = flyFlintCoreAssembly.MainModule.GetType(
+            this.queryFacadeExtensionType = flyFlintAssembly.MainModule.GetType(
                 "FlyFlint.QueryFacadeExtension")!;
-            this.synchronizedQueryFacadeExtensionType = flyFlintCoreAssembly.MainModule.GetType(
+            this.synchronizedQueryFacadeExtensionType = flyFlintAssembly.MainModule.GetType(
                 "FlyFlint.Synchronized.QueryFacadeExtension")!;
             this.staticQueryFacadeType = flyFlintCoreAssembly.MainModule.GetType(
                 "FlyFlint.Internal.Static.StaticQueryFacade")!;
