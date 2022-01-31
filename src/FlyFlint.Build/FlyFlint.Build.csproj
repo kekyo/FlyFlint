@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <AssemblyName>ff</AssemblyName>
+    <TargetFrameworks>net45;netcoreapp2.1;netcoreapp2.2;netcoreapp3.1;net5.0;net6.0</TargetFrameworks>
+    <AssemblyTitle>FlyFlint</AssemblyTitle>
+      
+    <NuspecFile>FlyFlint.Build.nuspec</NuspecFile>
+    <NoPackageAnalysis>true</NoPackageAnalysis>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Mono.Options" Version="6.12.0.148" />
+    <PackageReference Include="System.ValueTuple" Version="4.5.0" />
+    <PackageReference Include="Mono.Cecil" Version="0.11.4" />
+    <PackageReference Remove="Microsoft.Bcl.AsyncInterfaces" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="build\*.*" CopyToOutputDirectory="Never" />
+    <Content Include="buildMultiTargeting\*.*" CopyToOutputDirectory="Never" />
+  </ItemGroup>
+
+</Project>

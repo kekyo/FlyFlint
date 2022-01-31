@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net35;net40;net45;net46;net461;net48;netcoreapp2.0;netcoreapp2.1;netcoreapp2.2;netcoreapp3.0;netcoreapp3.1;netstandard2.0;netstandard2.1;net5.0;net6.0</TargetFrameworks>
+    <AssemblyTitle>FlyFlint</AssemblyTitle>
+      
+    <NuspecFile>FlyFlint.nuspec</NuspecFile>
+    <NoPackageAnalysis>true</NoPackageAnalysis>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\FlyFlint.Core\FlyFlint.Core.csproj" />
+  </ItemGroup>
+
+</Project>

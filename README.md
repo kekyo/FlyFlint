@@ -1,15 +1,25 @@
 # FlyFlint
 
+![FlyFlint](Images/FlyFlint.100.png)
+
+[![NuGet FlyFlint](https://img.shields.io/nuget/v/FlyFlint.svg?style=flat)](https://www.nuget.org/packages/FlyFlint)
+
 [![Project Status: Concept – Minimal or no implementation has been done yet, or the repository is only intended to be a limited example, demo, or proof-of-concept.](https://www.repostatus.org/badges/latest/concept.svg)](https://www.repostatus.org/#concept)
+
+---
 
 ## What is this?
 
-Lightweight static O/R mapping builder at compile time.
+In short word: Lightweight static O/R mapping builder at compile time.
 
-FlyFlint will generate data accessors infrastructure at that compile time and there are not use any runtime reflection.
+FlyFlint will generate data accessors infrastructure at that compile time
+and there are not use any runtime reflection.
 That means, It is an AOT friendly, faster and lightweight O/R mapper.
 
-You could define only `model` (`entity`, `element` and like) type and use it.
+To use it, you just need to define a model type (often called entity or element type)
+as a vessel for your records.
+And then simply install [FlyFlint NuGet package](https://www.nuget.org/packages/FlyFlint).
+No additional work is required at all!
 
 ```csharp
 using FlyFlint;
@@ -36,7 +46,8 @@ public async Task<Model[]> GetModelsFromDatabaseAsync()
 
     // Execute query and got enumerable results on asynchronously.
     // (And enabled fast prefetcher.)
-    return await query.ExecuteAsync(query).
+    return await query.
+        ExecuteAsync(query).
         ToArrayAsync();
 }
 ```
@@ -44,6 +55,11 @@ public async Task<Model[]> GetModelsFromDatabaseAsync()
 FlyFlint can store record fields into `Model` **except using ANY reflection**.
 The record data will be stored directly from `DbDataReader`
 by compile-time generated code.
+
+This is achieved by automatically inserting code that is almost equivalent
+to manually calling `DbDataReader.GetInt32()` or like.
+
+---
 
 ## Environment
 
@@ -53,6 +69,8 @@ by compile-time generated code.
 * .NET Core 3.1/3.0/2.1/2.0
 * .NET Standard 2.1/2.0
 * .NET Framework 4.8/4.6.1/4.6/4.5/4.0/3.5
+* ADO.NET database driver that provides all `DbConnection` type.
+  * SQL Server, Oracle, SQLite and etc...
 
 #### Limitation
 
@@ -67,9 +85,11 @@ Maybe you have to develop with newer MSBuild infrastructure:
 * Visual Studio 2021/2019/2017
 * Rider with .NET 6/5/.NET Core SDK
 
+---
+
 ## Basic usage
 
-Install package via NuGet.
+[Install package via NuGet](https://www.nuget.org/packages/FlyFlint).
 
 We can make safer code using string interpolated query in FlyFlint:
 
@@ -77,7 +97,7 @@ We can make safer code using string interpolated query in FlyFlint:
     // Query parameters on the variables:
     var id = 123;
 
-    // Build the parameterized query.
+    // Build the parameterized query with string interpolation syntax.
     var query = connection.Query<Model>(
         $"SELECT * FROM target WHERE Id = {id}");
 ```
@@ -85,7 +105,7 @@ We can make safer code using string interpolated query in FlyFlint:
 It is naturally code, readable and writable. The FlyFlint will interpret
 and construct parameterized query, it is **not RAW STRING**.
 
-I understood you already use major lightweight O/R mapper `Dapper`,
+I understood maybe you already use major lightweight O/R mapper `Dapper`,
 FlyFlint can receive `Dapper` like query code:
 
 ```csharp
@@ -111,6 +131,8 @@ We can build `prepared query` before using it:
 ```
 
 This `prepared query` is delayed to examine query expression.
+Since it does not depend on the database connection (`DbConnection`),
+if you generate it in advance, you can use it as many times as you like.
 
 ## Database traits
 
@@ -127,6 +149,8 @@ TODO:
 ## Deeper FlyFlint
 
 TODO: injected type case
+
+---
 
 ## License
 

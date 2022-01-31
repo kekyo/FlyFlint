@@ -1,0 +1,26 @@
+<Project>
+
+  <Import Project="../Directory.Build.props" />
+
+  <PropertyGroup>
+    <Product>FlyFlint</Product>
+    <Trademark>FlyFlint</Trademark>
+    <Copyright>Copyright (c) Kouji Matsui</Copyright>
+    <Description>Lightweight static O/R mapping builder at compile time.</Description>
+
+    <Company>Kouji Matsui (@kozy_kekyo, @kekyo2)</Company>
+    <Authors>Kouji Matsui (@kozy_kekyo, @kekyo2)</Authors>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/kekyo/FlyFlint.git</PackageProjectUrl>
+    <PackageIcon>FlyFlint.100.png</PackageIcon>
+    <PackageTags>or-mapper;orm;database;lightweight;static;compile-time</PackageTags>
+    <AllowedOutputExtensionsInPackageBuildOutputFolder>.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+    <NoWarn>$(NoWarn);NU1605;NU1701</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(Configuration)' == 'Release'">
+    <PackageReference Include="RelaxVersioner" Version="2.4.0" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
+  </ItemGroup>
+
+</Project>

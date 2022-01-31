@@ -1,0 +1,70 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+  <metadata>
+    <id>FlyFlint</id>
+    <version>$PackageVersion$</version>
+    <authors>Kouji Matsui (@kozy_kekyo, @kekyo2)</authors>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <license type="expression">Apache-2.0</license>
+    <licenseUrl>https://licenses.nuget.org/Apache-2.0</licenseUrl>
+    <icon>FlyFlint.100.png</icon>
+    <projectUrl>https://github.com/kekyo/FlyFlint.git</projectUrl>
+    <description>Lightweight static O/R mapping builder at compile time.</description>
+    <releaseNotes>$PackageReleaseNotes$</releaseNotes>
+    <copyright>Copyright (c) Kouji Matsui</copyright>
+    <tags>or-mapper orm database lightweight static compile-time</tags>
+    <repository type="git" url="https://github.com/kekyo/FlyFlint.git" branch="$RepositoryBranch$" commit="$RepositoryCommit$" />
+    <dependencies>
+      <group targetFramework=".NETFramework3.5">
+        <dependency id="FlyFlint.Build" version="$PackageVersion$" />
+        <dependency id="FlyFlint.Core" version="$PackageVersion$" exclude="Build,Analyzers" />
+        <dependency id="AsyncBridge" version="0.3.1" exclude="Build,Analyzers" />
+      </group>
+      <group targetFramework=".NETFramework4.0">
+        <dependency id="FlyFlint.Build" version="$PackageVersion$" />
+        <dependency id="FlyFlint.Core" version="$PackageVersion$" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Bcl.Async" version="1.0.168" exclude="Build,Analyzers" />
+      </group>
+      <group targetFramework=".NETFramework4.5">
+        <dependency id="FlyFlint.Build" version="$PackageVersion$" />
+        <dependency id="FlyFlint.Core" version="$PackageVersion$" exclude="Build,Analyzers" />
+      </group>
+      <group targetFramework=".NETFramework4.6.1">
+        <dependency id="FlyFlint.Build" version="$PackageVersion$" />
+        <dependency id="FlyFlint.Core" version="$PackageVersion$" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Bcl.AsyncInterfaces" version="6.0.0" />
+      </group>
+      <group targetFramework=".NETFramework4.8">
+        <dependency id="FlyFlint.Build" version="$PackageVersion$" />
+        <dependency id="FlyFlint.Core" version="$PackageVersion$" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Bcl.AsyncInterfaces" version="6.0.0" />
+      </group>
+      <group targetFramework=".NETCoreApp3.0">
+        <dependency id="FlyFlint.Build" version="$PackageVersion$" />
+        <dependency id="FlyFlint.Core" version="$PackageVersion$" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Bcl.AsyncInterfaces" version="6.0.0" />
+      </group>
+      <group targetFramework=".NETCoreApp3.1">
+        <dependency id="FlyFlint.Build" version="$PackageVersion$" />
+        <dependency id="FlyFlint.Core" version="$PackageVersion$" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Bcl.AsyncInterfaces" version="6.0.0" />
+      </group>
+      <group targetFramework="net5.0">
+        <dependency id="FlyFlint.Build" version="$PackageVersion$" />
+        <dependency id="FlyFlint.Core" version="$PackageVersion$" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Bcl.AsyncInterfaces" version="6.0.0" />
+      </group>
+      <group targetFramework="net6.0">
+        <dependency id="FlyFlint.Build" version="$PackageVersion$" />
+        <dependency id="FlyFlint.Core" version="$PackageVersion$" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Bcl.AsyncInterfaces" version="6.0.0" />
+      </group>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="bin\$Configuration$\**\FlyFlint.dll" target="lib" />
+    <file src="bin\$Configuration$\**\FlyFlint.pdb" target="lib" />
+    <file src="bin\$Configuration$\**\FlyFlint.xml" target="lib" />
+    <file src="..\..\Images\FlyFlint.100.png" target="/" />
+  </files>
+</package>
