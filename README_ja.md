@@ -22,32 +22,40 @@ FlyFlintは、データへのアクセサコードをコンパイル時に生成
 
 ```csharp
 using FlyFlint;
-using FlyFlint.Utilities;
+using System;
+using System.Data.SQLite;
+using System.Threading.Tasks;
 
-// モデル型は、クラス・構造体・フィールド・プロパティを
-// 任意に組み合わせる事が出来ます...
-private sealed class Model
+// `ToArrayAsync`を使う場合。又は`System.Linq.Async`のインストールでもOK。
+using FlyFlint.Collections;
+
+public static class Program
 {
-    public int Id;
-    public string? Name;    // FlyFlintはヌル許容型に対応しています
-    public DateTime? Birth;
-}
+    // モデル型は、クラス・構造体・フィールド・プロパティを
+    // 任意に組み合わせる事が出来ます...
+    private sealed class Target
+    {
+        public int Id;
+        public string? Name;    // FlyFlintはヌル許容型に対応しています
+        public DateTime? Birth;
+    }
 
-public async Task<Model[]> GetModelsFromDatabaseAsync()
-{
-    using var connection = new SQLiteConnection(
-        "Data Source=:memory:");
-    await connection.OpenAsync();
+    public static async Task Main()
+    {
+        using var connection = new SQLiteConnection(
+            "Data Source=:memory:");
+        await connection.OpenAsync();
 
-    // クエリを生成します
-    var query = connection.Query<Model>(
-        "SELECT * FROM target");
+        // クエリを生成します
+        var query = connection.Query<Target>(
+            "SELECT * FROM target");
 
-    // 非同期でクエリを実行して、結果を列挙します。
-    // （内部では高速なprefetcherが動作します）
-    return await query.
-        ExecuteAsync(query).
-        ToArrayAsync();
+        // 非同期でクエリを実行して、結果を列挙します。
+        // （内部では高速なprefetcherが動作します）
+        Target[] targets = await query.
+            ExecuteAsync().
+            ToArrayAsync();
+    }
 }
 ```
 

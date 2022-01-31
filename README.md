@@ -23,32 +23,40 @@ No additional work is required at all!
 
 ```csharp
 using FlyFlint;
-using FlyFlint.Utilities;
+using System;
+using System.Data.SQLite;
+using System.Threading.Tasks;
 
-// You can write models with
-// any class/struct/field/property combination...
-private sealed class Model
+// Requires using `ToArrayAsync` or install `System.Linq.Async`.
+using FlyFlint.Collections;
+
+public static class Program
 {
-    public int Id;
-    public string? Name;    // Yes, FlyFlint covered nullable types.
-    public DateTime? Birth;
-}
+    // You can write models with
+    // any class/struct/field/property combination...
+    private sealed class Target
+    {
+        public int Id;
+        public string? Name;    // Yes, FlyFlint covered nullable types.
+        public DateTime? Birth;
+    }
 
-public async Task<Model[]> GetModelsFromDatabaseAsync()
-{
-    using var connection = new SQLiteConnection(
-        "Data Source=:memory:");
-    await connection.OpenAsync();
+    public static async Task Main()
+    {
+        using var connection = new SQLiteConnection(
+            "Data Source=:memory:");
+        await connection.OpenAsync();
 
-    // Build the query.
-    var query = connection.Query<Model>(
-        "SELECT * FROM target");
+        // Build the query.
+        var query = connection.Query<Target>(
+            "SELECT * FROM target");
 
-    // Execute query and got enumerable results on asynchronously.
-    // (And enabled fast prefetcher.)
-    return await query.
-        ExecuteAsync(query).
-        ToArrayAsync();
+        // Execute query and got enumerable results on asynchronously.
+        // (And enabled fast prefetcher.)
+        Target[] targets = await query.
+            ExecuteAsync().
+            ToArrayAsync();
+    }
 }
 ```
 
