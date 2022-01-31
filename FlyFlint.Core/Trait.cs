@@ -39,6 +39,17 @@ namespace FlyFlint
 
         /////////////////////////////////////////////////////////////////////////////
 
+        public ConversionContext ConversionContext =>
+            this.cc;
+
+        public IComparer<string> FieldComparer =>
+            this.fieldComparer;
+
+        public string ParameterPrefix =>
+            this.parameterPrefix;
+
+        /////////////////////////////////////////////////////////////////////////////
+
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif

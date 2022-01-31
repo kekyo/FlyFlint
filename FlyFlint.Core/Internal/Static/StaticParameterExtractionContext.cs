@@ -31,10 +31,13 @@ namespace FlyFlint.Internal.Static
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public void RegisterParameter<T>(string fieldName, ref T parameterValue) =>
+        public void RegisterParameter<TValue>(string fieldName, ref TValue parameterValue) =>
             this.parameters.Add(new ExtractedParameter(fieldName, cc.ConvertFrom(ref parameterValue)));
 
-        public void RegisterParameter<T>(string fieldName, T parameterValue) =>
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public void RegisterParameter<TValue>(string fieldName, TValue parameterValue) =>
             this.parameters.Add(new ExtractedParameter(fieldName, parameterValue));
 
         internal ExtractedParameter[] ExtractParameters(string parameterPrefix)
@@ -42,11 +45,13 @@ namespace FlyFlint.Internal.Static
             var extracted = new ExtractedParameter[this.parameters.Count];
             for (var index = 0; index < extracted.Length; index++)
             {
-                var value = extracted[index].Value;
+                var parameter = this.parameters[index];
+
+                var value = parameter.Value;
                 var dbValue = (value == null) ? DBNull.Value : value;
 
                 extracted[index] = new ExtractedParameter(
-                    parameterPrefix + extracted[index].Name, dbValue);
+                    parameterPrefix + parameter.Name, dbValue);
             }
             return extracted;
         }
