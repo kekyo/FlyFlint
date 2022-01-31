@@ -14,6 +14,7 @@ rem git clean -xfd
 
 dotnet restore
 dotnet build -c Release -p:Platform="Any CPU" FlyFlint.sln
-dotnet pack -p:Configuration=Release -p:Platform=AnyCPU -o artifacts FlyFlint.Core\FlyFlint.Core.csproj
-dotnet pack -p:Configuration=Release -p:Platform=AnyCPU -o artifacts FlyFlint.Dynamic.Core\FlyFlint.Dynamic.Core.csproj
-dotnet pack -p:Configuration=Release -p:Platform=AnyCPU -o artifacts FlyFlint.Build\FlyFlint.Build.csproj
+dotnet pack -p:Configuration=Release -p:Platform=AnyCPU -o artifacts src\FlyFlint.Core\FlyFlint.Core.csproj
+dotnet pack -p:Configuration=Release -p:Platform=AnyCPU -o artifacts src\FlyFlint.Dynamic\FlyFlint.Dynamic.csproj
+dotnet pack -p:Configuration=Release -p:Platform=AnyCPU -o artifacts src\FlyFlint.Build\FlyFlint.Build.csproj
+dotnet pack -p:Configuration=Release -p:Platform=AnyCPU -o artifacts src\FlyFlint\FlyFlint.csproj

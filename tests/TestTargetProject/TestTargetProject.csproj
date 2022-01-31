@@ -10,7 +10,7 @@
     </ItemGroup>
   
     <ItemGroup>
-      <ProjectReference Include="..\FlyFlint\FlyFlint.csproj" />
+      <ProjectReference Include="..\..\src\FlyFlint\FlyFlint.csproj" />
     </ItemGroup>
   
     <!-- https://stackoverflow.com/questions/21293105/system-dllnotfoundexception-on-mono-sqlite -->
