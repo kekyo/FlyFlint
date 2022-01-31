@@ -2,7 +2,7 @@
     "profiles": {
         "FlyFlint.Build": {
             "commandName": "Project",
-            "commandLineArgs": "..\\..\\..\\..\\TestTargetProject\\bin\\Debug\\net48 ..\\..\\..\\..\\TestTargetProject\\bin\\Debug\\net48\\TestTargetProject.dll ..\\..\\..\\..\\TestTargetProject\\bin\\Debug\\net48\\Injected\\TestTargetProject.dll"
+            "commandLineArgs": "..\\..\\..\\..\\..\\tests\\TestTargetProject\\bin\\Debug\\net48 ..\\..\\..\\..\\..\\tests\\TestTargetProject\\bin\\Debug\\net48\\TestTargetProject.dll ..\\..\\..\\..\\..\\tests\\TestTargetProject\\bin\\Debug\\net48\\Injected\\TestTargetProject.dll"
         }
     }
 }
