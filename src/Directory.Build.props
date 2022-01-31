@@ -3,6 +3,7 @@
   <Import Project="../Directory.Build.props" />
 
   <PropertyGroup>
+    <AssemblyTitle>FlyFlint</AssemblyTitle>
     <Product>FlyFlint</Product>
     <Trademark>FlyFlint</Trademark>
     <Copyright>Copyright (c) Kouji Matsui</Copyright>

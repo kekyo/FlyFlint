@@ -16,7 +16,7 @@
     <repository type="git" url="https://github.com/kekyo/FlyFlint.git" branch="$RepositoryBranch$" commit="$RepositoryCommit$" />
   </metadata>
   <files>
-    <file src="..\Images\FlyFlint.100.png" target="/" />
+    <file src="..\..\Images\FlyFlint.100.png" target="/" />
     <file src="build\*.*" target="build" />
     <file src="buildMultiTargeting\*.*" target="buildMultiTargeting" />
     <file src="bin\$Configuration$\net461\*.*" target="tools/net461" />

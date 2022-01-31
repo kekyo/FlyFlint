@@ -4,8 +4,7 @@
     <OutputType>Exe</OutputType>
     <AssemblyName>ff</AssemblyName>
     <TargetFrameworks>net45;netcoreapp2.1;netcoreapp2.2;netcoreapp3.1;net5.0;net6.0</TargetFrameworks>
-    <AssemblyTitle>FlyFlint</AssemblyTitle>
-      
+ 
     <NuspecFile>FlyFlint.Build.nuspec</NuspecFile>
     <NoPackageAnalysis>true</NoPackageAnalysis>
     <IncludeBuildOutput>false</IncludeBuildOutput>
