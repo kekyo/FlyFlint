@@ -20,9 +20,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FlyFlint.Dynamic.Core", "FlyFlint.Dynamic.Core\FlyFlint.Dynamic.Core.csproj", "{34007FD3-9DEC-4E96-A947-C3BF8E738AEE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FlyFlint.Dynamic", "FlyFlint.Dynamic\FlyFlint.Dynamic.csproj", "{34007FD3-9DEC-4E96-A947-C3BF8E738AEE}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FlyFlint.Dynamic.Core.Tests", "FlyFlint.Dynamic.Core.Tests\FlyFlint.Dynamic.Core.Tests.csproj", "{35C873E3-ED09-4480-9824-F27E790A9C0C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FlyFlint.Dynamic.Tests", "FlyFlint.Dynamic.Tests\FlyFlint.Dynamic.Tests.csproj", "{35C873E3-ED09-4480-9824-F27E790A9C0C}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestTargetProject", "TestTargetProject\TestTargetProject.csproj", "{8C738F56-4759-4323-AEC3-748F354A15FA}"
 EndProject
@@ -31,6 +31,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestTargetProject2", "TestT
 		{8C738F56-4759-4323-AEC3-748F354A15FA} = {8C738F56-4759-4323-AEC3-748F354A15FA}
 		{AFB7B061-0083-485F-8F8A-3DAE98C2011F} = {AFB7B061-0083-485F-8F8A-3DAE98C2011F}
 	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FlyFlint", "FlyFlint\FlyFlint.csproj", "{D63FC8B8-BCB6-4A57-9C09-2A9C641EFFE2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -66,6 +68,10 @@ Global
 		{574DFA57-630E-4B56-BA9B-1E1ED5584DF8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{574DFA57-630E-4B56-BA9B-1E1ED5584DF8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{574DFA57-630E-4B56-BA9B-1E1ED5584DF8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D63FC8B8-BCB6-4A57-9C09-2A9C641EFFE2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D63FC8B8-BCB6-4A57-9C09-2A9C641EFFE2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D63FC8B8-BCB6-4A57-9C09-2A9C641EFFE2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D63FC8B8-BCB6-4A57-9C09-2A9C641EFFE2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

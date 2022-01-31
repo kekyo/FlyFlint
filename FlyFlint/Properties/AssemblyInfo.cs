@@ -9,9 +9,6 @@
 
 using System.Runtime.CompilerServices;
 
-[assembly: InternalsVisibleTo("FlyFlint")]
-[assembly: InternalsVisibleTo("FlyFlint.Dynamic")]
-[assembly: InternalsVisibleTo("FSharp.FlyFlint")]
-
+[assembly: InternalsVisibleTo("FlyFlint.Dynamic.Core")]
 [assembly: InternalsVisibleTo("FlyFlint.Core.Tests")]
 [assembly: InternalsVisibleTo("FlyFlint.Dynamic.Core.Tests")]

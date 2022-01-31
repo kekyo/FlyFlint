@@ -30,11 +30,11 @@ namespace FlyFlint.Internal.Static
             new ParameterizedQueryContext(
                 connection,
                 null,
-                FlyFlint.Query.DefaultTrait,
+                QueryHelper.CurrentDefaultTrait,
                 sql.Sql,
                 StaticQueryExecutor.GetParameters(
-                    FlyFlint.Query.DefaultTrait.cc,
-                    FlyFlint.Query.DefaultTrait.parameterPrefix,
+                    QueryHelper.CurrentDefaultTrait.cc,
+                    QueryHelper.CurrentDefaultTrait.parameterPrefix,
                     ref parameters));
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
@@ -49,11 +49,11 @@ namespace FlyFlint.Internal.Static
             new ParameterizedQueryContext(
                 connection,
                 transaction,
-                FlyFlint.Query.DefaultTrait,
+                QueryHelper.CurrentDefaultTrait,
                 sql.Sql,
                 StaticQueryExecutor.GetParameters(
-                    FlyFlint.Query.DefaultTrait.cc,
-                    FlyFlint.Query.DefaultTrait.parameterPrefix,
+                    QueryHelper.CurrentDefaultTrait.cc,
+                    QueryHelper.CurrentDefaultTrait.parameterPrefix,
                     ref parameters));
 
         /////////////////////////////////////////////////////////////////////////////

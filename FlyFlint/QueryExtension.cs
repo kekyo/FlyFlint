@@ -29,7 +29,7 @@ namespace FlyFlint
         public static PartialQueryContext Query(
             this DbConnection connection,
             String sql) =>
-            FlyFlint.Query.DefaultTrait.Query(connection, sql);
+            QueryHelper.CurrentDefaultTrait.Query(connection, sql);
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -37,7 +37,7 @@ namespace FlyFlint
         public static ParameterizedQueryContext Query(
             this DbConnection connection,
             FormattableString sql) =>
-            FlyFlint.Query.DefaultTrait.Query(connection, sql);
+            QueryHelper.CurrentDefaultTrait.Query(connection, sql);
 
         /////////////////////////////////////////////////////////////////////////////
 
@@ -48,7 +48,7 @@ namespace FlyFlint
             this DbConnection connection,
             DbTransaction? transaction,
             String sql) =>
-            FlyFlint.Query.DefaultTrait.Query(connection, transaction, sql);
+            QueryHelper.CurrentDefaultTrait.Query(connection, transaction, sql);
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -57,7 +57,7 @@ namespace FlyFlint
             this DbConnection connection,
             DbTransaction? transaction,
             FormattableString sql) =>
-            FlyFlint.Query.DefaultTrait.Query(connection, transaction, sql);
+            QueryHelper.CurrentDefaultTrait.Query(connection, transaction, sql);
 
         /////////////////////////////////////////////////////////////////////////////
 
@@ -68,7 +68,7 @@ namespace FlyFlint
             this DbConnection connection,
             String sql)
             where TElement : new() =>
-            FlyFlint.Query.DefaultTrait.Query<TElement>(connection, sql);
+            QueryHelper.CurrentDefaultTrait.Query<TElement>(connection, sql);
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -77,7 +77,7 @@ namespace FlyFlint
             this DbConnection connection,
             FormattableString sql)
             where TElement : new() =>
-            FlyFlint.Query.DefaultTrait.Query<TElement>(connection, sql);
+            QueryHelper.CurrentDefaultTrait.Query<TElement>(connection, sql);
 
         /////////////////////////////////////////////////////////////////////////////
 
@@ -89,7 +89,7 @@ namespace FlyFlint
             DbTransaction? transaction,
             String sql)
             where TElement : new() =>
-            FlyFlint.Query.DefaultTrait.Query<TElement>(connection, transaction, sql);
+            QueryHelper.CurrentDefaultTrait.Query<TElement>(connection, transaction, sql);
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -99,7 +99,7 @@ namespace FlyFlint
             DbTransaction? transaction,
             FormattableString sql)
             where TElement : new() =>
-            FlyFlint.Query.DefaultTrait.Query<TElement>(connection, transaction, sql);
+            QueryHelper.CurrentDefaultTrait.Query<TElement>(connection, transaction, sql);
 
         /////////////////////////////////////////////////////////////////////////////
 
