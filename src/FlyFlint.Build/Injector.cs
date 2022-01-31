@@ -7,14 +7,13 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
+using Mono.Cecil;
+using Mono.Cecil.Cil;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using Mono.Cecil;
-using Mono.Cecil.Cil;
 
 namespace FlyFlint
 {
@@ -25,6 +24,8 @@ namespace FlyFlint
         Warning,
         Error
     }
+
+    ////////////////////////////////////////////////////////////////////////////
 
     public sealed class Injector
     {
@@ -53,6 +54,8 @@ namespace FlyFlint
                 $"{Utilities.GetTypeName(this.Type)}{(!this.Type.IsValueType ? this.IsNullable ? "?" : "" : "")}";
         }
 
+        ////////////////////////////////////////////////////////////////////////////
+
         private readonly Action<LogLevels, string> message;
         private readonly DefaultAssemblyResolver assemblyResolver = new();
 
@@ -72,6 +75,8 @@ namespace FlyFlint
         private readonly TypeDefinition staticQueryFacadeType;
         private readonly TypeDefinition extractedParameterType;
         private readonly TypeDefinition dataInjectorDelegateType;
+        private readonly MethodDefinition dataInjectableInjectedAttributeConstructor;
+        private readonly MethodDefinition parameterExtractableInjectedAttributeConstructor;
         private readonly TypeDefinition staticMemberMetadataType;
         private readonly MethodDefinition staticMemberMetadataConstructor;
         private readonly TypeDefinition staticDataInjectorDelegateType;
@@ -80,11 +85,14 @@ namespace FlyFlint
         private readonly MethodDefinition registerMetadataMethod;
         private readonly TypeDefinition parameterExtractableType;
         private readonly TypeDefinition dataInjectableType;
+        private readonly MethodDefinition extractMethod;
         private readonly MethodDefinition prepareMethod;
         private readonly Dictionary<TypeKey, MethodDefinition> getValueMethods;
         private readonly MethodDefinition getEnumValueMethod;
         private readonly MethodDefinition getNullableEnumValueMethod;
         private readonly Dictionary<MethodReference, MethodDefinition> queryFacadeMapping;
+
+        ////////////////////////////////////////////////////////////////////////////
 
         public Injector(string[] referencesBasePath, Action<LogLevels, string> message)
         {
@@ -172,6 +180,16 @@ namespace FlyFlint
             this.dataInjectorDelegateType = flyFlintCoreAssembly.MainModule.Types.
                 First(t => t.FullName.StartsWith("FlyFlint.Internal.DataInjectorDelegate"));
 
+            var dataInjectableInjectedAttributeType = flyFlintCoreAssembly.MainModule.Types.
+                First(t => t.FullName.StartsWith("FlyFlint.Internal.Static.DataInjectableInjectedAttribute"));
+            this.dataInjectableInjectedAttributeConstructor = dataInjectableInjectedAttributeType.Methods.
+                First(m => m.IsConstructor && !m.IsStatic);
+
+            var parameterExtractableInjectedAttributeType = flyFlintCoreAssembly.MainModule.Types.
+                First(t => t.FullName.StartsWith("FlyFlint.Internal.Static.ParameterExtractableInjectedAttribute"));
+            this.parameterExtractableInjectedAttributeConstructor = parameterExtractableInjectedAttributeType.Methods.
+                First(m => m.IsConstructor && !m.IsStatic);
+
             this.staticMemberMetadataType = flyFlintCoreAssembly.MainModule.GetType(
                 "FlyFlint.Internal.Static.StaticMemberMetadata")!;
             this.staticMemberMetadataConstructor = staticMemberMetadataType.Methods.
@@ -191,6 +209,8 @@ namespace FlyFlint
                 "FlyFlint.Internal.Static.IParameterExtractable")!;
             this.dataInjectableType = flyFlintCoreAssembly.MainModule.GetType(
                 "FlyFlint.Internal.Static.IDataInjectable")!;
+            this.extractMethod = this.parameterExtractableType.Methods.
+                First(m => m.Name.StartsWith("Extract"));
             this.prepareMethod = this.dataInjectableType.Methods.
                 First(m => m.Name.StartsWith("Prepare"));
 
@@ -205,6 +225,8 @@ namespace FlyFlint
                 Methods.
                 First(m => m.IsPublic && !m.IsStatic && m.Name.StartsWith("GetNullableEnum"));
         }
+
+        ////////////////////////////////////////////////////////////////////////////
 
         private FieldReference InjectStaticMemberField(
             ModuleDefinition module,
@@ -265,6 +287,8 @@ namespace FlyFlint
 
             return module.ImportReference(membersField);
         }
+
+        ////////////////////////////////////////////////////////////////////////////
 
         private FieldReference InjectInjectorMethod(
             ModuleDefinition module,
@@ -420,12 +444,14 @@ namespace FlyFlint
             return module.ImportReference(injectorField);
         }
 
+        ////////////////////////////////////////////////////////////////////////////
+
         private bool InjectPrepareMethod(
             ModuleDefinition module,
             TypeDefinition targetType)
         {
-            if (targetType.Interfaces.Any(
-                i => i.InterfaceType.FullName == "FlyFlint.Internal.Static.IDataInjectable"))
+            if (targetType.CustomAttributes.Any(ca =>
+                ca.AttributeType.Name == "FlyFlint.Internal.Static.DataInjectableInjectedAttribute"))
             {
                 return false;
             }
@@ -473,9 +499,8 @@ namespace FlyFlint
 
             var requiredOverrideMethod = targetType.
                 Traverse(t => t.BaseType?.Resolve()).
-                Where(t => t.Interfaces.Any(ii =>
-                    ii.InterfaceType.FullName == "FlyFlint.Internal.Static.IDataInjectable")).
-                Select(t => t.Methods.First(m => m.Name.StartsWith("Prepare"))).
+                SelectMany(t => t.Methods.Where(m =>
+                    m.IsFamily && m.IsVirtual && m.IsHideBySig && (m.Name == "Prepare"))).
                 FirstOrDefault();
 
             var prepareMethod = new MethodDefinition(
@@ -527,22 +552,31 @@ namespace FlyFlint
 
             //////////////////////////////////////////////
 
-            var ii = new InterfaceImplementation(
-                module.ImportReference(this.dataInjectableType));
-            targetType.Interfaces.Add(ii);
+            if (requiredOverrideMethod == null)
+            {
+                var ii = new InterfaceImplementation(
+                    module.ImportReference(this.dataInjectableType));
+                targetType.Interfaces.Add(ii);
 
-            prepareMethod.Overrides.Add(
-                module.ImportReference(this.prepareMethod));
+                prepareMethod.Overrides.Add(
+                    module.ImportReference(this.prepareMethod));
+            }
+
+            targetType.CustomAttributes.Add(
+                new CustomAttribute(
+                    module.ImportReference(this.dataInjectableInjectedAttributeConstructor)));
 
             return true;
         }
+
+        ////////////////////////////////////////////////////////////////////////////
 
         private bool InjectExtractMethod(
             ModuleDefinition module,
             TypeDefinition targetType)
         {
-            if (targetType.Interfaces.Any(
-                i => i.InterfaceType.FullName == "FlyFlint.Internal.Static.IParameterExtractable"))
+            if (targetType.CustomAttributes.Any(ca =>
+                ca.AttributeType.Name == "FlyFlint.Internal.Static.ParameterExtractableInjectedAttribute"))
             {
                 return false;
             }
@@ -567,9 +601,8 @@ namespace FlyFlint
 
             var requiredOverrideMethod = targetType.
                 Traverse(t => t.BaseType?.Resolve()).
-                Where(t => t.Interfaces.Any(ii =>
-                    ii.InterfaceType.FullName == "FlyFlint.Internal.Static.IParameterExtractable")).
-                Select(t => t.Methods.First(m => m.Name.StartsWith("Extract"))).
+                SelectMany(t => t.Methods.Where(m =>
+                    m.IsFamily && m.IsVirtual && m.IsHideBySig && (m.Name == "Extract"))).
                 FirstOrDefault();
 
             var extractMethod = new MethodDefinition(
@@ -585,8 +618,32 @@ namespace FlyFlint
                     module.ImportReference(this.compilerGeneratedAttributeConstructor)));
             targetType.Methods.Add(extractMethod);
 
+            //////////////////////////////////////////////
+
+
+            // TODO:
+
+
+            //////////////////////////////////////////////
+
+            if (requiredOverrideMethod == null)
+            {
+                var ii = new InterfaceImplementation(
+                    module.ImportReference(this.parameterExtractableType));
+                targetType.Interfaces.Add(ii);
+
+                extractMethod.Overrides.Add(
+                    module.ImportReference(this.extractMethod));
+            }
+
+            targetType.CustomAttributes.Add(
+                new CustomAttribute(
+                    module.ImportReference(this.parameterExtractableInjectedAttributeConstructor)));
+
             return true;
         }
+
+        ////////////////////////////////////////////////////////////////////////////
 
         private (TypeDefinition[] parametersTypes, TypeDefinition[] elementTypes) GetTargetTypes(
             AssemblyDefinition targetAssembly)
@@ -704,6 +761,8 @@ namespace FlyFlint
 
             return (parametersTypes, elementTypes);
         }
+
+        ////////////////////////////////////////////////////////////////////////////
 
         public bool Inject(string targetAssemblyPath)
         {
