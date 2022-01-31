@@ -1,10 +1,12 @@
 # FlyFlint
 
-![FlyFlint](images/FlyFlint-128.png)
+![FlyFlint](images/FlyFlint.100.png)
 
 [![NuGet FlyFlint](https://img.shields.io/nuget/v/FlyFlint.svg?style=flat)](https://www.nuget.org/packages/FlyFlint)
 
 [![Project Status: Concept – Minimal or no implementation has been done yet, or the repository is only intended to be a limited example, demo, or proof-of-concept.](https://www.repostatus.org/badges/latest/concept.svg)](https://www.repostatus.org/#concept)
+
+---
 
 ## これは何？
 
@@ -57,6 +59,8 @@ FlyFlintは、レコードデータを `Model` に格納するときに、
 これは、`DbDataReader.GetInt32()`などを手動で呼び出すコードとほぼ同等のコードを、
 自動的に挿入することで実現しています。
 
+---
+
 ## 対応環境
 
 ### 実行環境
@@ -81,9 +85,11 @@ FlyFlintは、レコードデータを `Model` に格納するときに、
 * Visual Studio 2021/2019/2017
 * Rider with .NET 6/5/.NET Core SDK
 
+---
+
 ## 基本的な使い方
 
-NuGetからパッケージをインストールします。
+[NuGetからパッケージをインストールします](https://www.nuget.org/packages/FlyFlint)。
 
 データベースアクセスは、度々SQLインジェクション攻撃の標的となります。
 もちろん、FlyFlintはパラメータ化クエリに対応していますが、
@@ -94,7 +100,7 @@ C#の `string interporation` に対応しています:
     // このようなクエリパラメータ値があるとします:
     var id = 123;
 
-    // これをクエリに含めるには、string interporationを使います:
+    // これをクエリに含めるには、string interporation構文を使います:
     var query = connection.Query<Model>(
         $"SELECT * FROM target WHERE Id = {id}");
 ```
@@ -130,6 +136,7 @@ O/Rマッパーの内部実装に詳しい人なら、このコードは内部�
 ```
 
 この `prepared query` は、クエリ式の評価を、実行時まで遅らせる事が出来ます。
+データベース接続(`DbConnection`)に依存しないため、予め生成しておけば、何度でも使いまわす事が出来ます。
 
 ## Database traits
 
@@ -146,6 +153,8 @@ TODO:
 ## Deeper FlyFlint
 
 TODO: injected type case
+
+---
 
 ## License
 
