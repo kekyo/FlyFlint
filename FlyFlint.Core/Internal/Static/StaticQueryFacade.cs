@@ -68,7 +68,7 @@ namespace FlyFlint.Internal.Static
             where TParameters : notnull, IParameterExtractable
         {
             var built = prepared.builder();
-            Debug.Assert(object.ReferenceEquals(built.parameters, Trait.defaultParameters));
+            Debug.Assert(object.ReferenceEquals(built.parameters, QueryHelper.DefaultParameters));
             return new ParameterizedQueryContext(
                 connection,
                 null,
@@ -91,7 +91,7 @@ namespace FlyFlint.Internal.Static
             where TParameters : notnull, IParameterExtractable
         {
             var built = prepared.builder();
-            Debug.Assert(object.ReferenceEquals(built.parameters, Trait.defaultParameters));
+            Debug.Assert(object.ReferenceEquals(built.parameters, QueryHelper.DefaultParameters));
             return new ParameterizedQueryContext(
                 connection,
                 transaction,
@@ -116,7 +116,7 @@ namespace FlyFlint.Internal.Static
             where TParameters : notnull, IParameterExtractable
         {
             var built = prepared.builder();
-            Debug.Assert(object.ReferenceEquals(built.parameters, Trait.defaultParameters));
+            Debug.Assert(object.ReferenceEquals(built.parameters, QueryHelper.DefaultParameters));
             return new ParameterizedQueryContext<TElement>(
                 connection,
                 null,
@@ -140,7 +140,7 @@ namespace FlyFlint.Internal.Static
             where TParameters : notnull, IParameterExtractable
         {
             var built = prepared.builder();
-            Debug.Assert(object.ReferenceEquals(built.parameters, Trait.defaultParameters));
+            Debug.Assert(object.ReferenceEquals(built.parameters, QueryHelper.DefaultParameters));
             return new ParameterizedQueryContext<TElement>(
                 connection,
                 transaction,
@@ -163,7 +163,7 @@ namespace FlyFlint.Internal.Static
             where TParameters : notnull, IParameterExtractable
         {
             var (sql, dps) = prepared.builder();
-            Debug.Assert(object.ReferenceEquals(dps, Trait.defaultParameters));
+            Debug.Assert(object.ReferenceEquals(dps, QueryHelper.DefaultParameters));
             var constructParameters = StaticQueryExecutor.GetConstructParameters(
                 prepared.trait.cc,
                 prepared.trait.parameterPrefix,
@@ -183,7 +183,7 @@ namespace FlyFlint.Internal.Static
             where TParameters : notnull, IParameterExtractable
         {
             var (sql, dps) = prepared.builder();
-            Debug.Assert(object.ReferenceEquals(dps, Trait.defaultParameters));
+            Debug.Assert(object.ReferenceEquals(dps, QueryHelper.DefaultParameters));
             var constructParameters = StaticQueryExecutor.GetConstructParameters(
                 prepared.trait.cc,
                 prepared.trait.parameterPrefix,
@@ -204,7 +204,7 @@ namespace FlyFlint.Internal.Static
             where TParameters : notnull, IParameterExtractable
         {
             var (sql, dps) = prepared.builder();
-            Debug.Assert(object.ReferenceEquals(dps, Trait.defaultParameters));
+            Debug.Assert(object.ReferenceEquals(dps, QueryHelper.DefaultParameters));
             var constructParameters = StaticQueryExecutor.GetConstructParameters(
                 prepared.trait.cc,
                 prepared.trait.parameterPrefix,
@@ -224,7 +224,7 @@ namespace FlyFlint.Internal.Static
             where TParameters : notnull, IParameterExtractable
         {
             var (sql, dps) = prepared.builder();
-            Debug.Assert(object.ReferenceEquals(dps, Trait.defaultParameters));
+            Debug.Assert(object.ReferenceEquals(dps, QueryHelper.DefaultParameters));
             var constructParameters = StaticQueryExecutor.GetConstructParameters(
                 prepared.trait.cc,
                 prepared.trait.parameterPrefix,

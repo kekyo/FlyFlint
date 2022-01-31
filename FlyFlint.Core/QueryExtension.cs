@@ -127,7 +127,7 @@ namespace FlyFlint
             PreparedPartialQueryContext prepared)
         {
             var built = prepared.builder();
-            Debug.Assert(object.ReferenceEquals(built.parameters, Trait.defaultParameters));
+            Debug.Assert(object.ReferenceEquals(built.parameters, QueryHelper.DefaultParameters));
             return new PartialQueryContext(
                 connection,
                 null,
@@ -163,7 +163,7 @@ namespace FlyFlint
             PreparedPartialQueryContext prepared)
         {
             var built = prepared.builder();
-            Debug.Assert(object.ReferenceEquals(built.parameters, Trait.defaultParameters));
+            Debug.Assert(object.ReferenceEquals(built.parameters, QueryHelper.DefaultParameters));
             return new PartialQueryContext(
                 connection,
                 transaction,
@@ -199,7 +199,7 @@ namespace FlyFlint
             where TElement : new()
         {
             var built = prepared.builder();
-            Debug.Assert(object.ReferenceEquals(built.parameters, Trait.defaultParameters));
+            Debug.Assert(object.ReferenceEquals(built.parameters, QueryHelper.DefaultParameters));
             return new PartialQueryContext<TElement>(
                 connection,
                 null,
@@ -237,7 +237,7 @@ namespace FlyFlint
             where TElement : new()
         {
             var built = prepared.builder();
-            Debug.Assert(object.ReferenceEquals(built.parameters, Trait.defaultParameters));
+            Debug.Assert(object.ReferenceEquals(built.parameters, QueryHelper.DefaultParameters));
             return new PartialQueryContext<TElement>(
                 connection,
                 transaction,

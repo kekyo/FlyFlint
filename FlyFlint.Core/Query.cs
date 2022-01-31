@@ -8,6 +8,7 @@
 ////////////////////////////////////////////////////////////////////////////
 
 using FlyFlint.Context;
+using FlyFlint.Internal;
 using FlyFlint.Internal.Static;
 using System;
 using System.Runtime.CompilerServices;
@@ -16,8 +17,17 @@ namespace FlyFlint
 {
     public static class Query
     {
-        public static Trait DefaultTrait =
-            Database.Default;
+        public static Trait DefaultTrait
+        {
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+            get => QueryHelper.CurrentDefaultTrait;
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+            set => QueryHelper.CurrentDefaultTrait = value;
+        }
 
         public static bool IsParameterExtractable<TParameters>(TParameters parameters)
             where TParameters : notnull, new() =>

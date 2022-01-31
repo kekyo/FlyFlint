@@ -7,6 +7,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
+using FlyFlint.Internal;
 using System.Data.Common;
 using System.Runtime.CompilerServices;
 
@@ -22,7 +23,7 @@ namespace FlyFlint.Context
             DbTransaction? transaction,
             Trait trait,
             string sql) :
-            base(connection, transaction, trait, sql, Trait.defaultParameters)
+            base(connection, transaction, trait, sql, QueryHelper.DefaultParameters)
         {
         }
 
@@ -47,7 +48,7 @@ namespace FlyFlint.Context
             DbTransaction? transaction,
             Trait trait,
             string sql) :
-            base(connection, transaction, trait, sql, Trait.defaultParameters)
+            base(connection, transaction, trait, sql, QueryHelper.DefaultParameters)
         {
         }
 

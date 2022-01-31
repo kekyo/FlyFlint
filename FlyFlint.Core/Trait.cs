@@ -18,8 +18,6 @@ namespace FlyFlint
 {
     public sealed class Trait
     {
-        internal static readonly ExtractedParameter[] defaultParameters = { };
-
         internal readonly ConversionContext cc;
         internal readonly IComparer<string> fieldComparer;
         internal readonly string parameterPrefix;
@@ -56,7 +54,7 @@ namespace FlyFlint
         public PreparedPartialQueryContext Prepare(String sql) =>
             new PreparedPartialQueryContext(
                 this,
-                () => new QueryParameterBuilderResult(sql.Sql, defaultParameters));
+                () => new QueryParameterBuilderResult(sql.Sql, QueryHelper.DefaultParameters));
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -65,7 +63,7 @@ namespace FlyFlint
             where T : new() =>
             new PreparedPartialQueryContext<T>(
                 this,
-                () => new QueryParameterBuilderResult(sql.Sql, defaultParameters));
+                () => new QueryParameterBuilderResult(sql.Sql, QueryHelper.DefaultParameters));
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -232,38 +230,5 @@ namespace FlyFlint
                 this,
                 QueryHelper.GetFormattedSqlString(sql, this.parameterPrefix),
                 QueryHelper.GetSqlParameters(sql, this.parameterPrefix));
-
-        /////////////////////////////////////////////////////////////////////////////
-
-#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-        public static Trait Create(ConversionContext cc) =>
-            new Trait(cc, StringComparer.OrdinalIgnoreCase, "@");
-#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-        public static Trait Create(IComparer<string> fieldComparer) =>
-            new Trait(ConversionContext.Default, fieldComparer, "@");
-#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-        public static Trait Create(string parameterPrefix) =>
-            new Trait(ConversionContext.Default, StringComparer.OrdinalIgnoreCase, parameterPrefix);
-#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-        public static Trait Create(ConversionContext cc, IComparer<string> fieldComparer) =>
-            new Trait(cc, fieldComparer, "@");
-#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-        public static Trait Create(IComparer<string> fieldComparer, string parameterPrefix) =>
-            new Trait(ConversionContext.Default, fieldComparer, parameterPrefix);
-#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-        public static Trait Create(ConversionContext cc, IComparer<string> fieldComparer, string parameterPrefix) =>
-            new Trait(cc, fieldComparer, parameterPrefix);
     }
 }

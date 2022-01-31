@@ -19,6 +19,16 @@ namespace FlyFlint.Internal
 {
     internal static class QueryHelper
     {
+        public static readonly ExtractedParameter[] DefaultParameters = { };
+
+        public static readonly Trait DefaultTrait =
+            new Trait(ConversionContext.Default, StringComparer.OrdinalIgnoreCase, "@");
+
+        public static Trait CurrentDefaultTrait =
+            DefaultTrait;
+
+        /////////////////////////////////////////////////////////////////////
+
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif

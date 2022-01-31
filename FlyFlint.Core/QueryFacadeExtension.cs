@@ -69,7 +69,7 @@ namespace FlyFlint
             where TParameters : notnull
         {
             var built = prepared.builder();
-            Debug.Assert(object.ReferenceEquals(built.parameters, Trait.defaultParameters));
+            Debug.Assert(object.ReferenceEquals(built.parameters, QueryHelper.DefaultParameters));
             return new ParameterizedQueryContext(
                 connection,
                 null,
@@ -92,7 +92,7 @@ namespace FlyFlint
             where TParameters : notnull
         {
             var built = prepared.builder();
-            Debug.Assert(object.ReferenceEquals(built.parameters, Trait.defaultParameters));
+            Debug.Assert(object.ReferenceEquals(built.parameters, QueryHelper.DefaultParameters));
             return new ParameterizedQueryContext(
                 connection,
                 transaction,
@@ -117,7 +117,7 @@ namespace FlyFlint
             where TParameters : notnull
         {
             var built = prepared.builder();
-            Debug.Assert(object.ReferenceEquals(built.parameters, Trait.defaultParameters));
+            Debug.Assert(object.ReferenceEquals(built.parameters, QueryHelper.DefaultParameters));
             return new ParameterizedQueryContext<TElement>(
                 connection,
                 null,
@@ -141,7 +141,7 @@ namespace FlyFlint
             where TParameters : notnull
         {
             var built = prepared.builder();
-            Debug.Assert(object.ReferenceEquals(built.parameters, Trait.defaultParameters));
+            Debug.Assert(object.ReferenceEquals(built.parameters, QueryHelper.DefaultParameters));
             return new ParameterizedQueryContext<TElement>(
                 connection,
                 transaction,
@@ -164,7 +164,7 @@ namespace FlyFlint
             where TParameters : notnull
         {
             var (sql, dps) = prepared.builder();
-            Debug.Assert(object.ReferenceEquals(dps, Trait.defaultParameters));
+            Debug.Assert(object.ReferenceEquals(dps, QueryHelper.DefaultParameters));
             var constructParameters = QueryExecutor.GetConstructParameters(
                 prepared.trait.cc,
                 prepared.trait.parameterPrefix,
@@ -184,7 +184,7 @@ namespace FlyFlint
             where TParameters : notnull
         {
             var (sql, dps) = prepared.builder();
-            Debug.Assert(object.ReferenceEquals(dps, Trait.defaultParameters));
+            Debug.Assert(object.ReferenceEquals(dps, QueryHelper.DefaultParameters));
             var constructParameters = QueryExecutor.GetConstructParameters(
                 prepared.trait.cc,
                 prepared.trait.parameterPrefix,
@@ -205,7 +205,7 @@ namespace FlyFlint
             where TParameters : notnull
         {
             var (sql, dps) = prepared.builder();
-            Debug.Assert(object.ReferenceEquals(dps, Trait.defaultParameters));
+            Debug.Assert(object.ReferenceEquals(dps, QueryHelper.DefaultParameters));
             var constructParameters = QueryExecutor.GetConstructParameters(
                 prepared.trait.cc,
                 prepared.trait.parameterPrefix,
@@ -225,7 +225,7 @@ namespace FlyFlint
             where TParameters : notnull
         {
             var (sql, dps) = prepared.builder();
-            Debug.Assert(object.ReferenceEquals(dps, Trait.defaultParameters));
+            Debug.Assert(object.ReferenceEquals(dps, QueryHelper.DefaultParameters));
             var constructParameters = QueryExecutor.GetConstructParameters(
                 prepared.trait.cc,
                 prepared.trait.parameterPrefix,
