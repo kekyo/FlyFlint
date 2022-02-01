@@ -451,7 +451,7 @@ namespace FlyFlint
             TypeDefinition targetType)
         {
             if (targetType.CustomAttributes.Any(ca =>
-                ca.AttributeType.Name == "FlyFlint.Internal.Static.DataInjectableInjectedAttribute"))
+                ca.AttributeType.FullName == "FlyFlint.Internal.Static.DataInjectableInjectedAttribute"))
             {
                 return false;
             }
@@ -576,7 +576,7 @@ namespace FlyFlint
             TypeDefinition targetType)
         {
             if (targetType.CustomAttributes.Any(ca =>
-                ca.AttributeType.Name == "FlyFlint.Internal.Static.ParameterExtractableInjectedAttribute"))
+                ca.AttributeType.FullName == "FlyFlint.Internal.Static.ParameterExtractableInjectedAttribute"))
             {
                 return false;
             }
@@ -766,146 +766,176 @@ namespace FlyFlint
 
         public bool Inject(string targetAssemblyPath)
         {
-            this.assemblyResolver.AddSearchDirectory(
-                Path.GetDirectoryName(targetAssemblyPath));
+            var targetBasePath = Path.GetDirectoryName(targetAssemblyPath)!;
+
+            // Add reference assembly search path at same directory.
+            this.assemblyResolver.AddSearchDirectory(targetBasePath);
 
             var targetAssemblyName = Path.GetFileNameWithoutExtension(
                 targetAssemblyPath);
+            var targetDebuggingPath = Path.Combine(
+                targetBasePath,
+                Path.GetFileNameWithoutExtension(targetAssemblyPath) + ".pdb");
 
-            using (var targetAssembly = AssemblyDefinition.ReadAssembly(
+            // HACK: cecil will lock symbol file when uses defaulted reading method,
+            //   (and couldn't replace it manually).
+            MemoryStream? symbolStream = null;
+            if (File.Exists(targetDebuggingPath))
+            {
+                using var pdbStream = new FileStream(
+                    targetDebuggingPath, FileMode.Open, FileAccess.Read, FileShare.None);
+                symbolStream = new MemoryStream();
+                pdbStream.CopyTo(symbolStream);
+                symbolStream.Position = 0;
+            }
+
+            // Reading target assembly (and symbol file) by cecil.
+            using var targetAssembly = AssemblyDefinition.ReadAssembly(
                 targetAssemblyPath,
                 new ReaderParameters(ReadingMode.Immediate)
                 {
-                    ReadingMode = ReadingMode.Immediate,
-                    ReadSymbols = true,
                     ReadWrite = false,
                     InMemory = true,
                     AssemblyResolver = this.assemblyResolver,
-                }))
+                    SymbolStream = symbolStream,
+                    ReadSymbols = symbolStream != null,
+                });
+
+            // Gathering target types from IL streams.
+            var (parametersTypes, elementTypes) =
+                this.GetTargetTypes(targetAssembly);
+
+            // If found target types:
+            if ((parametersTypes.Length >= 1) || (elementTypes.Length >= 1))
             {
-                var (parametersTypes, elementTypes) = GetTargetTypes(targetAssembly);
+                var injected = false;
 
-                if ((parametersTypes.Length >= 1) || (elementTypes.Length >= 1))
+                foreach (var parametersType in parametersTypes.
+                    OrderBy(t => t, TypeInheritanceDepthComparer.Instance))
                 {
-                    var injected = false;
-
-                    foreach (var parametersType in parametersTypes.
-                        OrderBy(t => t, TypeInheritanceDepthComparer.Instance))
+                    // By IParameterExtractable interface.
+                    if (this.InjectExtractMethod(targetAssembly.MainModule, parametersType))
                     {
-                        if (this.InjectExtractMethod(targetAssembly.MainModule, parametersType))
-                        {
-                            injected = true;
-                            this.message(
-                                LogLevels.Trace,
-                                $"Injected an parameter type: Assembly={targetAssemblyName}, Type={parametersType.FullName}");
-                        }
-                        else
-                        {
-                            this.message(
-                                LogLevels.Trace,
-                                $"Ignored an parameter type: Assembly={targetAssemblyName}, Type={parametersType.FullName}");
-                        }
+                        injected = true;
+                        this.message(
+                            LogLevels.Trace,
+                            $"Injected an parameter type: Assembly={targetAssemblyName}, Type={parametersType.FullName}");
+                    }
+                    else
+                    {
+                        this.message(
+                            LogLevels.Trace,
+                            $"Ignored an parameter type: Assembly={targetAssemblyName}, Type={parametersType.FullName}");
+                    }
+                }
+
+                foreach (var elementType in elementTypes.
+                    OrderBy(t => t, TypeInheritanceDepthComparer.Instance))
+                {
+                    // By IDataInjectable interface.
+                    if (this.InjectPrepareMethod(targetAssembly.MainModule, elementType))
+                    {
+                        injected = true;
+                        this.message(
+                            LogLevels.Trace,
+                            $"Injected an element type: Assembly={targetAssemblyName}, Type={elementType.FullName}");
+                    }
+                    else
+                    {
+                        this.message(
+                            LogLevels.Trace,
+                            $"Ignored an element type: Assembly={targetAssemblyName}, Type={elementType.FullName}");
+                    }
+                }
+
+                // One or more types injected:
+                if (injected)
+                {
+                    // Backup original assembly and symbol files,
+                    // because cecil will fail when contains invalid metadata.
+                    var backupAssemblyPath = Path.Combine(
+                        targetBasePath,
+                        Path.GetFileNameWithoutExtension(targetAssemblyPath) + "_backup" +
+                            Path.GetExtension(targetAssemblyPath));
+                    var backupDebuggingPath = Path.Combine(
+                        targetBasePath,
+                        Path.GetFileNameWithoutExtension(targetAssemblyPath) + "_backup.pdb");
+
+                    if (File.Exists(backupAssemblyPath))
+                    {
+                        File.Delete(backupAssemblyPath);
+                    }
+                    if (File.Exists(backupDebuggingPath))
+                    {
+                        File.Delete(backupDebuggingPath);
                     }
 
-                    foreach (var elementType in elementTypes.
-                        OrderBy(t => t, TypeInheritanceDepthComparer.Instance))
+                    if (File.Exists(targetAssemblyPath))
                     {
-                        if (this.InjectPrepareMethod(targetAssembly.MainModule, elementType))
-                        {
-                            injected = true;
-                            this.message(
-                                LogLevels.Trace,
-                                $"Injected an element type: Assembly={targetAssemblyName}, Type={elementType.FullName}");
-                        }
-                        else
-                        {
-                            this.message(
-                                LogLevels.Trace,
-                                $"Ignored an element type: Assembly={targetAssemblyName}, Type={elementType.FullName}");
-                        }
+                        File.Move(targetAssemblyPath, backupAssemblyPath);
                     }
-
-                    if (injected)
+                    try
                     {
-                        var outputBasePath = Path.GetDirectoryName(targetAssemblyPath)!;
-
-                        var targetDebuggingPath = Path.Combine(
-                            outputBasePath,
-                            Path.GetFileNameWithoutExtension(targetAssemblyPath) + ".pdb");
-                        var backupAssemblyPath = Path.Combine(
-                            outputBasePath,
-                            Path.GetFileNameWithoutExtension(targetAssemblyPath) + "_backup" +
-                                Path.GetExtension(targetAssemblyPath));
-                        var backupDebuggingPath = Path.Combine(
-                            outputBasePath,
-                            Path.GetFileNameWithoutExtension(targetAssemblyPath) + "_backup.pdb");
-
-                        if (File.Exists(backupAssemblyPath))
+                        if (File.Exists(targetDebuggingPath))
                         {
-                            File.Delete(backupAssemblyPath);
-                        }
-                        if (File.Exists(backupDebuggingPath))
-                        {
-                            File.Delete(backupDebuggingPath);
-                        }
-
-                        if (File.Exists(targetAssemblyPath))
-                        {
-                            File.Move(targetAssemblyPath, backupAssemblyPath);
+                            File.Move(targetDebuggingPath, backupDebuggingPath);
                         }
                         try
                         {
-                            if (File.Exists(targetDebuggingPath))
-                            {
-                                File.Move(targetDebuggingPath, backupDebuggingPath);
-                            }
-                            try
-                            {
-                                targetAssembly.Write(
-                                    targetAssemblyPath,
-                                    new WriterParameters
-                                    {
-                                        WriteSymbols = true,
-                                        DeterministicMvid = true,
-                                    });
-                            }
-                            catch
-                            {
-                                if (File.Exists(targetDebuggingPath))
+                            // Write injected assembly and symbol file.
+                            targetAssembly.Write(
+                                targetAssemblyPath,
+                                new WriterParameters
                                 {
-                                    File.Delete(targetDebuggingPath);
-                                }
-                                if (File.Exists(backupDebuggingPath))
-                                {
-                                    File.Move(backupDebuggingPath, targetDebuggingPath);
-                                }
-                                throw;
-                            }
+                                    WriteSymbols = true,
+                                    DeterministicMvid = true,
+                                });
                         }
+                        // Failed:
                         catch
                         {
-                            if (File.Exists(targetAssemblyPath))
+                            if (File.Exists(targetDebuggingPath))
                             {
-                                File.Delete(targetAssemblyPath);
+                                File.Delete(targetDebuggingPath);
                             }
-                            if (File.Exists(backupAssemblyPath))
+                            if (File.Exists(backupDebuggingPath))
                             {
-                                File.Move(backupAssemblyPath, targetAssemblyPath);
+                                File.Move(backupDebuggingPath, targetDebuggingPath);
                             }
                             throw;
                         }
-
+                    }
+                    // Failed:
+                    catch
+                    {
+                        if (File.Exists(targetAssemblyPath))
+                        {
+                            File.Delete(targetAssemblyPath);
+                        }
                         if (File.Exists(backupAssemblyPath))
                         {
-                            File.Delete(backupAssemblyPath);
+                            File.Move(backupAssemblyPath, targetAssemblyPath);
                         }
-                        if (File.Exists(backupDebuggingPath))
-                        {
-                            File.Delete(backupDebuggingPath);
-                        }
-
-                        return true;
+                        throw;
                     }
+
+                    // Remove originals.
+                    if (File.Exists(backupAssemblyPath))
+                    {
+                        File.Delete(backupAssemblyPath);
+                    }
+                    if (File.Exists(backupDebuggingPath))
+                    {
+                        File.Delete(backupDebuggingPath);
+                    }
+
+                    return true;
+                }
+                else
+                {
+                    this.message(
+                        LogLevels.Information,
+                        $"Found nothing target types: Assembly={targetAssemblyName}");
                 }
             }
 

@@ -57,6 +57,8 @@
       <_EB_ToolingDir>$([System.IO.Path]::Combine('$(MSBuildThisFileDirectory)','..','tools','$(_FF_PlatformName)'))</_EB_ToolingDir>
       <FlyFlintBuildToolingDir Condition="'$(FlyFlintBuildToolingDir)' == ''">$([System.IO.Path]::GetFullPath('$(_EB_ToolingDir)'))</FlyFlintBuildToolingDir>
       <FlyFlintBuildToolingPath Condition="'$(FlyFlintBuildToolingPath)' == ''">$([System.IO.Path]::Combine('$(FlyFlintBuildToolingDir)','$(_FF_ExecutableName)'))</FlyFlintBuildToolingPath>
+      <FlyFlintBuildTraceOption Condition="$(FlyFlintBuildTrace)">-t</FlyFlintBuildTraceOption>
+      <FlyFlintBuildTraceOption Condition="'$(FlyFlintBuildTraceOption)' == ''"></FlyFlintBuildTraceOption>
     </PropertyGroup>
 
     <GetCombinedReferencesBasePath References="@(ReferencePath)">
@@ -64,6 +66,6 @@
     </GetCombinedReferencesBasePath>
         
     <Exec WorkingDirectory="$(FlyFlintBuildToolingDir)"
-        Command="$(FlyFlintBuildToolingRuntimeName)&quot;$(FlyFlintBuildToolingPath)&quot; &quot;$(CombinedReferencesBasePath)&quot; &quot;$(ProjectDir)$(IntermediateOutputPath)$(TargetFileName)&quot; $(FlyFlintBuildTrace)" />
+        Command="$(FlyFlintBuildToolingRuntimeName)&quot;$(FlyFlintBuildToolingPath)&quot; $(FlyFlintBuildTraceOption) &quot;$(CombinedReferencesBasePath)&quot; &quot;$(ProjectDir)$(IntermediateOutputPath)$(TargetFileName)&quot;" />
   </Target>
 </Project>
