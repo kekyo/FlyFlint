@@ -240,7 +240,9 @@ namespace FlyFlint.Internal.Converter
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         private static Guid ToGuid(object value, IFormatProvider fp) =>
-            new Guid(System.Convert.ToString(value, fp)!);
+            value is byte[] blob ?
+                new Guid(blob) :   // vv Couldn't convert from byte array.
+                new Guid(System.Convert.ToString(value, fp)!);
 
         public GuidValueConverter() :
             base(ToGuid)
@@ -430,7 +432,9 @@ namespace FlyFlint.Internal.Converter
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         private static Guid? ToGuid(object value, IFormatProvider fp) =>
-            new Guid(System.Convert.ToString(value, fp)!);
+            value is byte[] blob ?
+                new Guid(blob) :   // vv Couldn't convert from byte array.
+                new Guid(System.Convert.ToString(value, fp)!);
 
         public NullableGuidValueConverter() :
             base(value => value, ToGuid)
