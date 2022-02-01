@@ -69,6 +69,23 @@ FlyFlintは、レコードデータをインスタンスに格納するときに
 
 ---
 
+## 機能
+
+注意: まだ作業中のため、全ての機能は網羅していません。
+
+* 完全にコンパイル時に挿入されるアクセサコード（getter/setter）
+* NuGetパッケージをインストールするだけで動作
+* リフレクションAPIを一切使用しない
+* シンプルで高速なアーキテクチャ
+* タイプセーフ性のあるクエリビルダインターフェイス
+* string interpolation構文でパラメタライズドクエリを記述可能
+* 全てのADO.NETドライバに対応
+* 必要であれば、未挿入の型に対してリフレクションによる動的クエリを使用可能
+* カスタム型変換が可能
+* F#フレンドリなAPIにも対応
+
+---
+
 ## 対応環境
 
 ### 実行環境
@@ -158,11 +175,60 @@ O/Rマッパーの内部実装に詳しい人なら、このコードは内部�
 この `prepared query` は、クエリ式の評価を、実行時まで遅らせる事が出来ます。
 データベース接続(`DbConnection`)に依存しないため、予め生成しておけば、何度でも使いまわす事が出来ます。
 
-## Database traits
+## Database特性の定義
 
-TODO:
+`Database`クラスには、いくつかのデータベース特性の定義があり、
+これを使用して、データベース固有の定義を行う事が出来ます。
+この定義を `Trait` と呼びます:
 
-## Dynamic query (IL emitter)
+```csharp
+public static class Database
+{
+    // デフォルトの定義
+    public static readonly Trait Default;
+
+    // SQL Serverの定義
+    public static readonly Trait SQLServer;
+
+    // ORACLEの定義
+    public static readonly Trait Oracle;
+
+    // SQLiteの定義
+    public static readonly Trait SQLite;
+
+    // MySQLの定義
+    public static readonly Trait MySQL;
+
+    // Postgresqlの定義
+    public static readonly Trait Postgresql;
+}
+```
+
+デフォルトの定義は、ORACLE以外のデータベースで全て共通です。
+
+独自のデータベースで使う場合は、自分で `Trait` を定義することが出来ます:
+
+```csharp
+// Traitの定義
+var customTrait = Database.CreateTrait(
+    ConversionContext.Default,          // カスタム型変換の方法
+    StringComparer.OrdinalIgnoreCase,   // フィールド名一致方法
+    "@");                               // パラメタライズドクエリのプレフィックス
+
+// Traitを明示的に使用
+var query1 = customTrait.Query<Target>(
+    connection,
+    $"SELECT * FROM [persons] WHERE id={id}");
+
+// Traitを暗黙に使用するために変更
+Query.DefaultTrait = customTrait;
+
+// (暗黙に指定されたTraitを使用)
+var query2 = connection.Query<Target>(
+    $"SELECT * FROM [persons] WHERE id={id}");
+```
+
+## 動的クエリ (IL emitter)
 
 TODO:
 

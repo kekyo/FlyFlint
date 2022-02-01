@@ -69,6 +69,23 @@ to manually calling `DbDataReader.GetInt32()` or like.
 
 ---
 
+## Features
+
+Note: This is still a work in progress and does not cover all features.
+
+* Fully static injecting accessor (getter and setter) code at compile time.
+* Only installing NuGet package.
+* Totally unused reflection API.
+* Simple and faster.
+* Type safe query construction interface.
+* Build parameterized query with string interpolation syntax.
+* Supported all ADO.NET driver by common interface type.
+* Easy hook up with dynamic query solution when using un-injected types.
+* Possible define your own type conversion.
+* Supported F# friendly API set.
+
+---
+
 ## Environment
 
 ### Target platforms
@@ -156,7 +173,56 @@ if you generate it in advance, you can use it as many times as you like.
 
 ## Database traits
 
-TODO:
+The `Database` class has some database characteristic definitions,
+You can use this to make database-specific definitions.
+This definition is called `Trait`:
+
+```csharp
+public static class Database
+{
+    // Default definition
+    public static readonly Trait Default;
+
+    // SQL Server definition
+    public static readonly Trait SQLServer;
+
+    // ORACLE definiton
+    public static readonly Trait Oracle;
+
+    // SQLite definition
+    public static readonly Trait SQLite;
+
+    // MySQL definition
+    public static readonly Trait MySQL;
+
+    // Postgresql definition
+    public static readonly Trait Postgresql;
+}
+```
+
+The default definition is common to all databases except ORACLE.
+
+If you want to use it in your own database, you can define `Trait` yourself:
+
+```csharp
+// Definition of Trait
+var customTrait = Database.CreateTrait(
+    ConversionContext.Default,           // Custom type conversion method
+    StringComparer.OrdinalIgnoreCase,    // Field name matching method
+    "@");                                // Prefix for parameterized query
+
+// Use Trait explicitly
+var query1 = customTrait.Query<Target>(
+    connection,
+    $"SELECT * FROM [persons] WHERE id = {id}");
+
+// Changed to use Trait implicitly
+Query.DefaultTrait = customTrait;
+
+// (using the implicitly specified Trait)
+var query2 = connection.Query<Target>(
+    $"SELECT * FROM [persons] WHERE id = {id}");
+```
 
 ## Dynamic query (IL emitter)
 
