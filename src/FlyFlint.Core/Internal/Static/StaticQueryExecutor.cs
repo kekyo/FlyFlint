@@ -51,14 +51,14 @@ namespace FlyFlint.Internal.Static
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static DataInjectorDelegate<TElement> GetDataInjector<TElement>(
+        public static DataInjectorDelegate<TRecord> GetDataInjector<TRecord>(
             ConversionContext cc,
             IComparer<string> fieldComparer,
             DbDataReader reader,
             IDataInjectable di)
-            where TElement : notnull
+            where TRecord : notnull
         {
-            var context = new StaticDataInjectionContext<TElement>(
+            var context = new StaticDataInjectionContext<TRecord>(
                 cc, fieldComparer, reader);
             di.Prepare(context);
 

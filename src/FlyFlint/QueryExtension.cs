@@ -64,42 +64,42 @@ namespace FlyFlint
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static PartialQueryContext<TElement> Query<TElement>(
+        public static PartialQueryContext<TRecord> Query<TRecord>(
             this DbConnection connection,
             String sql)
-            where TElement : new() =>
-            QueryHelper.CurrentDefaultTrait.Query<TElement>(connection, sql);
+            where TRecord : new() =>
+            QueryHelper.CurrentDefaultTrait.Query<TRecord>(connection, sql);
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static ParameterizedQueryContext<TElement> Query<TElement>(
+        public static ParameterizedQueryContext<TRecord> Query<TRecord>(
             this DbConnection connection,
             FormattableString sql)
-            where TElement : new() =>
-            QueryHelper.CurrentDefaultTrait.Query<TElement>(connection, sql);
+            where TRecord : new() =>
+            QueryHelper.CurrentDefaultTrait.Query<TRecord>(connection, sql);
 
         /////////////////////////////////////////////////////////////////////////////
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static PartialQueryContext<TElement> Query<TElement>(
+        public static PartialQueryContext<TRecord> Query<TRecord>(
             this DbConnection connection,
             DbTransaction? transaction,
             String sql)
-            where TElement : new() =>
-            QueryHelper.CurrentDefaultTrait.Query<TElement>(connection, transaction, sql);
+            where TRecord : new() =>
+            QueryHelper.CurrentDefaultTrait.Query<TRecord>(connection, transaction, sql);
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static ParameterizedQueryContext<TElement> Query<TElement>(
+        public static ParameterizedQueryContext<TRecord> Query<TRecord>(
             this DbConnection connection,
             DbTransaction? transaction,
             FormattableString sql)
-            where TElement : new() =>
-            QueryHelper.CurrentDefaultTrait.Query<TElement>(connection, transaction, sql);
+            where TRecord : new() =>
+            QueryHelper.CurrentDefaultTrait.Query<TRecord>(connection, transaction, sql);
 
         /////////////////////////////////////////////////////////////////////////////
 
@@ -176,13 +176,13 @@ namespace FlyFlint
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static ParameterizedQueryContext<TElement> Query<TElement>(
+        public static ParameterizedQueryContext<TRecord> Query<TRecord>(
             this DbConnection connection,
-            PreparedParameterizedQueryContext<TElement> prepared)
-            where TElement : new()
+            PreparedParameterizedQueryContext<TRecord> prepared)
+            where TRecord : new()
         {
             var built = prepared.builder();
-            return new ParameterizedQueryContext<TElement>(
+            return new ParameterizedQueryContext<TRecord>(
                 connection,
                 null,
                 prepared.trait,
@@ -193,14 +193,14 @@ namespace FlyFlint
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static PartialQueryContext<TElement> Query<TElement>(
+        public static PartialQueryContext<TRecord> Query<TRecord>(
             this DbConnection connection,
-            PreparedPartialQueryContext<TElement> prepared)
-            where TElement : new()
+            PreparedPartialQueryContext<TRecord> prepared)
+            where TRecord : new()
         {
             var built = prepared.builder();
             Debug.Assert(object.ReferenceEquals(built.parameters, QueryHelper.DefaultParameters));
-            return new PartialQueryContext<TElement>(
+            return new PartialQueryContext<TRecord>(
                 connection,
                 null,
                 prepared.trait,
@@ -212,14 +212,14 @@ namespace FlyFlint
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static ParameterizedQueryContext<TElement> Query<TElement>(
+        public static ParameterizedQueryContext<TRecord> Query<TRecord>(
             this DbConnection connection,
             DbTransaction transaction,
-            PreparedParameterizedQueryContext<TElement> prepared)
-            where TElement : new()
+            PreparedParameterizedQueryContext<TRecord> prepared)
+            where TRecord : new()
         {
             var built = prepared.builder();
-            return new ParameterizedQueryContext<TElement>(
+            return new ParameterizedQueryContext<TRecord>(
                 connection,
                 transaction,
                 prepared.trait,
@@ -230,15 +230,15 @@ namespace FlyFlint
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static PartialQueryContext<TElement> Query<TElement>(
+        public static PartialQueryContext<TRecord> Query<TRecord>(
             this DbConnection connection,
             DbTransaction transaction,
-            PreparedPartialQueryContext<TElement> prepared)
-            where TElement : new()
+            PreparedPartialQueryContext<TRecord> prepared)
+            where TRecord : new()
         {
             var built = prepared.builder();
             Debug.Assert(object.ReferenceEquals(built.parameters, QueryHelper.DefaultParameters));
-            return new PartialQueryContext<TElement>(
+            return new PartialQueryContext<TRecord>(
                 connection,
                 transaction,
                 prepared.trait,
@@ -255,12 +255,12 @@ namespace FlyFlint
             return await command.ExecuteNonQueryAsync(ct).ConfigureAwait(false);
         }
 
-        private static async Task<TElement> InternalExecuteScalarAsync<TElement>(
-            QueryContext<TElement> query, CancellationToken ct)
+        private static async Task<TRecord> InternalExecuteScalarAsync<TRecord>(
+            QueryContext<TRecord> query, CancellationToken ct)
         {
             using var command = QueryHelper.CreateCommand(
                 query.connection, query.transaction, query.sql, query.parameters);
-            return QueryExecutor.ConvertTo<TElement>(
+            return QueryExecutor.ConvertTo<TRecord>(
                 query.trait.cc,
                 await command.ExecuteScalarAsync(ct).ConfigureAwait(false));
         }
@@ -275,8 +275,8 @@ namespace FlyFlint
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static Task<TElement> ExecuteScalarAsync<TElement>(
-            this ParameterizedQueryContext<TElement> query, CancellationToken ct = default) =>
+        public static Task<TRecord> ExecuteScalarAsync<TRecord>(
+            this ParameterizedQueryContext<TRecord> query, CancellationToken ct = default) =>
             InternalExecuteScalarAsync(query, ct);
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
@@ -289,8 +289,8 @@ namespace FlyFlint
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static Task<TElement> ExecuteScalarNonParameterizedAsync<TElement>(
-            this PartialQueryContext<TElement> query, CancellationToken ct = default) =>
+        public static Task<TRecord> ExecuteScalarNonParameterizedAsync<TRecord>(
+            this PartialQueryContext<TRecord> query, CancellationToken ct = default) =>
             InternalExecuteScalarAsync(query, ct);
     }
 }

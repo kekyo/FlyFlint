@@ -39,7 +39,7 @@ namespace FlyFlint.Context
         }
     }
 
-    public abstract class QueryContext<TElement>
+    public abstract class QueryContext<TRecord>
     {
         internal readonly DbConnection connection;
         internal readonly DbTransaction? transaction;

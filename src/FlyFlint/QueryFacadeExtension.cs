@@ -109,16 +109,16 @@ namespace FlyFlint
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static ParameterizedQueryContext<TElement> Query<TElement, TParameters>(
+        public static ParameterizedQueryContext<TRecord> Query<TRecord, TParameters>(
             this DbConnection connection,
-            PreparedPartialQueryContext<TElement> prepared,
+            PreparedPartialQueryContext<TRecord> prepared,
             TParameters parameters)
-            where TElement : notnull, new()
+            where TRecord : notnull, new()
             where TParameters : notnull
         {
             var built = prepared.builder();
             Debug.Assert(object.ReferenceEquals(built.parameters, QueryHelper.DefaultParameters));
-            return new ParameterizedQueryContext<TElement>(
+            return new ParameterizedQueryContext<TRecord>(
                 connection,
                 null,
                 prepared.trait,
@@ -132,17 +132,17 @@ namespace FlyFlint
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static ParameterizedQueryContext<TElement> Query<TElement, TParameters>(
+        public static ParameterizedQueryContext<TRecord> Query<TRecord, TParameters>(
             this DbConnection connection,
             DbTransaction transaction,
-            PreparedPartialQueryContext<TElement> prepared,
+            PreparedPartialQueryContext<TRecord> prepared,
             TParameters parameters)
-            where TElement : notnull, new()
+            where TRecord : notnull, new()
             where TParameters : notnull
         {
             var built = prepared.builder();
             Debug.Assert(object.ReferenceEquals(built.parameters, QueryHelper.DefaultParameters));
-            return new ParameterizedQueryContext<TElement>(
+            return new ParameterizedQueryContext<TRecord>(
                 connection,
                 transaction,
                 prepared.trait,
@@ -177,10 +177,10 @@ namespace FlyFlint
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static PreparedParameterizedQueryContext<TElement> Parameter<TElement, TParameters>(
-            this PreparedPartialQueryContext<TElement> prepared,
+        public static PreparedParameterizedQueryContext<TRecord> Parameter<TRecord, TParameters>(
+            this PreparedPartialQueryContext<TRecord> prepared,
             TParameters parameters)
-            where TElement : notnull, new()
+            where TRecord : notnull, new()
             where TParameters : notnull
         {
             var (sql, dps) = prepared.builder();
@@ -189,7 +189,7 @@ namespace FlyFlint
                 prepared.trait.cc,
                 prepared.trait.parameterPrefix,
                 () => parameters);
-            return new PreparedParameterizedQueryContext<TElement>(
+            return new PreparedParameterizedQueryContext<TRecord>(
                 prepared.trait,
                 () => new QueryParameterBuilderResult(sql, constructParameters()));
         }
@@ -218,10 +218,10 @@ namespace FlyFlint
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static PreparedParameterizedQueryContext<TElement> Parameter<TElement, TParameters>(
-            this PreparedPartialQueryContext<TElement> prepared,
+        public static PreparedParameterizedQueryContext<TRecord> Parameter<TRecord, TParameters>(
+            this PreparedPartialQueryContext<TRecord> prepared,
             Func<TParameters> getter)
-            where TElement : notnull, new()
+            where TRecord : notnull, new()
             where TParameters : notnull
         {
             var (sql, dps) = prepared.builder();
@@ -230,7 +230,7 @@ namespace FlyFlint
                 prepared.trait.cc,
                 prepared.trait.parameterPrefix,
                 getter);
-            return new PreparedParameterizedQueryContext<TElement>(
+            return new PreparedParameterizedQueryContext<TRecord>(
                 prepared.trait,
                 () => new QueryParameterBuilderResult(sql, constructParameters()));
         }
@@ -257,12 +257,12 @@ namespace FlyFlint
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static ParameterizedQueryContext<TElement> Parameter<TElement, TParameters>(
-            this PartialQueryContext<TElement> query,
+        public static ParameterizedQueryContext<TRecord> Parameter<TRecord, TParameters>(
+            this PartialQueryContext<TRecord> query,
             TParameters parameters)
-            where TElement : notnull, new()
+            where TRecord : notnull, new()
             where TParameters : notnull =>
-            new ParameterizedQueryContext<TElement>(
+            new ParameterizedQueryContext<TRecord>(
                 query.connection,
                 query.transaction,
                 query.trait,
@@ -275,10 +275,10 @@ namespace FlyFlint
         /////////////////////////////////////////////////////////////////////////////
 
 #if NET461_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
-        private static async IAsyncEnumerable<TElement> InternalExecuteAsync<TElement>(
-            QueryContext<TElement> query,
+        private static async IAsyncEnumerable<TRecord> InternalExecuteAsync<TRecord>(
+            QueryContext<TRecord> query,
             [EnumeratorCancellation] CancellationToken ct)
-            where TElement : notnull, new()
+            where TRecord : notnull, new()
         {
             using (var command = QueryHelper.CreateCommand(
                 query.connection, query.transaction, query.sql, query.parameters))
@@ -287,7 +287,7 @@ namespace FlyFlint
                 {
                     if (await reader.ReadAsync(ct).ConfigureAwait(false))
                     {
-                        var element = new TElement();
+                        var element = new TRecord();
 
                         var injector = QueryExecutor.GetDataInjector(
                             query.trait.cc, query.trait.fieldComparer, reader, ref element);
@@ -298,7 +298,7 @@ namespace FlyFlint
 
                         while (await prefetchAwaitable)
                         {
-                            element = new TElement();
+                            element = new TRecord();
                             injector(ref element);
                             prefetchAwaitable = reader.ReadAsync(ct).ConfigureAwait(false);
                             yield return element;
@@ -309,28 +309,28 @@ namespace FlyFlint
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IAsyncEnumerable<TElement> ExecuteAsync<TElement>(
-            this ParameterizedQueryContext<TElement> query,
+        public static IAsyncEnumerable<TRecord> ExecuteAsync<TRecord>(
+            this ParameterizedQueryContext<TRecord> query,
             CancellationToken ct = default)
-            where TElement : notnull, new() =>
+            where TRecord : notnull, new() =>
             InternalExecuteAsync(query, ct);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IAsyncEnumerable<TElement> ExecuteNonParameterizedAsync<TElement>(
-            this PartialQueryContext<TElement> query,
+        public static IAsyncEnumerable<TRecord> ExecuteNonParameterizedAsync<TRecord>(
+            this PartialQueryContext<TRecord> query,
             CancellationToken ct = default)
-            where TElement : notnull, new() =>
+            where TRecord : notnull, new() =>
             InternalExecuteAsync(query, ct);
 #else
         [Obsolete("Before net461 platform, it is not supported async enumeration. Consider upgrades to net461 or upper, or `Execute()` method with `FlyFlint.Synchronized` namespace instead.", true)]
-        public static void ExecuteAsync<TElement>(
-            this ParameterizedQueryContext<TElement> query, CancellationToken ct = default)
-            where TElement : new() =>
+        public static void ExecuteAsync<TRecord>(
+            this ParameterizedQueryContext<TRecord> query, CancellationToken ct = default)
+            where TRecord : new() =>
             throw new InvalidOperationException();
         [Obsolete("Before net461 platform, it is not supported async enumeration. Consider upgrades to net461 or upper, or `Execute()` method with `FlyFlint.Synchronized` namespace instead.", true)]
-        public static void ExecuteNonParameterizedAsync<TElement>(
-            this PartialQueryContext<TElement> query, CancellationToken ct = default)
-            where TElement : new() =>
+        public static void ExecuteNonParameterizedAsync<TRecord>(
+            this PartialQueryContext<TRecord> query, CancellationToken ct = default)
+            where TRecord : new() =>
             throw new InvalidOperationException();
 #endif
     }

@@ -23,12 +23,12 @@ namespace FlyFlint.Synchronized
             return command.ExecuteNonQuery();
         }
 
-        private static TElement InternalExecuteScalar<TElement>(
-            this QueryContext<TElement> query)
+        private static TRecord InternalExecuteScalar<TRecord>(
+            this QueryContext<TRecord> query)
         {
             using var command = QueryHelper.CreateCommand(
                 query.connection, query.transaction, query.sql, query.parameters);
-            return QueryExecutor.ConvertTo<TElement>(
+            return QueryExecutor.ConvertTo<TRecord>(
                 query.trait.cc, command.ExecuteScalar());
         }
 
@@ -42,8 +42,8 @@ namespace FlyFlint.Synchronized
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        private static TElement ExecuteScalar<TElement>(
-            this ParameterizedQueryContext<TElement> query) =>
+        private static TRecord ExecuteScalar<TRecord>(
+            this ParameterizedQueryContext<TRecord> query) =>
             InternalExecuteScalar(query);
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
@@ -56,8 +56,8 @@ namespace FlyFlint.Synchronized
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        private static TElement ExecuteScalarNonParameterized<TElement>(
-            this PartialQueryContext<TElement> query) =>
+        private static TRecord ExecuteScalarNonParameterized<TRecord>(
+            this PartialQueryContext<TRecord> query) =>
             InternalExecuteScalar(query);
     }
 }

@@ -16,7 +16,7 @@ FlyFlintは、データへのアクセサコードをコンパイル時に生成
 実行時にリフレクションAPIを一切使いません。
 つまりこれは、AOT環境と親和性があり、高速で、軽量なO/Rマッパーです。
 
-使用する場合は、レコードの器としてのモデル型（しばしば、エンティティ型やエレメント型と呼ばれます）
+使用する場合は、結果レコードの器となるレコード型（しばしば、エンティティ型、エレメント型、モデル型と呼ばれます）
 を定義して、[FlyFlintのNuGetパッケージ](https://www.nuget.org/packages/FlyFlint)を導入するだけです。
 追加の作業は一切必要ありません！
 
@@ -31,7 +31,7 @@ using FlyFlint.Collections;
 
 public static class Program
 {
-    // モデル型は、クラス・構造体・フィールド・プロパティを
+    // レコード型は、クラス・構造体・フィールド・プロパティを
     // 任意に組み合わせる事が出来ます...
     private sealed class Target
     {
@@ -48,7 +48,7 @@ public static class Program
 
         // クエリを生成します
         var query = connection.Query<Target>(
-            "SELECT * FROM target");
+            $"SELECT * FROM target");
 
         // 非同期でクエリを実行して、結果を列挙します。
         // （内部では高速なprefetcherが動作します）
@@ -59,7 +59,7 @@ public static class Program
 }
 ```
 
-FlyFlintは、レコードデータを `Model` に格納するときに、
+FlyFlintは、レコードデータをインスタンスに格納するときに、
 リフレクションAPIを一切使用しません。
 `DbDataReader` から得られたレコードデータは、
 コンパイル時に生成されたコードで、直接格納されます。
@@ -109,22 +109,30 @@ C#の `string interporation` に対応しています:
     var id = 123;
 
     // これをクエリに含めるには、string interporation構文を使います:
-    var query = connection.Query<Model>(
+    var query = connection.Query<Target>(
         $"SELECT * FROM target WHERE Id = {id}");
+
+    Target[] targets = await query.
+        ExecuteAsync().
+        ToArrayAsync();
 ```
 
 見ての通り、これは非常に自然に書けて、確認も容易です。
 そして、このように書いても、実際には文字列として解釈されるのではなく、
 パラメータ化クエリに展開されて、データベースに送信されます。
 
-恐らく、あなたは既に似たようなO/Rマッパーである `Dapper` を使っているのでしょう。
+恐らく、あなたは既に似たようなO/Rマッパーである `Dapper` を使った事があるでしょう。
 FlyFlintは、 `Dapper` のようなパラメータ指定も可能です:
 
 ```csharp
     // Dapperライクなパラメータ指定
-    var query = connection.Query<Model>(
+    var query = connection.Query<Target>(
         "SELECT * FROM target WHERE Id = @id").
         Parameter(new { id = 123 });
+
+    Target[] targets = await query.
+        ExecuteAsync().
+        ToArrayAsync();
 ```
 
 O/Rマッパーの内部実装に詳しい人なら、このコードは内部でリフレクションを使う筈だと思うかもしれません。
@@ -141,6 +149,10 @@ O/Rマッパーの内部実装に詳しい人なら、このコードは内部�
 
     // prepared queryを使います
     var query = connection.Query(prepared);
+
+    Target[] targets = await query.
+        ExecuteAsync().
+        ToArrayAsync();
 ```
 
 この `prepared query` は、クエリ式の評価を、実行時まで遅らせる事が出来ます。

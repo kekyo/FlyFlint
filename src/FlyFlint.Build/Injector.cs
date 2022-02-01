@@ -572,6 +572,47 @@ namespace FlyFlint
 
         ////////////////////////////////////////////////////////////////////////////
 
+        private static bool IsTargetMember(FieldDefinition field)
+        {
+            if (!field.IsStatic)
+            {
+                if (field.IsPublic &&
+                    !field.CustomAttributes.Any(ca => ca.AttributeType.FullName == "FlyFlint.QueryIgnoreAttribute"))
+                {
+                    return true;
+                }
+                if (!field.IsPublic &&
+                    field.CustomAttributes.Any(ca => ca.AttributeType.FullName == "FlyFlint.QueryFieldAttribute"))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private static bool IsTargetMember(PropertyDefinition property, MethodReference? setter)
+        {
+            if (setter is { } mr && mr.Resolve() is { } method)
+            {
+                if (!method.IsStatic)
+                {
+                    if (method.IsPublic &&
+                        !property.CustomAttributes.Any(ca => ca.AttributeType.FullName == "FlyFlint.QueryIgnoreAttribute"))
+                    {
+                        return true;
+                    }
+                    if (!method.IsPublic &&
+                        property.CustomAttributes.Any(ca => ca.AttributeType.FullName == "FlyFlint.QueryFieldAttribute"))
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        ////////////////////////////////////////////////////////////////////////////
+
         private bool InjectExtractMethod(
             ModuleDefinition module,
             TypeDefinition targetType)
@@ -583,13 +624,10 @@ namespace FlyFlint
             }
 
             var targetFields = targetType.Fields.
-                Where(f => f.IsPublic && !f.IsStatic && !f.IsInitOnly).
+                Where(f => !f.IsInitOnly && IsTargetMember(f)).
                 Cast<MemberReference>();
             var targetProperties = targetType.Properties.
-                Where(p =>
-                    p.SetMethod is MethodReference mr &&
-                    mr.Resolve() is { } m &&
-                    m.IsPublic && !m.IsStatic).   // TODO: DataMemberAttribute
+                Where(p => IsTargetMember(p, p.SetMethod)).
                 Cast<MemberReference>();
 
             var targetMembers = targetFields.Concat(targetProperties).ToArray();
@@ -646,22 +684,20 @@ namespace FlyFlint
 
         ////////////////////////////////////////////////////////////////////////////
 
-        private (TypeDefinition[] parametersTypes, TypeDefinition[] elementTypes) GetTargetTypes(
+        private (TypeDefinition[] parametersTypes, TypeDefinition[] recordTypes) GetTargetTypes(
             AssemblyDefinition targetAssembly)
         {
-            var dataContractTypes =
+            var queryRecordTypes =
                 targetAssembly.Modules.
-                    SelectMany(Utilities.GetAllTypes).
-                Where(type =>
-                    type.CustomAttributes.Any(ca => ca.AttributeType.FullName == "System.Runtime.Serialization.DataContractAttribute") ||
-                    type.Fields.Any(f => f.CustomAttributes.Any(ca => ca.AttributeType.FullName == "System.Runtime.Serialization.DataMemberAttribute")) ||
-                    type.Properties.Any(p => p.CustomAttributes.Any(ca => ca.AttributeType.FullName == "System.Runtime.Serialization.DataMemberAttribute"))).
+                SelectMany(Utilities.GetAllTypes).
+                Where(type => type.CustomAttributes.Any(ca =>
+                    ca.AttributeType.FullName == "FlyFlint.QueryRecordAttribute")).
                 ToArray();
 
             //static MethodReference GetGenericMethodDefinitionIfApplicable(MethodReference method) =>
             //    method.IsGenericInstance ? method.GetElementMethod() : method;
 
-            var usingQueryTypes = Utilities.ParallelSelect(
+            var aggregatedTypes = Utilities.ParallelSelect(
                 targetAssembly.Modules.
                     SelectMany(Utilities.GetAllTypes).
                     SelectMany(type => new[] { type }.Concat(type.NestedTypes).SelectMany(t => t.Methods)).
@@ -740,27 +776,27 @@ namespace FlyFlint
                             inst.mr!.Name.StartsWith("Execute")).
                         Select(inst => inst.mr!.GenericArguments.Last()).
                         Cast<TypeReference>();
-                    var elementTypes =
+                    var recordTypes =
                         parameterTElementTypes.
                         Concat(executeTElementTypes).
                         ToArray();
 
-                    return (parametersTypes, elementTypes);
+                    return (parametersTypes, recordTypes);
                 });
 
-            var parametersTypes = usingQueryTypes.
+            var parametersTypes = aggregatedTypes.
                 SelectMany(entry => entry.parametersTypes).
                 Distinct().
                 Select(t => t.Resolve()).
                 ToArray();
-            var elementTypes = usingQueryTypes.
-                SelectMany(entry => entry.elementTypes).
-                Concat(dataContractTypes).
+            var recordTypes = aggregatedTypes.
+                SelectMany(entry => entry.recordTypes).
+                Concat(queryRecordTypes).
                 Distinct().
                 Select(t => t.Resolve()).
                 ToArray();
 
-            return (parametersTypes, elementTypes);
+            return (parametersTypes, recordTypes);
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -803,13 +839,13 @@ namespace FlyFlint
                 });
 
             // Gathering target types from IL streams.
-            var (parametersTypes, dataTypes) = this.GetTargetTypes(targetAssembly);
+            var (parametersTypes, recordTypes) = this.GetTargetTypes(targetAssembly);
 
             // If found target types:
-            if ((parametersTypes.Length >= 1) || (dataTypes.Length >= 1))
+            if ((parametersTypes.Length >= 1) || (recordTypes.Length >= 1))
             {
                 var parametersInjected = 0;
-                var dataInjected = 0;
+                var recordInjected = 0;
 
                 foreach (var parametersType in parametersTypes.
                     OrderBy(t => t, TypeInheritanceDepthComparer.Instance))
@@ -830,27 +866,27 @@ namespace FlyFlint
                     }
                 }
 
-                foreach (var dataType in dataTypes.
+                foreach (var recordType in recordTypes.
                     OrderBy(t => t, TypeInheritanceDepthComparer.Instance))
                 {
                     // By IDataInjectable interface.
-                    if (this.InjectPrepareMethod(targetAssembly.MainModule, dataType))
+                    if (this.InjectPrepareMethod(targetAssembly.MainModule, recordType))
                     {
-                        dataInjected++;
+                        recordInjected++;
                         this.message(
                             LogLevels.Trace,
-                            $"Injected an data type: Assembly={targetAssemblyName}, Type={dataType.FullName}");
+                            $"Injected an data type: Assembly={targetAssemblyName}, Type={recordType.FullName}");
                     }
                     else
                     {
                         this.message(
                             LogLevels.Trace,
-                            $"Ignored an data type: Assembly={targetAssemblyName}, Type={dataType.FullName}");
+                            $"Ignored an data type: Assembly={targetAssemblyName}, Type={recordType.FullName}");
                     }
                 }
 
                 // One or more types injected:
-                if (parametersInjected >= 1 || dataInjected >= 1)
+                if (parametersInjected >= 1 || recordInjected >= 1)
                 {
                     // Backup original assembly and symbol files,
                     // because cecil will fail when contains invalid metadata.
@@ -932,7 +968,7 @@ namespace FlyFlint
 
                     this.message(
                         LogLevels.Information,
-                        $"Injected: Assembly={targetAssemblyName}, Parameters={parametersInjected}, Data={dataInjected}");
+                        $"Injected: Assembly={targetAssemblyName}, Parameters={parametersInjected}, Record={recordInjected}");
 
                     return true;
                 }

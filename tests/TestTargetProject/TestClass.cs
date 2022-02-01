@@ -8,14 +8,11 @@
 ////////////////////////////////////////////////////////////////////////////
 
 using FlyFlint;
-using FlyFlint.Collections;
 using FlyFlint.Synchronized;
 using System;
 using System.Data;
 using System.Data.SQLite;
 using System.Linq;
-using System.Runtime.Serialization;
-using System.Threading.Tasks;
 
 namespace TestTargetProject
 {
@@ -101,7 +98,7 @@ namespace TestTargetProject
             var result = query.ExecuteNonParameterized();
         }
 
-        [DataContract]
+        [QueryRecord]
         public struct TargetValueTypesWithoutUsing
         {
             public bool Value1;
@@ -119,7 +116,7 @@ namespace TestTargetProject
             public string Value13;
         }
 
-        [DataContract]
+        [QueryRecord]
         public class TargetReferenceTypesDerived2 : TargetReferenceTypesDerived1
         {
             public bool Value31;
@@ -134,7 +131,7 @@ namespace TestTargetProject
             }
         }
 
-        [DataContract]
+        [QueryRecord]
         public class TargetReferenceTypesDerived1 : TargetReferenceTypesBase
         {
             public bool Value21;
@@ -149,7 +146,7 @@ namespace TestTargetProject
             }
         }
 
-        [DataContract]
+        [QueryRecord]
         public class TargetReferenceTypesBase
         {
             public bool Value1;

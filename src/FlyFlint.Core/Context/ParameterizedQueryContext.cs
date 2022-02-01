@@ -40,7 +40,7 @@ namespace FlyFlint.Context
                 this.parameters);
     }
 
-    public sealed class ParameterizedQueryContext<TElement> : QueryContext<TElement>
+    public sealed class ParameterizedQueryContext<TRecord> : QueryContext<TRecord>
     {
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -58,8 +58,8 @@ namespace FlyFlint.Context
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public ParameterizedQueryContext<TElement> Transaction(DbTransaction? transaction) =>
-            new ParameterizedQueryContext<TElement>(
+        public ParameterizedQueryContext<TRecord> Transaction(DbTransaction? transaction) =>
+            new ParameterizedQueryContext<TRecord>(
                 this.connection,
                 transaction,
                 this.trait,

@@ -176,11 +176,11 @@ namespace FlyFlint
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public PartialQueryContext<TElement> Query<TElement>(
+        public PartialQueryContext<TRecord> Query<TRecord>(
             DbConnection connection,
             String sql)
-            where TElement : new() =>
-            new PartialQueryContext<TElement>(
+            where TRecord : new() =>
+            new PartialQueryContext<TRecord>(
                 connection,
                 null,
                 this,
@@ -189,11 +189,11 @@ namespace FlyFlint
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public ParameterizedQueryContext<TElement> Query<TElement>(
+        public ParameterizedQueryContext<TRecord> Query<TRecord>(
             DbConnection connection,
             FormattableString sql)
-            where TElement : new() =>
-            new ParameterizedQueryContext<TElement>(
+            where TRecord : new() =>
+            new ParameterizedQueryContext<TRecord>(
                 connection,
                 null,
                 this,
@@ -205,12 +205,12 @@ namespace FlyFlint
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public PartialQueryContext<TElement> Query<TElement>(
+        public PartialQueryContext<TRecord> Query<TRecord>(
             DbConnection connection,
             DbTransaction? transaction,
             String sql)
-            where TElement : new() =>
-            new PartialQueryContext<TElement>(
+            where TRecord : new() =>
+            new PartialQueryContext<TRecord>(
                 connection,
                 transaction,
                 this,
@@ -219,12 +219,12 @@ namespace FlyFlint
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public ParameterizedQueryContext<TElement> Query<TElement>(
+        public ParameterizedQueryContext<TRecord> Query<TRecord>(
             DbConnection connection,
             DbTransaction? transaction,
             FormattableString sql)
-            where TElement : new() =>
-            new ParameterizedQueryContext<TElement>(
+            where TRecord : new() =>
+            new ParameterizedQueryContext<TRecord>(
                 connection,
                 transaction,
                 this,

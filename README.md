@@ -16,7 +16,7 @@ FlyFlint will generate data accessors infrastructure at that compile time
 and there are not use any runtime reflection.
 That means, It is an AOT friendly, faster and lightweight O/R mapper.
 
-To use it, you just need to define a model type (often called entity or element type)
+To use it, you just need to define a record type (often called entity, element or model type)
 as a vessel for your records.
 And then simply install [FlyFlint NuGet package](https://www.nuget.org/packages/FlyFlint).
 No additional work is required at all!
@@ -32,7 +32,7 @@ using FlyFlint.Collections;
 
 public static class Program
 {
-    // You can write models with
+    // You can write record type with
     // any class/struct/field/property combination...
     private sealed class Target
     {
@@ -49,7 +49,7 @@ public static class Program
 
         // Build the query.
         var query = connection.Query<Target>(
-            "SELECT * FROM target");
+            $"SELECT * FROM target");
 
         // Execute query and got enumerable results on asynchronously.
         // (And enabled fast prefetcher.)
@@ -60,7 +60,7 @@ public static class Program
 }
 ```
 
-FlyFlint can store record fields into `Model` **except using ANY reflection**.
+FlyFlint can store record data into record type instance **except using ANY reflection**.
 The record data will be stored directly from `DbDataReader`
 by compile-time generated code.
 
@@ -106,8 +106,12 @@ We can make safer code using string interpolated query in FlyFlint:
     var id = 123;
 
     // Build the parameterized query with string interpolation syntax.
-    var query = connection.Query<Model>(
+    var query = connection.Query<Target>(
         $"SELECT * FROM target WHERE Id = {id}");
+
+    Target[] targets = await query.
+        ExecuteAsync().
+        ToArrayAsync();
 ```
 
 It is naturally code, readable and writable. The FlyFlint will interpret
@@ -118,9 +122,13 @@ FlyFlint can receive `Dapper` like query code:
 
 ```csharp
     // Build the parameterized query likes Dapper:
-    var query = connection.Query<Model>(
+    var query = connection.Query<Target>(
         "SELECT * FROM target WHERE Id = @id").
         Parameter(new { id = 123 });
+
+    Target[] targets = await query.
+        ExecuteAsync().
+        ToArrayAsync();
 ```
 
 Yes, in general, that case will be used reflection API.
@@ -131,11 +139,15 @@ We can build `prepared query` before using it:
 
 ```csharp
     // Build the prepared query:
-    var prepared = Query.Prepare<Model>(
+    var prepared = Query.Prepare<Target>(
         () => $"SELECT * FROM target WHERE Id = {id}");
 
     // Use prepared query:
     var query = connection.Query(prepared);
+
+    Target[] targets = await query.
+        ExecuteAsync().
+        ToArrayAsync();
 ```
 
 This `prepared query` is delayed to examine query expression.

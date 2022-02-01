@@ -18,10 +18,10 @@ using System.Runtime.CompilerServices;
 namespace FlyFlint.Internal.Static
 {
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public delegate void StaticDataInjectorDelegate<TElement>(
+    public delegate void StaticDataInjectorDelegate<TRecord>(
         StaticDataInjectionContext context,
-        ref TElement element)
-        where TElement : notnull;
+        ref TRecord record)
+        where TRecord : notnull;
 
     [EditorBrowsable(EditorBrowsableState.Never)]
     public abstract class StaticDataInjectionContext :
@@ -70,7 +70,7 @@ namespace FlyFlint.Internal.Static
 
         public abstract void RegisterMetadata(
             StaticMemberMetadata[] members,
-            Delegate injector);   // StaticInjectDelegate<TElement>
+            Delegate injector);   // StaticInjectDelegate<TRecord>
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -400,11 +400,11 @@ namespace FlyFlint.Internal.Static
     }
 
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public sealed class StaticDataInjectionContext<TElement> :
+    public sealed class StaticDataInjectionContext<TRecord> :
         StaticDataInjectionContext
-        where TElement : notnull
+        where TRecord : notnull
     {
-        private StaticDataInjectorDelegate<TElement> injector = null!;
+        private StaticDataInjectorDelegate<TRecord> injector = null!;
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -423,18 +423,18 @@ namespace FlyFlint.Internal.Static
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override void RegisterMetadata(
             StaticMemberMetadata[] members,
-            Delegate injector)   // StaticDataInjectorDelegate<TElement>
+            Delegate injector)   // StaticDataInjectorDelegate<TRecord>
         {
             Debug.Assert(this.injector == null);    // TODO: combine multiple
 
-            this.injector = (StaticDataInjectorDelegate<TElement>)injector;
+            this.injector = (StaticDataInjectorDelegate<TRecord>)injector;
             this.RegisterMemberMetadata(members);
         }
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public void Inject(ref TElement element) =>
-            this.injector(this, ref element);
+        public void Inject(ref TRecord record) =>
+            this.injector(this, ref record);
     }
 }

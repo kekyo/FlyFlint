@@ -33,8 +33,8 @@ namespace FlyFlint
             where TParameters : notnull, new() =>
             parameters is IParameterExtractable;
 
-        public static bool IsDataInjectable<TElement>(TElement parameters)
-            where TElement : new() =>
+        public static bool IsDataInjectable<TRecord>(TRecord parameters)
+            where TRecord : new() =>
             parameters is IDataInjectable;
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
@@ -46,9 +46,9 @@ namespace FlyFlint
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static PreparedPartialQueryContext<TElement> Prepare<TElement>(String sql)
-            where TElement : new() =>
-            DefaultTrait.Prepare<TElement>(sql);
+        public static PreparedPartialQueryContext<TRecord> Prepare<TRecord>(String sql)
+            where TRecord : new() =>
+            DefaultTrait.Prepare<TRecord>(sql);
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -59,9 +59,9 @@ namespace FlyFlint
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static PreparedParameterizedQueryContext<TElement> Prepare<TElement>(FormattableString sql)
-            where TElement : new() =>
-            DefaultTrait.Prepare<TElement>(sql);
+        public static PreparedParameterizedQueryContext<TRecord> Prepare<TRecord>(FormattableString sql)
+            where TRecord : new() =>
+            DefaultTrait.Prepare<TRecord>(sql);
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -72,8 +72,8 @@ namespace FlyFlint
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static PreparedParameterizedQueryContext<TElement> Prepare<TElement>(Func<FormattableString> sqlBuilder)
-            where TElement : new() =>
-            DefaultTrait.Prepare<TElement>(sqlBuilder);
+        public static PreparedParameterizedQueryContext<TRecord> Prepare<TRecord>(Func<FormattableString> sqlBuilder)
+            where TRecord : new() =>
+            DefaultTrait.Prepare<TRecord>(sqlBuilder);
     }
 }

@@ -38,7 +38,7 @@ namespace FlyFlint.Context
                 this.sql);
     }
 
-    public sealed class PartialQueryContext<TElement> : QueryContext<TElement>
+    public sealed class PartialQueryContext<TRecord> : QueryContext<TRecord>
     {
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -55,8 +55,8 @@ namespace FlyFlint.Context
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public PartialQueryContext<TElement> Transaction(DbTransaction? transaction) =>
-            new PartialQueryContext<TElement>(
+        public PartialQueryContext<TRecord> Transaction(DbTransaction? transaction) =>
+            new PartialQueryContext<TRecord>(
                 this.connection,
                 transaction,
                 this.trait,

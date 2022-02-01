@@ -108,16 +108,16 @@ namespace FlyFlint.Internal.Static
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static ParameterizedQueryContext<TElement> Query<TElement, TParameters>(
+        public static ParameterizedQueryContext<TRecord> Query<TRecord, TParameters>(
             DbConnection connection,
-            PreparedPartialQueryContext<TElement> prepared,
+            PreparedPartialQueryContext<TRecord> prepared,
             TParameters parameters)
-            where TElement : notnull, IDataInjectable, new()
+            where TRecord : notnull, IDataInjectable, new()
             where TParameters : notnull, IParameterExtractable
         {
             var built = prepared.builder();
             Debug.Assert(object.ReferenceEquals(built.parameters, QueryHelper.DefaultParameters));
-            return new ParameterizedQueryContext<TElement>(
+            return new ParameterizedQueryContext<TRecord>(
                 connection,
                 null,
                 prepared.trait,
@@ -131,17 +131,17 @@ namespace FlyFlint.Internal.Static
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static ParameterizedQueryContext<TElement> Query<TElement, TParameters>(
+        public static ParameterizedQueryContext<TRecord> Query<TRecord, TParameters>(
             DbConnection connection,
             DbTransaction transaction,
-            PreparedPartialQueryContext<TElement> prepared,
+            PreparedPartialQueryContext<TRecord> prepared,
             TParameters parameters)
-            where TElement : notnull, IDataInjectable, new()
+            where TRecord : notnull, IDataInjectable, new()
             where TParameters : notnull, IParameterExtractable
         {
             var built = prepared.builder();
             Debug.Assert(object.ReferenceEquals(built.parameters, QueryHelper.DefaultParameters));
-            return new ParameterizedQueryContext<TElement>(
+            return new ParameterizedQueryContext<TRecord>(
                 connection,
                 transaction,
                 prepared.trait,
@@ -176,10 +176,10 @@ namespace FlyFlint.Internal.Static
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static PreparedParameterizedQueryContext<TElement> Parameter<TElement, TParameters>(
-            PreparedPartialQueryContext<TElement> prepared,
+        public static PreparedParameterizedQueryContext<TRecord> Parameter<TRecord, TParameters>(
+            PreparedPartialQueryContext<TRecord> prepared,
             TParameters parameters)
-            where TElement : notnull, IDataInjectable, new()
+            where TRecord : notnull, IDataInjectable, new()
             where TParameters : notnull, IParameterExtractable
         {
             var (sql, dps) = prepared.builder();
@@ -188,7 +188,7 @@ namespace FlyFlint.Internal.Static
                 prepared.trait.cc,
                 prepared.trait.parameterPrefix,
                 () => parameters);
-            return new PreparedParameterizedQueryContext<TElement>(
+            return new PreparedParameterizedQueryContext<TRecord>(
                 prepared.trait,
                 () => new QueryParameterBuilderResult(sql, constructParameters()));
         }
@@ -217,10 +217,10 @@ namespace FlyFlint.Internal.Static
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static PreparedParameterizedQueryContext<TElement> Parameter<TElement, TParameters>(
-            PreparedPartialQueryContext<TElement> prepared,
+        public static PreparedParameterizedQueryContext<TRecord> Parameter<TRecord, TParameters>(
+            PreparedPartialQueryContext<TRecord> prepared,
             Func<TParameters> getter)
-            where TElement : notnull, IDataInjectable, new()
+            where TRecord : notnull, IDataInjectable, new()
             where TParameters : notnull, IParameterExtractable
         {
             var (sql, dps) = prepared.builder();
@@ -229,7 +229,7 @@ namespace FlyFlint.Internal.Static
                 prepared.trait.cc,
                 prepared.trait.parameterPrefix,
                 getter);
-            return new PreparedParameterizedQueryContext<TElement>(
+            return new PreparedParameterizedQueryContext<TRecord>(
                 prepared.trait,
                 () => new QueryParameterBuilderResult(sql, constructParameters()));
         }
@@ -256,12 +256,12 @@ namespace FlyFlint.Internal.Static
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static ParameterizedQueryContext<TElement> Parameter<TElement, TParameters>(
-            PartialQueryContext<TElement> query,
+        public static ParameterizedQueryContext<TRecord> Parameter<TRecord, TParameters>(
+            PartialQueryContext<TRecord> query,
             TParameters parameters)
-            where TElement : new()
+            where TRecord : new()
             where TParameters : notnull, IParameterExtractable =>
-            new ParameterizedQueryContext<TElement>(
+            new ParameterizedQueryContext<TRecord>(
                 query.connection,
                 query.transaction,
                 query.trait,
@@ -273,9 +273,9 @@ namespace FlyFlint.Internal.Static
 
         /////////////////////////////////////////////////////////////////////////////
 
-        private static IEnumerable<TElement> InternalExecute<TElement>(
-            QueryContext<TElement> query)
-            where TElement : notnull, IDataInjectable, new()
+        private static IEnumerable<TRecord> InternalExecute<TRecord>(
+            QueryContext<TRecord> query)
+            where TRecord : notnull, IDataInjectable, new()
         {
             using (var command = QueryHelper.CreateCommand(
                 query.connection, query.transaction, query.sql, query.parameters))
@@ -284,9 +284,9 @@ namespace FlyFlint.Internal.Static
                 {
                     if (reader.Read())
                     {
-                        var element = new TElement();
+                        var element = new TRecord();
 
-                        var injector = StaticQueryExecutor.GetDataInjector<TElement>(
+                        var injector = StaticQueryExecutor.GetDataInjector<TRecord>(
                             query.trait.cc, query.trait.fieldComparer, reader, element);
 
                         injector(ref element);
@@ -294,7 +294,7 @@ namespace FlyFlint.Internal.Static
 
                         while (reader.Read())
                         {
-                            element = new TElement();
+                            element = new TRecord();
                             injector(ref element);
                             yield return element;
                         }
@@ -306,24 +306,24 @@ namespace FlyFlint.Internal.Static
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static IEnumerable<TElement> Execute<TElement>(
-            ParameterizedQueryContext<TElement> query)
-            where TElement : notnull, IDataInjectable, new() =>
+        public static IEnumerable<TRecord> Execute<TRecord>(
+            ParameterizedQueryContext<TRecord> query)
+            where TRecord : notnull, IDataInjectable, new() =>
             InternalExecute(query);
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static IEnumerable<TElement> ExecuteNonParameterized<TElement>(
-            PartialQueryContext<TElement> query)
-            where TElement : notnull, IDataInjectable, new() =>
+        public static IEnumerable<TRecord> ExecuteNonParameterized<TRecord>(
+            PartialQueryContext<TRecord> query)
+            where TRecord : notnull, IDataInjectable, new() =>
             InternalExecute(query);
 
 #if NET461_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
-        private static async IAsyncEnumerable<TElement> InternalExecuteAsync<TElement>(
-            QueryContext<TElement> query,
+        private static async IAsyncEnumerable<TRecord> InternalExecuteAsync<TRecord>(
+            QueryContext<TRecord> query,
             [EnumeratorCancellation] CancellationToken ct)
-            where TElement : notnull, IDataInjectable, new()
+            where TRecord : notnull, IDataInjectable, new()
         {
             using (var command = QueryHelper.CreateCommand(
                 query.connection, query.transaction, query.sql, query.parameters))
@@ -332,9 +332,9 @@ namespace FlyFlint.Internal.Static
                 {
                     if (await reader.ReadAsync(ct).ConfigureAwait(false))
                     {
-                        var element = new TElement();
+                        var element = new TRecord();
 
-                        var injector = StaticQueryExecutor.GetDataInjector<TElement>(
+                        var injector = StaticQueryExecutor.GetDataInjector<TRecord>(
                             query.trait.cc, query.trait.fieldComparer, reader, element);
 
                         injector(ref element);
@@ -343,7 +343,7 @@ namespace FlyFlint.Internal.Static
 
                         while (await prefetchAwaitable)
                         {
-                            element = new TElement();
+                            element = new TRecord();
                             injector(ref element);
                             prefetchAwaitable = reader.ReadAsync(ct).ConfigureAwait(false);
                             yield return element;
@@ -354,17 +354,17 @@ namespace FlyFlint.Internal.Static
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IAsyncEnumerable<TElement> ExecuteAsync<TElement>(
-            ParameterizedQueryContext<TElement> query,
+        public static IAsyncEnumerable<TRecord> ExecuteAsync<TRecord>(
+            ParameterizedQueryContext<TRecord> query,
             CancellationToken ct = default)
-            where TElement : notnull, IDataInjectable, new() =>
+            where TRecord : notnull, IDataInjectable, new() =>
             InternalExecuteAsync(query, ct);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IAsyncEnumerable<TElement> ExecuteNonParameterizedAsync<TElement>(
-            PartialQueryContext<TElement> query,
+        public static IAsyncEnumerable<TRecord> ExecuteNonParameterizedAsync<TRecord>(
+            PartialQueryContext<TRecord> query,
             CancellationToken ct = default)
-            where TElement : notnull, IDataInjectable, new() =>
+            where TRecord : notnull, IDataInjectable, new() =>
             InternalExecuteAsync(query, ct);
 #endif
     }

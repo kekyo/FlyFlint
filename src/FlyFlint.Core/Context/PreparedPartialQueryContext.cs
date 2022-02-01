@@ -26,8 +26,8 @@ namespace FlyFlint.Context
         }
     }
 
-    public sealed class PreparedPartialQueryContext<TElement> : PreparedQueryContext<TElement>
-        where TElement : new()
+    public sealed class PreparedPartialQueryContext<TRecord> : PreparedQueryContext<TRecord>
+        where TRecord : new()
     {
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

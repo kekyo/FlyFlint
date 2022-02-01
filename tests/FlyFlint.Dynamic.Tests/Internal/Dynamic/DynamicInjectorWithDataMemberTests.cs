@@ -12,7 +12,6 @@ using NUnit.Framework;
 using System;
 using System.Data;
 using System.Globalization;
-using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using static VerifyNUnit.Verifier;
 
@@ -22,11 +21,11 @@ namespace FlyFlint.Internal.Dynamic
     {
         public struct FieldValueType
         {
-            [DataMember]
+            [QueryField]
             public DateTime Birth;
-            [IgnoreDataMember]
+            [QueryIgnore]
             public string? Name;
-            [DataMember]
+            [QueryField]
             private int Id;
             private string Address;
 
@@ -61,11 +60,11 @@ namespace FlyFlint.Internal.Dynamic
 
         public sealed class FieldReferenceType
         {
-            [DataMember]
+            [QueryField]
             public DateTime Birth;
-            [IgnoreDataMember]
+            [QueryIgnore]
             public string? Name;
-            [DataMember]
+            [QueryField]
             private int Id;
             private string? Address;
 
@@ -100,11 +99,11 @@ namespace FlyFlint.Internal.Dynamic
 
         public struct PropertyValueType
         {
-            [DataMember]
+            [QueryField]
             public DateTime Birth { get; set; }
-            [IgnoreDataMember]
+            [QueryIgnore]
             public string? Name { get; set; }
-            [DataMember]
+            [QueryField]
             private int Id { get; set; }
             private string? Address { get; set; }
 
@@ -139,11 +138,11 @@ namespace FlyFlint.Internal.Dynamic
 
         public sealed class PropertyReferenceType
         {
-            [DataMember]
+            [QueryField]
             public DateTime Birth { get; set; }
-            [IgnoreDataMember]
+            [QueryIgnore]
             public string? Name { get; set; }
-            [DataMember]
+            [QueryField]
             private int Id { get; set; }
             private string? Address { get; set; }
 

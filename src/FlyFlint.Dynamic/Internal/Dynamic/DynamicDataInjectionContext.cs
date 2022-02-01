@@ -75,11 +75,11 @@ namespace FlyFlint.Internal.Dynamic
         }
     }
 
-    internal sealed class DynamicDataInjectionContext<TElement> :
+    internal sealed class DynamicDataInjectionContext<TRecord> :
         DynamicDataInjectionContext
-        where TElement : notnull
+        where TRecord : notnull
     {
-        private delegate void Setter(ref TElement element);
+        private delegate void Setter(ref TRecord record);
         private readonly Setter[] setters;
 
         internal DynamicDataInjectionContext(
@@ -94,7 +94,7 @@ namespace FlyFlint.Internal.Dynamic
                 QueryHelper.CreateSortedMetadataMap(this.reader, this.fieldComparer);
             this.metadataList = metadataMap.MetadataList;
             var members =
-                DynamicHelper.GetSetterMetadataList<TElement>();
+                DynamicHelper.GetSetterMetadataList<TRecord>();
 
             var candidates = new List<Setter>(members.Length);
             for (var index = 0; index < members.Length; index++)
@@ -108,8 +108,8 @@ namespace FlyFlint.Internal.Dynamic
                     var ut = Nullable.GetUnderlyingType(member.FieldType) ?? member.FieldType;
                     dbFieldMetadata.StoreDirect = ut == dbFieldMetadata.DbType;
 
-                    candidates.Add((ref TElement element) =>
-                        member.Accessor(ref element, this.GetValue(dbFieldNameIndiciesIndex, member.FieldType)));
+                    candidates.Add((ref TRecord record) =>
+                        member.Accessor(ref record, this.GetValue(dbFieldNameIndiciesIndex, member.FieldType)));
                 }
             }
 
@@ -119,11 +119,11 @@ namespace FlyFlint.Internal.Dynamic
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public void Inject(ref TElement element)
+        public void Inject(ref TRecord record)
         {
             for (var index = 0; index < this.setters.Length; index++)
             {
-                this.setters[index](ref element);
+                this.setters[index](ref record);
             }
         }
     }
