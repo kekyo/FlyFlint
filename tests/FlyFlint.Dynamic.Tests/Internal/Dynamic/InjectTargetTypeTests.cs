@@ -72,14 +72,14 @@ namespace FlyFlint.Internal.Dynamic
             using var reader = data.CreateDataReader();
             Assert.IsTrue(reader.Read());
 
-            var context = new DynamicDataInjectionContext<TargetValueTypes>(
+            var context = new DynamicRecordInjectionContext<TargetValueTypes>(
                 ConversionContext.Default, StringComparer.OrdinalIgnoreCase, reader);
 
-            var element = new TargetValueTypes();
+            var record = new TargetValueTypes();
 
-            context.Inject(ref element);
+            context.Inject(ref record);
 
-            return Verify($"{element.Value1},{element.Value2},{element.Value3},{element.Value4},{element.Value5},{element.Value6},{element.Value7},{element.Value8},{element.Value9},{element.Value10.ToString(CultureInfo.InvariantCulture)},{element.Value11},{element.Value12},{element.Value13},{element.Value14},{element.Value15}");
+            return Verify($"{record.Value1},{record.Value2},{record.Value3},{record.Value4},{record.Value5},{record.Value6},{record.Value7},{record.Value8},{record.Value9},{record.Value10.ToString(CultureInfo.InvariantCulture)},{record.Value11},{record.Value12},{record.Value13},{record.Value14},{record.Value15}");
         }
 
         public struct TargetNullableValueTypes
@@ -127,14 +127,14 @@ namespace FlyFlint.Internal.Dynamic
             using var reader = data.CreateDataReader();
             Assert.IsTrue(reader.Read());
 
-            var context = new DynamicDataInjectionContext<TargetNullableValueTypes>(
+            var context = new DynamicRecordInjectionContext<TargetNullableValueTypes>(
                 ConversionContext.Default, StringComparer.OrdinalIgnoreCase, reader);
 
-            var element = new TargetNullableValueTypes();
+            var record = new TargetNullableValueTypes();
 
-            context.Inject(ref element);
+            context.Inject(ref record);
 
-            return Verify($"{element.Value1},{element.Value2},{element.Value3},{element.Value4},{element.Value5},{element.Value6},{element.Value7},{element.Value8},{element.Value9},{element.Value10?.ToString(CultureInfo.InvariantCulture)},{element.Value11},{element.Value12},{element.Value13},{element.Value14},{element.Value15}");
+            return Verify($"{record.Value1},{record.Value2},{record.Value3},{record.Value4},{record.Value5},{record.Value6},{record.Value7},{record.Value8},{record.Value9},{record.Value10?.ToString(CultureInfo.InvariantCulture)},{record.Value11},{record.Value12},{record.Value13},{record.Value14},{record.Value15}");
         }
 
         [Test]
@@ -161,14 +161,14 @@ namespace FlyFlint.Internal.Dynamic
             using var reader = data.CreateDataReader();
             Assert.IsTrue(reader.Read());
 
-            var context = new DynamicDataInjectionContext<TargetNullableValueTypes>(
+            var context = new DynamicRecordInjectionContext<TargetNullableValueTypes>(
                 ConversionContext.Default, StringComparer.OrdinalIgnoreCase, reader);
 
-            var element = new TargetNullableValueTypes();
+            var record = new TargetNullableValueTypes();
 
-            context.Inject(ref element);
+            context.Inject(ref record);
 
-            return Verify($"{element.Value1},{element.Value2},{element.Value3},{element.Value4},{element.Value5},{element.Value6},{element.Value7},{element.Value8},{element.Value9},{element.Value10?.ToString(CultureInfo.InvariantCulture)},{element.Value11},{element.Value12},{element.Value13},{element.Value14},{element.Value15}");
+            return Verify($"{record.Value1},{record.Value2},{record.Value3},{record.Value4},{record.Value5},{record.Value6},{record.Value7},{record.Value8},{record.Value9},{record.Value10?.ToString(CultureInfo.InvariantCulture)},{record.Value11},{record.Value12},{record.Value13},{record.Value14},{record.Value15}");
         }
     }
 }

@@ -74,17 +74,17 @@ namespace FlyFlint
         private readonly TypeDefinition synchronizedQueryFacadeExtensionType;
         private readonly TypeDefinition staticQueryFacadeType;
         private readonly TypeDefinition extractedParameterType;
-        private readonly TypeDefinition dataInjectorDelegateType;
-        private readonly MethodDefinition dataInjectableInjectedAttributeConstructor;
+        private readonly TypeDefinition recordInjectorDelegateType;
+        private readonly MethodDefinition recordInjectableInjectedAttributeConstructor;
         private readonly MethodDefinition parameterExtractableInjectedAttributeConstructor;
         private readonly TypeDefinition staticMemberMetadataType;
         private readonly MethodDefinition staticMemberMetadataConstructor;
-        private readonly TypeDefinition staticDataInjectorDelegateType;
-        private readonly MethodDefinition staticDataInjectorDelegateConstructor;
-        private readonly TypeDefinition staticDataInjectionContextType;
+        private readonly TypeDefinition staticRecordInjectorDelegateType;
+        private readonly MethodDefinition staticRecordInjectorDelegateConstructor;
+        private readonly TypeDefinition staticRecordInjectionContextType;
         private readonly MethodDefinition registerMetadataMethod;
         private readonly TypeDefinition parameterExtractableType;
-        private readonly TypeDefinition dataInjectableType;
+        private readonly TypeDefinition recordInjectableType;
         private readonly MethodDefinition extractMethod;
         private readonly MethodDefinition prepareMethod;
         private readonly Dictionary<TypeKey, MethodDefinition> getValueMethods;
@@ -164,7 +164,8 @@ namespace FlyFlint
 
             this.queryFacadeMapping = this.queryFacadeExtensionType.Methods.
                 Concat(this.synchronizedQueryFacadeExtensionType.Methods).
-                Join(this.staticQueryFacadeType.Methods,
+                Where(m => m.IsPublic).
+                Join(this.staticQueryFacadeType.Methods.Where(m => m.IsPublic),
                     m => m,
                     m => m,
                     (qfm, sqfm) => (qfm, sqfm),
@@ -177,12 +178,12 @@ namespace FlyFlint
             this.extractedParameterType = flyFlintCoreAssembly.MainModule.GetType(
                 "FlyFlint.Internal.ExtractedParameter")!;
 
-            this.dataInjectorDelegateType = flyFlintCoreAssembly.MainModule.Types.
-                First(t => t.FullName.StartsWith("FlyFlint.Internal.DataInjectorDelegate"));
+            this.recordInjectorDelegateType = flyFlintCoreAssembly.MainModule.Types.
+                First(t => t.FullName.StartsWith("FlyFlint.Internal.RecordInjectorDelegate"));
 
-            var dataInjectableInjectedAttributeType = flyFlintCoreAssembly.MainModule.Types.
-                First(t => t.FullName.StartsWith("FlyFlint.Internal.Static.DataInjectableInjectedAttribute"));
-            this.dataInjectableInjectedAttributeConstructor = dataInjectableInjectedAttributeType.Methods.
+            var recordInjectableInjectedAttributeType = flyFlintCoreAssembly.MainModule.Types.
+                First(t => t.FullName.StartsWith("FlyFlint.Internal.Static.RecordInjectableInjectedAttribute"));
+            this.recordInjectableInjectedAttributeConstructor = recordInjectableInjectedAttributeType.Methods.
                 First(m => m.IsConstructor && !m.IsStatic);
 
             var parameterExtractableInjectedAttributeType = flyFlintCoreAssembly.MainModule.Types.
@@ -195,33 +196,33 @@ namespace FlyFlint
             this.staticMemberMetadataConstructor = staticMemberMetadataType.Methods.
                 First(m => m.IsConstructor);
 
-            this.staticDataInjectorDelegateType = flyFlintCoreAssembly.MainModule.Types.
-                First(t => t.FullName.StartsWith("FlyFlint.Internal.Static.StaticDataInjectorDelegate"));
-            this.staticDataInjectorDelegateConstructor = this.staticDataInjectorDelegateType.Methods.
+            this.staticRecordInjectorDelegateType = flyFlintCoreAssembly.MainModule.Types.
+                First(t => t.FullName.StartsWith("FlyFlint.Internal.Static.StaticRecordInjectorDelegate"));
+            this.staticRecordInjectorDelegateConstructor = this.staticRecordInjectorDelegateType.Methods.
                 First(m => m.IsConstructor && !m.IsStatic);
 
-            this.staticDataInjectionContextType = flyFlintCoreAssembly.MainModule.GetType(
-                "FlyFlint.Internal.Static.StaticDataInjectionContext")!;
-            this.registerMetadataMethod = staticDataInjectionContextType.Methods.
+            this.staticRecordInjectionContextType = flyFlintCoreAssembly.MainModule.GetType(
+                "FlyFlint.Internal.Static.StaticRecordInjectionContext")!;
+            this.registerMetadataMethod = staticRecordInjectionContextType.Methods.
                 First(m => m.IsPublic && m.IsVirtual && m.Name.StartsWith("RegisterMetadata"));
 
             this.parameterExtractableType = flyFlintCoreAssembly.MainModule.GetType(
                 "FlyFlint.Internal.Static.IParameterExtractable")!;
-            this.dataInjectableType = flyFlintCoreAssembly.MainModule.GetType(
-                "FlyFlint.Internal.Static.IDataInjectable")!;
+            this.recordInjectableType = flyFlintCoreAssembly.MainModule.GetType(
+                "FlyFlint.Internal.Static.IRecordInjectable")!;
             this.extractMethod = this.parameterExtractableType.Methods.
                 First(m => m.Name.StartsWith("Extract"));
-            this.prepareMethod = this.dataInjectableType.Methods.
+            this.prepareMethod = this.recordInjectableType.Methods.
                 First(m => m.Name.StartsWith("Prepare"));
 
-            this.getValueMethods = this.staticDataInjectionContextType.
+            this.getValueMethods = this.staticRecordInjectionContextType.
                 Methods.
                 Where(m => m.IsPublic && !m.IsStatic && !m.HasGenericParameters && m.Name.StartsWith("Get")).
                 ToDictionary(m => new TypeKey(m.ReturnType, m.Name.StartsWith("GetNullable")));
-            this.getEnumValueMethod = this.staticDataInjectionContextType.
+            this.getEnumValueMethod = this.staticRecordInjectionContextType.
                 Methods.
                 First(m => m.IsPublic && !m.IsStatic && m.Name.StartsWith("GetEnum"));
-            this.getNullableEnumValueMethod = this.staticDataInjectionContextType.
+            this.getNullableEnumValueMethod = this.staticRecordInjectionContextType.
                 Methods.
                 First(m => m.IsPublic && !m.IsStatic && m.Name.StartsWith("GetNullableEnum"));
         }
@@ -294,22 +295,22 @@ namespace FlyFlint
             ModuleDefinition module,
             TypeDefinition targetType, MethodDefinition cctor, MemberReference[] targetMembers)
         {
-            var staticDataInjectorDelegateType =
+            var staticRecordInjectorDelegateType =
                 new GenericInstanceType(
-                    module.ImportReference(this.staticDataInjectorDelegateType));
-            staticDataInjectorDelegateType.GenericArguments.
+                    module.ImportReference(this.staticRecordInjectorDelegateType));
+            staticRecordInjectorDelegateType.GenericArguments.
                 Add(targetType);
 
             // Couldn't get constructor reference from instantiated type directly.
-            var staticDataInjectorDelegateConstructor =
+            var staticRecordInjectorDelegateConstructor =
                 new MethodReference(
                     ".ctor",
                     this.typeSystem.Void,
-                    staticDataInjectorDelegateType);
-            staticDataInjectorDelegateConstructor.HasThis = true;    // Important
-            staticDataInjectorDelegateConstructor.Parameters.Add(
+                    staticRecordInjectorDelegateType);
+            staticRecordInjectorDelegateConstructor.HasThis = true;    // Important
+            staticRecordInjectorDelegateConstructor.Parameters.Add(
                 new ParameterDefinition(this.typeSystem.Object));
-            staticDataInjectorDelegateConstructor.Parameters.Add(
+            staticRecordInjectorDelegateConstructor.Parameters.Add(
                 new ParameterDefinition(this.typeSystem.IntPtr));
 
             var injectorField = new FieldDefinition(
@@ -331,10 +332,10 @@ namespace FlyFlint
                 new ParameterDefinition(
                     "context",
                     ParameterAttributes.None,
-                    module.ImportReference(this.staticDataInjectionContextType)));
+                    module.ImportReference(this.staticRecordInjectionContextType)));
             injectMethod.Parameters.Add(
                 new ParameterDefinition(
-                    "element",
+                    "record",
                     ParameterAttributes.None,
                     new ByReferenceType(targetType)));
             injectMethod.ImplAttributes = MethodImplAttributes.AggressiveInlining;
@@ -437,7 +438,7 @@ namespace FlyFlint
             cctorInsts.Insert(instIndex++,
                 Instruction.Create(OpCodes.Ldftn, injectMethod));
             cctorInsts.Insert(instIndex++,
-                Instruction.Create(OpCodes.Newobj, staticDataInjectorDelegateConstructor));
+                Instruction.Create(OpCodes.Newobj, staticRecordInjectorDelegateConstructor));
             cctorInsts.Insert(instIndex++,
                 Instruction.Create(OpCodes.Stsfld, injectorField));
 
@@ -451,7 +452,7 @@ namespace FlyFlint
             TypeDefinition targetType)
         {
             if (targetType.CustomAttributes.Any(ca =>
-                ca.AttributeType.FullName == "FlyFlint.Internal.Static.DataInjectableInjectedAttribute"))
+                ca.AttributeType.FullName == "FlyFlint.Internal.Static.RecordInjectableInjectedAttribute"))
             {
                 return false;
             }
@@ -500,13 +501,13 @@ namespace FlyFlint
             var requiredOverrideMethod = targetType.
                 Traverse(t => t.BaseType?.Resolve()).
                 SelectMany(t => t.Methods.Where(m =>
-                    m.IsFamily && m.IsVirtual && m.IsHideBySig && (m.Name == "Prepare"))).
+                    m.IsPublic && m.IsVirtual && m.IsHideBySig && (m.Name == "Prepare"))).
                 FirstOrDefault();
 
             var prepareMethod = new MethodDefinition(
                 // The CLR and CoreCLR, will cause TypeLoadException when uses different name in inferface member method...
                 /* dirtySymbolPrefix + */ "Prepare",
-                MethodAttributes.HideBySig | MethodAttributes.Family | MethodAttributes.Virtual |
+                MethodAttributes.HideBySig | MethodAttributes.Public | MethodAttributes.Virtual |
                     ((requiredOverrideMethod != null) ?
                         MethodAttributes.ReuseSlot :
                         MethodAttributes.NewSlot),
@@ -515,7 +516,7 @@ namespace FlyFlint
                 new ParameterDefinition(
                     "context",
                     ParameterAttributes.None,
-                    module.ImportReference(this.staticDataInjectionContextType)));
+                    module.ImportReference(this.staticRecordInjectionContextType)));
             prepareMethod.ImplAttributes = MethodImplAttributes.AggressiveInlining;
             prepareMethod.CustomAttributes.Add(
                 new CustomAttribute(
@@ -555,7 +556,7 @@ namespace FlyFlint
             if (requiredOverrideMethod == null)
             {
                 var ii = new InterfaceImplementation(
-                    module.ImportReference(this.dataInjectableType));
+                    module.ImportReference(this.recordInjectableType));
                 targetType.Interfaces.Add(ii);
 
                 prepareMethod.Overrides.Add(
@@ -564,9 +565,50 @@ namespace FlyFlint
 
             targetType.CustomAttributes.Add(
                 new CustomAttribute(
-                    module.ImportReference(this.dataInjectableInjectedAttributeConstructor)));
+                    module.ImportReference(this.recordInjectableInjectedAttributeConstructor)));
 
             return true;
+        }
+
+        ////////////////////////////////////////////////////////////////////////////
+
+        private static bool IsTargetMember(FieldDefinition field)
+        {
+            if (!field.IsStatic)
+            {
+                if (field.IsPublic &&
+                    !field.CustomAttributes.Any(ca => ca.AttributeType.FullName == "FlyFlint.QueryIgnoreAttribute"))
+                {
+                    return true;
+                }
+                if (!field.IsPublic &&
+                    field.CustomAttributes.Any(ca => ca.AttributeType.FullName == "FlyFlint.QueryFieldAttribute"))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private static bool IsTargetMember(PropertyDefinition property, MethodReference? setter)
+        {
+            if (setter is { } mr && mr.Resolve() is { } method)
+            {
+                if (!method.IsStatic)
+                {
+                    if (method.IsPublic &&
+                        !property.CustomAttributes.Any(ca => ca.AttributeType.FullName == "FlyFlint.QueryIgnoreAttribute"))
+                    {
+                        return true;
+                    }
+                    if (!method.IsPublic &&
+                        property.CustomAttributes.Any(ca => ca.AttributeType.FullName == "FlyFlint.QueryFieldAttribute"))
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -582,13 +624,10 @@ namespace FlyFlint
             }
 
             var targetFields = targetType.Fields.
-                Where(f => f.IsPublic && !f.IsStatic && !f.IsInitOnly).
+                Where(f => !f.IsInitOnly && IsTargetMember(f)).
                 Cast<MemberReference>();
             var targetProperties = targetType.Properties.
-                Where(p =>
-                    p.SetMethod is MethodReference mr &&
-                    mr.Resolve() is { } m &&
-                    m.IsPublic && !m.IsStatic).   // TODO: DataMemberAttribute
+                Where(p => IsTargetMember(p, p.SetMethod)).
                 Cast<MemberReference>();
 
             var targetMembers = targetFields.Concat(targetProperties).ToArray();
@@ -602,13 +641,13 @@ namespace FlyFlint
             var requiredOverrideMethod = targetType.
                 Traverse(t => t.BaseType?.Resolve()).
                 SelectMany(t => t.Methods.Where(m =>
-                    m.IsFamily && m.IsVirtual && m.IsHideBySig && (m.Name == "Extract"))).
+                    m.IsPublic && m.IsVirtual && m.IsHideBySig && (m.Name == "Extract"))).
                 FirstOrDefault();
 
             var extractMethod = new MethodDefinition(
                 // The CLR and CoreCLR, will cause TypeLoadException when uses different name in inferface member method...
                 /* dirtySymbolPrefix + */ "Extract",
-                MethodAttributes.HideBySig | MethodAttributes.Family | MethodAttributes.Virtual |
+                MethodAttributes.HideBySig | MethodAttributes.Public | MethodAttributes.Virtual |
                     ((requiredOverrideMethod != null) ?
                         MethodAttributes.ReuseSlot :
                         MethodAttributes.NewSlot),
@@ -645,22 +684,20 @@ namespace FlyFlint
 
         ////////////////////////////////////////////////////////////////////////////
 
-        private (TypeDefinition[] parametersTypes, TypeDefinition[] elementTypes) GetTargetTypes(
+        private (TypeDefinition[] parametersTypes, TypeDefinition[] recordTypes) GetTargetTypes(
             AssemblyDefinition targetAssembly)
         {
-            var dataContractTypes =
+            var queryRecordTypes =
                 targetAssembly.Modules.
-                    SelectMany(Utilities.GetAllTypes).
-                Where(type =>
-                    type.CustomAttributes.Any(ca => ca.AttributeType.FullName == "System.Runtime.Serialization.DataContractAttribute") ||
-                    type.Fields.Any(f => f.CustomAttributes.Any(ca => ca.AttributeType.FullName == "System.Runtime.Serialization.DataMemberAttribute")) ||
-                    type.Properties.Any(p => p.CustomAttributes.Any(ca => ca.AttributeType.FullName == "System.Runtime.Serialization.DataMemberAttribute"))).
+                SelectMany(Utilities.GetAllTypes).
+                Where(type => type.CustomAttributes.Any(ca =>
+                    ca.AttributeType.FullName == "FlyFlint.QueryRecordAttribute")).
                 ToArray();
 
             //static MethodReference GetGenericMethodDefinitionIfApplicable(MethodReference method) =>
             //    method.IsGenericInstance ? method.GetElementMethod() : method;
 
-            var usingQueryTypes = Utilities.ParallelSelect(
+            var aggregatedTypes = Utilities.ParallelSelect(
                 targetAssembly.Modules.
                     SelectMany(Utilities.GetAllTypes).
                     SelectMany(type => new[] { type }.Concat(type.NestedTypes).SelectMany(t => t.Methods)).
@@ -739,27 +776,27 @@ namespace FlyFlint
                             inst.mr!.Name.StartsWith("Execute")).
                         Select(inst => inst.mr!.GenericArguments.Last()).
                         Cast<TypeReference>();
-                    var elementTypes =
+                    var recordTypes =
                         parameterTElementTypes.
                         Concat(executeTElementTypes).
                         ToArray();
 
-                    return (parametersTypes, elementTypes);
+                    return (parametersTypes, recordTypes);
                 });
 
-            var parametersTypes = usingQueryTypes.
+            var parametersTypes = aggregatedTypes.
                 SelectMany(entry => entry.parametersTypes).
                 Distinct().
                 Select(t => t.Resolve()).
                 ToArray();
-            var elementTypes = usingQueryTypes.
-                SelectMany(entry => entry.elementTypes).
-                Concat(dataContractTypes).
+            var recordTypes = aggregatedTypes.
+                SelectMany(entry => entry.recordTypes).
+                Concat(queryRecordTypes).
                 Distinct().
                 Select(t => t.Resolve()).
                 ToArray();
 
-            return (parametersTypes, elementTypes);
+            return (parametersTypes, recordTypes);
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -802,13 +839,13 @@ namespace FlyFlint
                 });
 
             // Gathering target types from IL streams.
-            var (parametersTypes, elementTypes) =
-                this.GetTargetTypes(targetAssembly);
+            var (parametersTypes, recordTypes) = this.GetTargetTypes(targetAssembly);
 
             // If found target types:
-            if ((parametersTypes.Length >= 1) || (elementTypes.Length >= 1))
+            if ((parametersTypes.Length >= 1) || (recordTypes.Length >= 1))
             {
-                var injected = false;
+                var parametersInjected = 0;
+                var recordInjected = 0;
 
                 foreach (var parametersType in parametersTypes.
                     OrderBy(t => t, TypeInheritanceDepthComparer.Instance))
@@ -816,7 +853,7 @@ namespace FlyFlint
                     // By IParameterExtractable interface.
                     if (this.InjectExtractMethod(targetAssembly.MainModule, parametersType))
                     {
-                        injected = true;
+                        parametersInjected++;
                         this.message(
                             LogLevels.Trace,
                             $"Injected an parameter type: Assembly={targetAssemblyName}, Type={parametersType.FullName}");
@@ -829,27 +866,27 @@ namespace FlyFlint
                     }
                 }
 
-                foreach (var elementType in elementTypes.
+                foreach (var recordType in recordTypes.
                     OrderBy(t => t, TypeInheritanceDepthComparer.Instance))
                 {
-                    // By IDataInjectable interface.
-                    if (this.InjectPrepareMethod(targetAssembly.MainModule, elementType))
+                    // By IRecordInjectable interface.
+                    if (this.InjectPrepareMethod(targetAssembly.MainModule, recordType))
                     {
-                        injected = true;
+                        recordInjected++;
                         this.message(
                             LogLevels.Trace,
-                            $"Injected an element type: Assembly={targetAssemblyName}, Type={elementType.FullName}");
+                            $"Injected an data type: Assembly={targetAssemblyName}, Type={recordType.FullName}");
                     }
                     else
                     {
                         this.message(
                             LogLevels.Trace,
-                            $"Ignored an element type: Assembly={targetAssemblyName}, Type={elementType.FullName}");
+                            $"Ignored an data type: Assembly={targetAssemblyName}, Type={recordType.FullName}");
                     }
                 }
 
                 // One or more types injected:
-                if (injected)
+                if (parametersInjected >= 1 || recordInjected >= 1)
                 {
                     // Backup original assembly and symbol files,
                     // because cecil will fail when contains invalid metadata.
@@ -928,6 +965,10 @@ namespace FlyFlint
                     {
                         File.Delete(backupDebuggingPath);
                     }
+
+                    this.message(
+                        LogLevels.Information,
+                        $"Injected: Assembly={targetAssemblyName}, Parameters={parametersInjected}, Record={recordInjected}");
 
                     return true;
                 }

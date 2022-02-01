@@ -19,7 +19,7 @@ namespace FlyFlint.Internal.Static
 {
     public sealed class StaticInjectorTests
     {
-        private struct TargetValueType : IDataInjectable
+        private struct TargetValueType : IRecordInjectable
         {
             public int Id;
             public string? Name;
@@ -32,17 +32,17 @@ namespace FlyFlint.Internal.Static
                 new StaticMemberMetadata(nameof(Birth), typeof(DateTime)),
             };
 
-            private static readonly StaticDataInjectorDelegate<TargetValueType> injector = Inject;
+            private static readonly StaticRecordInjectorDelegate<TargetValueType> injector = Inject;
 
-            public void Prepare(StaticDataInjectionContext context) =>
+            public void Prepare(StaticRecordInjectionContext context) =>
                 context.RegisterMetadata(members, injector);
 
             private static void Inject(
-                StaticDataInjectionContext context, ref TargetValueType element)
+                StaticRecordInjectionContext context, ref TargetValueType record)
             {
-                element.Id = context.GetInt32(0);
-                element.Name = context.GetString(1);
-                element.Birth = context.GetDateTime(2);
+                record.Id = context.GetInt32(0);
+                record.Name = context.GetString(1);
+                record.Birth = context.GetDateTime(2);
             }
         }
 
@@ -58,18 +58,18 @@ namespace FlyFlint.Internal.Static
             using var reader = data.CreateDataReader();
             Assert.IsTrue(reader.Read());
 
-            var element = new TargetValueType();
+            var record = new TargetValueType();
 
-            var context = new StaticDataInjectionContext<TargetValueType>(
+            var context = new StaticRecordInjectionContext<TargetValueType>(
                 ConversionContext.Default, StringComparer.OrdinalIgnoreCase, reader);
-            element.Prepare(context);
+            record.Prepare(context);
 
-            context.Inject(ref element);
+            context.Inject(ref record);
 
-            return Verify($"{element.Id},{element.Name},{element.Birth.ToString(CultureInfo.InvariantCulture)}");
+            return Verify($"{record.Id},{record.Name},{record.Birth.ToString(CultureInfo.InvariantCulture)}");
         }
 
-        private sealed class TargetReferenceType : IDataInjectable
+        private sealed class TargetReferenceType : IRecordInjectable
         {
             public int Id;
             public string? Name;
@@ -82,17 +82,17 @@ namespace FlyFlint.Internal.Static
                 new StaticMemberMetadata(nameof(Birth), typeof(DateTime)),
             };
 
-            private static readonly StaticDataInjectorDelegate<TargetReferenceType> injector = Inject;
+            private static readonly StaticRecordInjectorDelegate<TargetReferenceType> injector = Inject;
 
-            public void Prepare(StaticDataInjectionContext context) =>
+            public void Prepare(StaticRecordInjectionContext context) =>
                 context.RegisterMetadata(members, injector);
 
             private static void Inject(
-                StaticDataInjectionContext context, ref TargetReferenceType element)
+                StaticRecordInjectionContext context, ref TargetReferenceType record)
             {
-                element.Id = context.GetInt32(0);
-                element.Name = context.GetString(1);
-                element.Birth = context.GetDateTime(2);
+                record.Id = context.GetInt32(0);
+                record.Name = context.GetString(1);
+                record.Birth = context.GetDateTime(2);
             }
         }
 
@@ -108,15 +108,15 @@ namespace FlyFlint.Internal.Static
             using var reader = data.CreateDataReader();
             Assert.IsTrue(reader.Read());
 
-            var element = new TargetReferenceType();
+            var record = new TargetReferenceType();
 
-            var context = new StaticDataInjectionContext<TargetReferenceType>(
+            var context = new StaticRecordInjectionContext<TargetReferenceType>(
                 ConversionContext.Default, StringComparer.OrdinalIgnoreCase, reader);
-            element.Prepare(context);
+            record.Prepare(context);
 
-            context.Inject(ref element);
+            context.Inject(ref record);
 
-            return Verify($"{element.Id},{element.Name},{element.Birth.ToString(CultureInfo.InvariantCulture)}");
+            return Verify($"{record.Id},{record.Name},{record.Birth.ToString(CultureInfo.InvariantCulture)}");
         }
     }
 }

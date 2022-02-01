@@ -8,22 +8,19 @@
 ////////////////////////////////////////////////////////////////////////////
 
 using System;
-using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
-namespace FlyFlint.Internal.Static
+namespace FlyFlint
 {
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
-    public sealed class DataInjectableInjectedAttribute :
-        Attribute
+    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
+    public sealed class QueryFieldAttribute : Attribute
     {
-        [EditorBrowsable(EditorBrowsableState.Never)]
+        public readonly string? Name;
+
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public DataInjectableInjectedAttribute()
-        {
-        }
+        public QueryFieldAttribute(string? name = null) =>
+            this.Name = name;
     }
 }

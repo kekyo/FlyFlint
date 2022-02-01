@@ -55,17 +55,7 @@ namespace FlyFlint
 
                     var injector = new Injector(referencesBasePath, Message);
 
-                    if (injector.Inject(targetAssemblyPath))
-                    {
-                        Message(
-                            LogLevels.Information,
-                            $"Replaced injected assembly: Assembly={Path.GetFileName(targetAssemblyPath)}");
-                    }
-                    else
-                    {
-                        Message(LogLevels.Information,
-                            $"Injection target isn't found: Assembly={Path.GetFileName(targetAssemblyPath)}");
-                    }
+                    injector.Inject(targetAssemblyPath);
                 }
             }
             catch (Exception ex)

@@ -12,14 +12,13 @@ using System;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Runtime.Serialization;
 
 namespace FlyFlint.Internal.Dynamic
 {
     internal static class DynamicHelper
     {
-        public delegate object? MemberGetter<T>(ref T element, ConversionContext cc);
-        public delegate void MemberSetter<T>(ref T element, object? value);
+        public delegate object? MemberGetter<T>(ref T record, ConversionContext cc);
+        public delegate void MemberSetter<T>(ref T record, object? value);
 
         public struct Metadata<TAccessor>
             where TAccessor : Delegate
@@ -58,7 +57,7 @@ namespace FlyFlint.Internal.Dynamic
             {
                 if (member is FieldInfo fi)
                 {
-                    if (fi.GetCustomAttributes(typeof(DataMemberAttribute), true) is DataMemberAttribute[] attributes &&
+                    if (fi.GetCustomAttributes(typeof(QueryFieldAttribute), true) is QueryFieldAttribute[] attributes &&
                         attributes.Length >= 1)
                     {
                         var name = attributes[0].Name;
@@ -69,7 +68,7 @@ namespace FlyFlint.Internal.Dynamic
                                 CreateDelegate(typeof(MemberGetter<T>)));
                     }
                     else if (fi.IsPublic &&
-                        !fi.IsDefined(typeof(IgnoreDataMemberAttribute), true))
+                        !fi.IsDefined(typeof(QueryIgnoreAttribute), true))
                     {
                         return new Metadata<MemberGetter<T>>(
                             fi.Name,
@@ -83,7 +82,7 @@ namespace FlyFlint.Internal.Dynamic
                     var getter = pi.GetGetMethod(true);
                     if (pi.CanRead && getter != null && pi.GetIndexParameters().Length == 0)
                     {
-                        if (pi.GetCustomAttributes(typeof(DataMemberAttribute), true) is DataMemberAttribute[] attributes &&
+                        if (pi.GetCustomAttributes(typeof(QueryFieldAttribute), true) is QueryFieldAttribute[] attributes &&
                             attributes.Length >= 1)
                         {
                             var name = attributes[0].Name;
@@ -94,7 +93,7 @@ namespace FlyFlint.Internal.Dynamic
                                     CreateDelegate(typeof(MemberGetter<T>)));
                         }
                         else if (getter.IsPublic &&
-                            !pi.IsDefined(typeof(IgnoreDataMemberAttribute), true))
+                            !pi.IsDefined(typeof(QueryIgnoreAttribute), true))
                         {
                             return new Metadata<MemberGetter<T>>(
                                 pi.Name,
@@ -130,7 +129,7 @@ namespace FlyFlint.Internal.Dynamic
                 {
                     if (!fi.IsInitOnly)
                     {
-                        if (fi.GetCustomAttributes(typeof(DataMemberAttribute), true) is DataMemberAttribute[] attributes &&
+                        if (fi.GetCustomAttributes(typeof(QueryFieldAttribute), true) is QueryFieldAttribute[] attributes &&
                             attributes.Length >= 1)
                         {
                             var name = attributes[0].Name;
@@ -141,7 +140,7 @@ namespace FlyFlint.Internal.Dynamic
                                     CreateDelegate(typeof(MemberSetter<T>)));
                         }
                         else if (fi.IsPublic &&
-                            !fi.IsDefined(typeof(IgnoreDataMemberAttribute), true))
+                            !fi.IsDefined(typeof(QueryIgnoreAttribute), true))
                         {
                             return new Metadata<MemberSetter<T>>(
                                 fi.Name,
@@ -156,7 +155,7 @@ namespace FlyFlint.Internal.Dynamic
                     var setter = pi.GetSetMethod(true);
                     if (pi.CanWrite && setter != null && pi.GetIndexParameters().Length == 0)
                     {
-                        if (pi.GetCustomAttributes(typeof(DataMemberAttribute), true) is DataMemberAttribute[] attributes &&
+                        if (pi.GetCustomAttributes(typeof(QueryFieldAttribute), true) is QueryFieldAttribute[] attributes &&
                             attributes.Length >= 1)
                         {
                             var name = attributes[0].Name;
@@ -167,7 +166,7 @@ namespace FlyFlint.Internal.Dynamic
                                     CreateDelegate(typeof(MemberSetter<T>)));
                         }
                         else if (setter.IsPublic &&
-                            !pi.IsDefined(typeof(IgnoreDataMemberAttribute), true))
+                            !pi.IsDefined(typeof(QueryIgnoreAttribute), true))
                         {
                             return new Metadata<MemberSetter<T>>(
                                 pi.Name,

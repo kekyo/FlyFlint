@@ -12,7 +12,6 @@ using NUnit.Framework;
 using System;
 using System.Data;
 using System.Globalization;
-using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using static VerifyNUnit.Verifier;
 
@@ -22,11 +21,11 @@ namespace FlyFlint.Internal.Dynamic
     {
         public struct FieldValueType
         {
-            [DataMember]
+            [QueryField]
             public DateTime Birth;
-            [IgnoreDataMember]
+            [QueryIgnore]
             public string? Name;
-            [DataMember]
+            [QueryField]
             private int Id;
             private string Address;
 
@@ -49,23 +48,23 @@ namespace FlyFlint.Internal.Dynamic
             using var reader = data.CreateDataReader();
             Assert.IsTrue(reader.Read());
 
-            var context = new DynamicDataInjectionContext<FieldValueType>(
+            var context = new DynamicRecordInjectionContext<FieldValueType>(
                 ConversionContext.Default, StringComparer.OrdinalIgnoreCase, reader);
 
-            var element = new FieldValueType();
+            var record = new FieldValueType();
 
-            context.Inject(ref element);
+            context.Inject(ref record);
 
-            return Verify($"{element.GetId()},{element.Name},{element.Birth.ToString(CultureInfo.InvariantCulture)},{element.GetAddress()}");
+            return Verify($"{record.GetId()},{record.Name},{record.Birth.ToString(CultureInfo.InvariantCulture)},{record.GetAddress()}");
         }
 
         public sealed class FieldReferenceType
         {
-            [DataMember]
+            [QueryField]
             public DateTime Birth;
-            [IgnoreDataMember]
+            [QueryIgnore]
             public string? Name;
-            [DataMember]
+            [QueryField]
             private int Id;
             private string? Address;
 
@@ -88,23 +87,23 @@ namespace FlyFlint.Internal.Dynamic
             using var reader = data.CreateDataReader();
             Assert.IsTrue(reader.Read());
 
-            var context = new DynamicDataInjectionContext<FieldReferenceType>(
+            var context = new DynamicRecordInjectionContext<FieldReferenceType>(
                 ConversionContext.Default, StringComparer.OrdinalIgnoreCase, reader);
 
-            var element = new FieldReferenceType();
+            var record = new FieldReferenceType();
 
-            context.Inject(ref element);
+            context.Inject(ref record);
 
-            return Verify($"{element.GetId()},{element.Name},{element.Birth.ToString(CultureInfo.InvariantCulture)},{element.GetAddress()}");
+            return Verify($"{record.GetId()},{record.Name},{record.Birth.ToString(CultureInfo.InvariantCulture)},{record.GetAddress()}");
         }
 
         public struct PropertyValueType
         {
-            [DataMember]
+            [QueryField]
             public DateTime Birth { get; set; }
-            [IgnoreDataMember]
+            [QueryIgnore]
             public string? Name { get; set; }
-            [DataMember]
+            [QueryField]
             private int Id { get; set; }
             private string? Address { get; set; }
 
@@ -127,23 +126,23 @@ namespace FlyFlint.Internal.Dynamic
             using var reader = data.CreateDataReader();
             Assert.IsTrue(reader.Read());
 
-            var context = new DynamicDataInjectionContext<PropertyValueType>(
+            var context = new DynamicRecordInjectionContext<PropertyValueType>(
                 ConversionContext.Default, StringComparer.OrdinalIgnoreCase, reader);
 
-            var element = new PropertyValueType();
+            var record = new PropertyValueType();
 
-            context.Inject(ref element);
+            context.Inject(ref record);
 
-            return Verify($"{element.GetId()},{element.Name},{element.Birth.ToString(CultureInfo.InvariantCulture)},{element.GetAddress()}");
+            return Verify($"{record.GetId()},{record.Name},{record.Birth.ToString(CultureInfo.InvariantCulture)},{record.GetAddress()}");
         }
 
         public sealed class PropertyReferenceType
         {
-            [DataMember]
+            [QueryField]
             public DateTime Birth { get; set; }
-            [IgnoreDataMember]
+            [QueryIgnore]
             public string? Name { get; set; }
-            [DataMember]
+            [QueryField]
             private int Id { get; set; }
             private string? Address { get; set; }
 
@@ -166,14 +165,14 @@ namespace FlyFlint.Internal.Dynamic
             using var reader = data.CreateDataReader();
             Assert.IsTrue(reader.Read());
 
-            var context = new DynamicDataInjectionContext<PropertyReferenceType>(
+            var context = new DynamicRecordInjectionContext<PropertyReferenceType>(
                 ConversionContext.Default, StringComparer.OrdinalIgnoreCase, reader);
 
-            var element = new PropertyReferenceType();
+            var record = new PropertyReferenceType();
 
-            context.Inject(ref element);
+            context.Inject(ref record);
 
-            return Verify($"{element.GetId()},{element.Name},{element.Birth.ToString(CultureInfo.InvariantCulture)},{element.GetAddress()}");
+            return Verify($"{record.GetId()},{record.Name},{record.Birth.ToString(CultureInfo.InvariantCulture)},{record.GetAddress()}");
         }
     }
 }

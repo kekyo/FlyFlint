@@ -55,7 +55,7 @@ namespace FlyFlint
             var qc = QueryExtension.Query<Target>(connection, "SELECT * FROM target");
             var targets = await QueryFacadeExtension.ExecuteNonParameterizedAsync(qc).ToArrayAsync();
 
-            await Verify(targets.Select(element => $"{element.Id},{element.Name},{element.Birth.ToString(CultureInfo.InvariantCulture)}"));
+            await Verify(targets.Select(record => $"{record.Id},{record.Name},{record.Birth.ToString(CultureInfo.InvariantCulture)}"));
         }
 
         [Test]
@@ -81,7 +81,7 @@ namespace FlyFlint
                 Parameter(new { idparam = 2 });
             var targets = await QueryFacadeExtension.ExecuteAsync(qc).ToArrayAsync();
 
-            await Verify(targets.Select(element => $"{element.Id},{element.Name},{element.Birth.ToString(CultureInfo.InvariantCulture)}"));
+            await Verify(targets.Select(record => $"{record.Id},{record.Name},{record.Birth.ToString(CultureInfo.InvariantCulture)}"));
         }
 
         [Test]
@@ -107,7 +107,7 @@ namespace FlyFlint
                 connection, $"SELECT * FROM target WHERE Id = {idparam}");
             var targets = await QueryFacadeExtension.ExecuteAsync(qc).ToArrayAsync();
 
-            await Verify(targets.Select(element => $"{element.Id},{element.Name},{element.Birth.ToString(CultureInfo.InvariantCulture)}"));
+            await Verify(targets.Select(record => $"{record.Id},{record.Name},{record.Birth.ToString(CultureInfo.InvariantCulture)}"));
         }
     }
 }

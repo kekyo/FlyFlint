@@ -31,8 +31,8 @@ namespace FlyFlint.Context
         }
     }
 
-    public abstract class PreparedQueryContext<TElement>
-        where TElement : new()
+    public abstract class PreparedQueryContext<TRecord>
+        where TRecord : new()
     {
         internal readonly Trait trait;
         internal readonly Func<QueryParameterBuilderResult> builder;

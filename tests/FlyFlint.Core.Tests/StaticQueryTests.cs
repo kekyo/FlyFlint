@@ -24,7 +24,7 @@ namespace FlyFlint
 {
     public sealed class StaticQueryTests
     {
-        private sealed class Target : IDataInjectable
+        private sealed class Target : IRecordInjectable
         {
             public int Id;
             public string? Name;
@@ -37,17 +37,17 @@ namespace FlyFlint
                  new StaticMemberMetadata(nameof(Birth), typeof(DateTime)),
             };
 
-            private static readonly StaticDataInjectorDelegate<Target> injector = Inject;
+            private static readonly StaticRecordInjectorDelegate<Target> injector = Inject;
 
-            public void Prepare(StaticDataInjectionContext context) =>
+            public void Prepare(StaticRecordInjectionContext context) =>
                 context.RegisterMetadata(members, injector);
 
             private static void Inject(
-                StaticDataInjectionContext context, ref Target element)
+                StaticRecordInjectionContext context, ref Target record)
             {
-                element.Id = context.GetInt32(0);
-                element.Name = context.GetString(1);
-                element.Birth = context.GetDateTime(2);
+                record.Id = context.GetInt32(0);
+                record.Name = context.GetString(1);
+                record.Birth = context.GetDateTime(2);
             }
         }
 
@@ -72,7 +72,7 @@ namespace FlyFlint
             var query = QueryExtension.Query<Target>(connection, "SELECT * FROM target");
             var targets = await QueryFacadeExtension.ExecuteNonParameterizedAsync(query).ToArrayAsync();
 
-            await Verify(targets.Select(element => $"{element.Id},{element.Name},{element.Birth.ToString(CultureInfo.InvariantCulture)}"));
+            await Verify(targets.Select(record => $"{record.Id},{record.Name},{record.Birth.ToString(CultureInfo.InvariantCulture)}"));
         }
 
         public sealed class Parameter : IParameterExtractable
@@ -115,7 +115,7 @@ namespace FlyFlint
                     new Parameter { idparam = 2 });
             var targets = await QueryFacadeExtension.ExecuteAsync(query).ToArrayAsync();
 
-            await Verify(targets.Select(element => $"{element.Id},{element.Name},{element.Birth.ToString(CultureInfo.InvariantCulture)}"));
+            await Verify(targets.Select(record => $"{record.Id},{record.Name},{record.Birth.ToString(CultureInfo.InvariantCulture)}"));
         }
 
         [Test]
@@ -141,7 +141,7 @@ namespace FlyFlint
                 connection, $"SELECT * FROM target WHERE Id = {idparam}");
             var targets = await QueryFacadeExtension.ExecuteAsync(query).ToArrayAsync();
 
-            await Verify(targets.Select(element => $"{element.Id},{element.Name},{element.Birth.ToString(CultureInfo.InvariantCulture)}"));
+            await Verify(targets.Select(record => $"{record.Id},{record.Name},{record.Birth.ToString(CultureInfo.InvariantCulture)}"));
         }
     }
 }

@@ -8,14 +8,11 @@
 ////////////////////////////////////////////////////////////////////////////
 
 using FlyFlint;
-using FlyFlint.Collections;
 using FlyFlint.Synchronized;
 using System;
 using System.Data;
 using System.Data.SQLite;
 using System.Linq;
-using System.Runtime.Serialization;
-using System.Threading.Tasks;
 
 namespace TestTargetProject
 {
@@ -101,7 +98,7 @@ namespace TestTargetProject
             var result = query.ExecuteNonParameterized();
         }
 
-        [DataContract]
+        [QueryRecord]
         public struct TargetValueTypesWithoutUsing
         {
             public bool Value1;
@@ -119,7 +116,7 @@ namespace TestTargetProject
             public string Value13;
         }
 
-        [DataContract]
+        [QueryRecord]
         public class TargetReferenceTypesDerived2 : TargetReferenceTypesDerived1
         {
             public bool Value31;
@@ -128,13 +125,13 @@ namespace TestTargetProject
             public int Value34;
             public long Value35;
 
-            protected override void foo()
+            public override void foo()
             {
                 base.foo();
             }
         }
 
-        [DataContract]
+        [QueryRecord]
         public class TargetReferenceTypesDerived1 : TargetReferenceTypesBase
         {
             public bool Value21;
@@ -143,14 +140,19 @@ namespace TestTargetProject
             public int Value24;
             public long Value25;
 
-            protected override void foo()
+            public override void foo()
             {
                 base.foo();
             }
         }
 
-        [DataContract]
-        public class TargetReferenceTypesBase
+        public interface IHoge
+        {
+            void foo();
+        }
+
+        [QueryRecord]
+        public class TargetReferenceTypesBase : IHoge
         {
             public bool Value1;
             public byte Value2;
@@ -166,7 +168,7 @@ namespace TestTargetProject
             //public EnumValue Value12;
             public string Value13 = null!;
 
-            protected virtual void foo()
+            public virtual void foo()
             {
             }
         }

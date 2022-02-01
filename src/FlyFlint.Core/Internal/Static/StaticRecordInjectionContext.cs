@@ -18,21 +18,20 @@ using System.Runtime.CompilerServices;
 namespace FlyFlint.Internal.Static
 {
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public delegate void StaticDataInjectorDelegate<TElement>(
-        StaticDataInjectionContext context,
-        ref TElement element)
-        where TElement : notnull;
+    public delegate void StaticRecordInjectorDelegate<TRecord>(
+        StaticRecordInjectionContext context, ref TRecord record)
+        where TRecord : notnull;
 
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public abstract class StaticDataInjectionContext :
-        DataInjectionContext
+    public abstract class StaticRecordInjectionContext :
+        RecordInjectionContext
     {
-        private protected DataInjectionMetadata[] metadataList = null!;
+        private protected RecordInjectionMetadata[] metadataList = null!;
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        private protected StaticDataInjectionContext(
+        private protected StaticRecordInjectionContext(
             ConversionContext cc,
             IComparer<string> fieldComparer,
             DbDataReader reader) :
@@ -48,7 +47,7 @@ namespace FlyFlint.Internal.Static
             var metadataMap =
                 QueryHelper.CreateSortedMetadataMap(this.reader, this.fieldComparer);
 
-            var candidates = new List<DataInjectionMetadata>(members.Length);
+            var candidates = new List<RecordInjectionMetadata>(members.Length);
             for (var index = 0; index < members.Length; index++)
             {
                 var member = members[index];
@@ -70,7 +69,7 @@ namespace FlyFlint.Internal.Static
 
         public abstract void RegisterMetadata(
             StaticMemberMetadata[] members,
-            Delegate injector);   // StaticInjectDelegate<TElement>
+            Delegate injector);   // StaticInjectDelegate<TRecord>
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -400,16 +399,16 @@ namespace FlyFlint.Internal.Static
     }
 
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public sealed class StaticDataInjectionContext<TElement> :
-        StaticDataInjectionContext
-        where TElement : notnull
+    public sealed class StaticRecordInjectionContext<TRecord> :
+        StaticRecordInjectionContext
+        where TRecord : notnull
     {
-        private StaticDataInjectorDelegate<TElement> injector = null!;
+        private StaticRecordInjectorDelegate<TRecord> injector = null!;
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        internal StaticDataInjectionContext(
+        internal StaticRecordInjectionContext(
             ConversionContext cc,
             IComparer<string> fieldComparer,
             DbDataReader reader) :
@@ -423,18 +422,18 @@ namespace FlyFlint.Internal.Static
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override void RegisterMetadata(
             StaticMemberMetadata[] members,
-            Delegate injector)   // StaticDataInjectorDelegate<TElement>
+            Delegate injector)   // StaticRecordInjectorDelegate<TRecord>
         {
             Debug.Assert(this.injector == null);    // TODO: combine multiple
 
-            this.injector = (StaticDataInjectorDelegate<TElement>)injector;
+            this.injector = (StaticRecordInjectorDelegate<TRecord>)injector;
             this.RegisterMemberMetadata(members);
         }
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public void Inject(ref TElement element) =>
-            this.injector(this, ref element);
+        public void Inject(ref TRecord record) =>
+            this.injector(this, ref record);
     }
 }
