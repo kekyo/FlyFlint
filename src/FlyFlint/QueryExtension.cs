@@ -282,14 +282,14 @@ namespace FlyFlint
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static Task<int> ExecuteNonParameterizedQueryAsync(
+        public static Task<int> ExecuteNonQueryNonParameterizedAsync(
             this PartialQueryContext query, CancellationToken ct = default) =>
             InternalExecuteNonQueryAsync(query, ct);
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static Task<TElement> ExecuteNonParameterizedScalarAsync<TElement>(
+        public static Task<TElement> ExecuteScalarNonParameterizedAsync<TElement>(
             this PartialQueryContext<TElement> query, CancellationToken ct = default) =>
             InternalExecuteScalarAsync(query, ct);
     }

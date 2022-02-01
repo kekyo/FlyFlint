@@ -273,7 +273,7 @@ namespace FlyFlint.Internal.Static
 
         /////////////////////////////////////////////////////////////////////////////
 
-        public static IEnumerable<TElement> Execute<TElement>(
+        private static IEnumerable<TElement> InternalExecute<TElement>(
             QueryContext<TElement> query)
             where TElement : notnull, IDataInjectable, new()
         {
@@ -303,10 +303,26 @@ namespace FlyFlint.Internal.Static
             }
         }
 
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public static IEnumerable<TElement> Execute<TElement>(
+            ParameterizedQueryContext<TElement> query)
+            where TElement : notnull, IDataInjectable, new() =>
+            InternalExecute(query);
+
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public static IEnumerable<TElement> ExecuteNonParameterized<TElement>(
+            PartialQueryContext<TElement> query)
+            where TElement : notnull, IDataInjectable, new() =>
+            InternalExecute(query);
+
 #if NET461_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
-        public static async IAsyncEnumerable<TElement> ExecuteAsync<TElement>(
+        private static async IAsyncEnumerable<TElement> InternalExecuteAsync<TElement>(
             QueryContext<TElement> query,
-            [EnumeratorCancellation] CancellationToken ct = default)
+            [EnumeratorCancellation] CancellationToken ct)
             where TElement : notnull, IDataInjectable, new()
         {
             using (var command = QueryHelper.CreateCommand(
@@ -336,6 +352,20 @@ namespace FlyFlint.Internal.Static
                 }
             }
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IAsyncEnumerable<TElement> ExecuteAsync<TElement>(
+            ParameterizedQueryContext<TElement> query,
+            CancellationToken ct = default)
+            where TElement : notnull, IDataInjectable, new() =>
+            InternalExecuteAsync(query, ct);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IAsyncEnumerable<TElement> ExecuteNonParameterizedAsync<TElement>(
+            PartialQueryContext<TElement> query,
+            CancellationToken ct = default)
+            where TElement : notnull, IDataInjectable, new() =>
+            InternalExecuteAsync(query, ct);
 #endif
     }
 }

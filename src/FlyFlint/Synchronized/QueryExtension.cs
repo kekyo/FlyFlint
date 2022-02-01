@@ -9,12 +9,13 @@
 
 using FlyFlint.Context;
 using FlyFlint.Internal;
+using System.Runtime.CompilerServices;
 
 namespace FlyFlint.Synchronized
 {
     public static class QueryExtension
     {
-        public static int ExecuteNonQuery(
+        private static int InternalExecuteNonQuery(
             this QueryContext query)
         {
             using var command = QueryHelper.CreateCommand(
@@ -22,7 +23,7 @@ namespace FlyFlint.Synchronized
             return command.ExecuteNonQuery();
         }
 
-        public static TElement ExecuteScalar<TElement>(
+        private static TElement InternalExecuteScalar<TElement>(
             this QueryContext<TElement> query)
         {
             using var command = QueryHelper.CreateCommand(
@@ -30,5 +31,33 @@ namespace FlyFlint.Synchronized
             return QueryExecutor.ConvertTo<TElement>(
                 query.trait.cc, command.ExecuteScalar());
         }
+
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public static int ExecuteNonQuery(
+            this ParameterizedQueryContext query) =>
+            InternalExecuteNonQuery(query);
+
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        private static TElement ExecuteScalar<TElement>(
+            this ParameterizedQueryContext<TElement> query) =>
+            InternalExecuteScalar(query);
+
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public static int ExecuteNonQueryNonParameterized(
+            this PartialQueryContext query) =>
+            InternalExecuteNonQuery(query);
+
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        private static TElement ExecuteScalarNonParameterized<TElement>(
+            this PartialQueryContext<TElement> query) =>
+            InternalExecuteScalar(query);
     }
 }

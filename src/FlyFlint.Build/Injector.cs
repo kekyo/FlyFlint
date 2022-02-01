@@ -164,7 +164,8 @@ namespace FlyFlint
 
             this.queryFacadeMapping = this.queryFacadeExtensionType.Methods.
                 Concat(this.synchronizedQueryFacadeExtensionType.Methods).
-                Join(this.staticQueryFacadeType.Methods,
+                Where(m => m.IsPublic).
+                Join(this.staticQueryFacadeType.Methods.Where(m => m.IsPublic),
                     m => m,
                     m => m,
                     (qfm, sqfm) => (qfm, sqfm),
@@ -802,13 +803,13 @@ namespace FlyFlint
                 });
 
             // Gathering target types from IL streams.
-            var (parametersTypes, elementTypes) =
-                this.GetTargetTypes(targetAssembly);
+            var (parametersTypes, dataTypes) = this.GetTargetTypes(targetAssembly);
 
             // If found target types:
-            if ((parametersTypes.Length >= 1) || (elementTypes.Length >= 1))
+            if ((parametersTypes.Length >= 1) || (dataTypes.Length >= 1))
             {
-                var injected = false;
+                var parametersInjected = 0;
+                var dataInjected = 0;
 
                 foreach (var parametersType in parametersTypes.
                     OrderBy(t => t, TypeInheritanceDepthComparer.Instance))
@@ -816,7 +817,7 @@ namespace FlyFlint
                     // By IParameterExtractable interface.
                     if (this.InjectExtractMethod(targetAssembly.MainModule, parametersType))
                     {
-                        injected = true;
+                        parametersInjected++;
                         this.message(
                             LogLevels.Trace,
                             $"Injected an parameter type: Assembly={targetAssemblyName}, Type={parametersType.FullName}");
@@ -829,27 +830,27 @@ namespace FlyFlint
                     }
                 }
 
-                foreach (var elementType in elementTypes.
+                foreach (var dataType in dataTypes.
                     OrderBy(t => t, TypeInheritanceDepthComparer.Instance))
                 {
                     // By IDataInjectable interface.
-                    if (this.InjectPrepareMethod(targetAssembly.MainModule, elementType))
+                    if (this.InjectPrepareMethod(targetAssembly.MainModule, dataType))
                     {
-                        injected = true;
+                        dataInjected++;
                         this.message(
                             LogLevels.Trace,
-                            $"Injected an element type: Assembly={targetAssemblyName}, Type={elementType.FullName}");
+                            $"Injected an data type: Assembly={targetAssemblyName}, Type={dataType.FullName}");
                     }
                     else
                     {
                         this.message(
                             LogLevels.Trace,
-                            $"Ignored an element type: Assembly={targetAssemblyName}, Type={elementType.FullName}");
+                            $"Ignored an data type: Assembly={targetAssemblyName}, Type={dataType.FullName}");
                     }
                 }
 
                 // One or more types injected:
-                if (injected)
+                if (parametersInjected >= 1 || dataInjected >= 1)
                 {
                     // Backup original assembly and symbol files,
                     // because cecil will fail when contains invalid metadata.
@@ -928,6 +929,10 @@ namespace FlyFlint
                     {
                         File.Delete(backupDebuggingPath);
                     }
+
+                    this.message(
+                        LogLevels.Information,
+                        $"Injected: Assembly={targetAssemblyName}, Parameters={parametersInjected}, Data={dataInjected}");
 
                     return true;
                 }
