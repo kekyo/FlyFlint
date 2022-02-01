@@ -49,7 +49,7 @@
       <_FF_PlatformName Condition="'$(MicrosoftNETBuildTasksTFM)' != ''">$(MicrosoftNETBuildTasksTFM)</_FF_PlatformName>
     </PropertyGroup>
     <PropertyGroup Condition="'$(MSBuildRuntimeType)' != 'Core'">
-      <_FF_PlatformName>net461</_FF_PlatformName>
+      <_FF_PlatformName>net45</_FF_PlatformName>
     </PropertyGroup>
 
     <PropertyGroup>
