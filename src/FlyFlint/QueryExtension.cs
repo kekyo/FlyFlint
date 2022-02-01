@@ -247,16 +247,16 @@ namespace FlyFlint
 
         /////////////////////////////////////////////////////////////////////////////
 
-        public static async Task<int> ExecuteNonQueryAsync(
-            this QueryContext query, CancellationToken ct = default)
+        private static async Task<int> InternalExecuteNonQueryAsync(
+            QueryContext query, CancellationToken ct)
         {
             using var command = QueryHelper.CreateCommand(
                 query.connection, query.transaction, query.sql, query.parameters);
             return await command.ExecuteNonQueryAsync(ct).ConfigureAwait(false);
         }
 
-        public static async Task<TElement> ExecuteScalarAsync<TElement>(
-            this QueryContext<TElement> query, CancellationToken ct = default)
+        private static async Task<TElement> InternalExecuteScalarAsync<TElement>(
+            QueryContext<TElement> query, CancellationToken ct)
         {
             using var command = QueryHelper.CreateCommand(
                 query.connection, query.transaction, query.sql, query.parameters);
@@ -264,5 +264,33 @@ namespace FlyFlint
                 query.trait.cc,
                 await command.ExecuteScalarAsync(ct).ConfigureAwait(false));
         }
+
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public static Task<int> ExecuteNonQueryAsync(
+            this ParameterizedQueryContext query, CancellationToken ct = default) =>
+            InternalExecuteNonQueryAsync(query, ct);
+
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public static Task<TElement> ExecuteScalarAsync<TElement>(
+            this ParameterizedQueryContext<TElement> query, CancellationToken ct = default) =>
+            InternalExecuteScalarAsync(query, ct);
+
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public static Task<int> ExecuteNonParameterizedQueryAsync(
+            this PartialQueryContext query, CancellationToken ct = default) =>
+            InternalExecuteNonQueryAsync(query, ct);
+
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public static Task<TElement> ExecuteNonParameterizedScalarAsync<TElement>(
+            this PartialQueryContext<TElement> query, CancellationToken ct = default) =>
+            InternalExecuteScalarAsync(query, ct);
     }
 }

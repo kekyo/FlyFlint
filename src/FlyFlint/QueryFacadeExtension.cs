@@ -275,9 +275,9 @@ namespace FlyFlint
         /////////////////////////////////////////////////////////////////////////////
 
 #if NET461_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
-        public static async IAsyncEnumerable<TElement> ExecuteAsync<TElement>(
-            this QueryContext<TElement> query,
-            [EnumeratorCancellation] CancellationToken ct = default)
+        private static async IAsyncEnumerable<TElement> InternalExecuteAsync<TElement>(
+            QueryContext<TElement> query,
+            [EnumeratorCancellation] CancellationToken ct)
             where TElement : notnull, new()
         {
             using (var command = QueryHelper.CreateCommand(
@@ -307,10 +307,29 @@ namespace FlyFlint
                 }
             }
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IAsyncEnumerable<TElement> ExecuteAsync<TElement>(
+            this ParameterizedQueryContext<TElement> query,
+            CancellationToken ct = default)
+            where TElement : notnull, new() =>
+            InternalExecuteAsync(query, ct);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IAsyncEnumerable<TElement> ExecuteNonParameterizedAsync<TElement>(
+            this PartialQueryContext<TElement> query,
+            CancellationToken ct = default)
+            where TElement : notnull, new() =>
+            InternalExecuteAsync(query, ct);
 #else
         [Obsolete("Before net461 platform, it is not supported async enumeration. Consider upgrades to net461 or upper, or `Execute()` method with `FlyFlint.Synchronized` namespace instead.", true)]
         public static void ExecuteAsync<TElement>(
-            this QueryContext<TElement> query, CancellationToken ct = default)
+            this ParameterizedQueryContext<TElement> query, CancellationToken ct = default)
+            where TElement : new() =>
+            throw new InvalidOperationException();
+        [Obsolete("Before net461 platform, it is not supported async enumeration. Consider upgrades to net461 or upper, or `Execute()` method with `FlyFlint.Synchronized` namespace instead.", true)]
+        public static void ExecuteNonParameterizedAsync<TElement>(
+            this PartialQueryContext<TElement> query, CancellationToken ct = default)
             where TElement : new() =>
             throw new InvalidOperationException();
 #endif

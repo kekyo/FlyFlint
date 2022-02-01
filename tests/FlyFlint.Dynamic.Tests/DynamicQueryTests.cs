@@ -53,7 +53,7 @@ namespace FlyFlint
             await c.ExecuteNonQueryAsync();
 
             var qc = QueryExtension.Query<Target>(connection, "SELECT * FROM target");
-            var targets = await QueryFacadeExtension.ExecuteAsync(qc).ToArrayAsync();
+            var targets = await QueryFacadeExtension.ExecuteNonParameterizedAsync(qc).ToArrayAsync();
 
             await Verify(targets.Select(element => $"{element.Id},{element.Name},{element.Birth.ToString(CultureInfo.InvariantCulture)}"));
         }

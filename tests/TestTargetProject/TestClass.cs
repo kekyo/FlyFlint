@@ -71,7 +71,7 @@ namespace TestTargetProject
             using var connection = CreateTestTable();
 
             var query = connection.Query<TargetValueTypes>("SELECT * FROM target");
-            var r = query.Execute().ToArray();
+            var r = query.ExecuteNonParameterized().ToArray();
 
             return r;
         }
@@ -98,7 +98,7 @@ namespace TestTargetProject
             using var connection = CreateTestTable();
 
             var query = connection.Query<TargetReferenceTypes>("SELECT * FROM target");
-            var result = query.Execute();
+            var result = query.ExecuteNonParameterized();
         }
 
         [DataContract]

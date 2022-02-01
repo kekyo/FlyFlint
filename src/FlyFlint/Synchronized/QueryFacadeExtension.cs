@@ -15,8 +15,8 @@ namespace FlyFlint.Synchronized
 {
     public static class QueryFacadeExtension
     {
-        public static IEnumerable<TElement> Execute<TElement>(
-            this QueryContext<TElement> query)
+        private static IEnumerable<TElement> InternalExecute<TElement>(
+            QueryContext<TElement> query)
             where TElement : notnull, new()
         {
             using (var command = QueryHelper.CreateCommand(
@@ -44,5 +44,15 @@ namespace FlyFlint.Synchronized
                 }
             }
         }
+
+        public static IEnumerable<TElement> Execute<TElement>(
+            this ParameterizedQueryContext<TElement> query)
+            where TElement : notnull, new() =>
+            InternalExecute(query);
+
+        public static IEnumerable<TElement> ExecuteNonParameterized<TElement>(
+            this PartialQueryContext<TElement> query)
+            where TElement : notnull, new() =>
+            InternalExecute(query);
     }
 }
