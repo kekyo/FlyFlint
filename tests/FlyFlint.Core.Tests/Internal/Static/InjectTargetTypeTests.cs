@@ -27,7 +27,7 @@ namespace FlyFlint.Internal.Static
             ValueD = 13,
         }
 
-        public struct TargetValueTypes : IDataInjectable
+        public struct TargetValueTypes : IRecordInjectable
         {
             public bool Value1;
             public byte Value2;
@@ -64,29 +64,29 @@ namespace FlyFlint.Internal.Static
                 new StaticMemberMetadata(nameof(Value15), typeof(string)),
             };
 
-            private static readonly StaticDataInjectorDelegate<TargetValueTypes> injector = Inject;
+            private static readonly StaticRecordInjectorDelegate<TargetValueTypes> injector = Inject;
 
-            public void Prepare(StaticDataInjectionContext context) =>
+            public void Prepare(StaticRecordInjectionContext context) =>
                 context.RegisterMetadata(members, injector);
 
             private static void Inject(
-                StaticDataInjectionContext context, ref TargetValueTypes element)
+                StaticRecordInjectionContext context, ref TargetValueTypes record)
             {
-                element.Value1 = context.GetBoolean(0);
-                element.Value2 = context.GetByte(1);
-                element.Value3 = context.GetInt16(2);
-                element.Value4 = context.GetInt32(3);
-                element.Value5 = context.GetInt64(4);
-                element.Value6 = context.GetSingle(5);
-                element.Value7 = context.GetDouble(6);
-                element.Value8 = context.GetDecimal(7);
-                element.Value9 = context.GetGuid(8);
-                element.Value10 = context.GetDateTime(9);
-                element.Value11 = context.GetEnum<EnumValue>(10);
-                element.Value12 = context.GetEnum<EnumValue>(11);
-                element.Value13 = context.GetEnum<EnumValue>(12);
-                element.Value14 = context.GetEnum<EnumValue>(13);
-                element.Value15 = context.GetString(14);
+                record.Value1 = context.GetBoolean(0);
+                record.Value2 = context.GetByte(1);
+                record.Value3 = context.GetInt16(2);
+                record.Value4 = context.GetInt32(3);
+                record.Value5 = context.GetInt64(4);
+                record.Value6 = context.GetSingle(5);
+                record.Value7 = context.GetDouble(6);
+                record.Value8 = context.GetDecimal(7);
+                record.Value9 = context.GetGuid(8);
+                record.Value10 = context.GetDateTime(9);
+                record.Value11 = context.GetEnum<EnumValue>(10);
+                record.Value12 = context.GetEnum<EnumValue>(11);
+                record.Value13 = context.GetEnum<EnumValue>(12);
+                record.Value14 = context.GetEnum<EnumValue>(13);
+                record.Value15 = context.GetString(14);
             }
         }
 
@@ -116,18 +116,18 @@ namespace FlyFlint.Internal.Static
             using var reader = data.CreateDataReader();
             Assert.IsTrue(reader.Read());
 
-            var element = new TargetValueTypes();
+            var record = new TargetValueTypes();
 
-            var context = new StaticDataInjectionContext<TargetValueTypes>(
+            var context = new StaticRecordInjectionContext<TargetValueTypes>(
                 ConversionContext.Default, StringComparer.OrdinalIgnoreCase, reader);
-            element.Prepare(context);
+            record.Prepare(context);
 
-            context.Inject(ref element);
+            context.Inject(ref record);
 
-            return Verify($"{element.Value1},{element.Value2},{element.Value3},{element.Value4},{element.Value5},{element.Value6},{element.Value7},{element.Value8},{element.Value9},{element.Value10.ToString(CultureInfo.InvariantCulture)},{element.Value11},{element.Value12},{element.Value13},{element.Value14},{element.Value15}");
+            return Verify($"{record.Value1},{record.Value2},{record.Value3},{record.Value4},{record.Value5},{record.Value6},{record.Value7},{record.Value8},{record.Value9},{record.Value10.ToString(CultureInfo.InvariantCulture)},{record.Value11},{record.Value12},{record.Value13},{record.Value14},{record.Value15}");
         }
 
-        public struct TargetNullableValueTypes : IDataInjectable
+        public struct TargetNullableValueTypes : IRecordInjectable
         {
             public bool? Value1;
             public byte? Value2;
@@ -164,29 +164,29 @@ namespace FlyFlint.Internal.Static
                 new StaticMemberMetadata(nameof(Value15), typeof(string)),
             };
 
-            private static readonly StaticDataInjectorDelegate<TargetNullableValueTypes> injector = Inject;
+            private static readonly StaticRecordInjectorDelegate<TargetNullableValueTypes> injector = Inject;
 
-            public void Prepare(StaticDataInjectionContext context) =>
+            public void Prepare(StaticRecordInjectionContext context) =>
                 context.RegisterMetadata(members, injector);
 
             private static void Inject(
-                StaticDataInjectionContext context, ref TargetNullableValueTypes element)
+                StaticRecordInjectionContext context, ref TargetNullableValueTypes record)
             {
-                element.Value1 = context.GetNullableBoolean(0);
-                element.Value2 = context.GetNullableByte(1);
-                element.Value3 = context.GetNullableInt16(2);
-                element.Value4 = context.GetNullableInt32(3);
-                element.Value5 = context.GetNullableInt64(4);
-                element.Value6 = context.GetNullableSingle(5);
-                element.Value7 = context.GetNullableDouble(6);
-                element.Value8 = context.GetNullableDecimal(7);
-                element.Value9 = context.GetNullableGuid(8);
-                element.Value10 = context.GetNullableDateTime(9);
-                element.Value11 = context.GetNullableEnum<EnumValue>(10);
-                element.Value12 = context.GetNullableEnum<EnumValue>(11);
-                element.Value13 = context.GetNullableEnum<EnumValue>(12);
-                element.Value14 = context.GetNullableEnum<EnumValue>(13);
-                element.Value15 = context.GetNullableString(14);
+                record.Value1 = context.GetNullableBoolean(0);
+                record.Value2 = context.GetNullableByte(1);
+                record.Value3 = context.GetNullableInt16(2);
+                record.Value4 = context.GetNullableInt32(3);
+                record.Value5 = context.GetNullableInt64(4);
+                record.Value6 = context.GetNullableSingle(5);
+                record.Value7 = context.GetNullableDouble(6);
+                record.Value8 = context.GetNullableDecimal(7);
+                record.Value9 = context.GetNullableGuid(8);
+                record.Value10 = context.GetNullableDateTime(9);
+                record.Value11 = context.GetNullableEnum<EnumValue>(10);
+                record.Value12 = context.GetNullableEnum<EnumValue>(11);
+                record.Value13 = context.GetNullableEnum<EnumValue>(12);
+                record.Value14 = context.GetNullableEnum<EnumValue>(13);
+                record.Value15 = context.GetNullableString(14);
             }
         }
 
@@ -216,15 +216,15 @@ namespace FlyFlint.Internal.Static
             using var reader = data.CreateDataReader();
             Assert.IsTrue(reader.Read());
 
-            var element = new TargetNullableValueTypes();
+            var record = new TargetNullableValueTypes();
 
-            var context = new StaticDataInjectionContext<TargetNullableValueTypes>(
+            var context = new StaticRecordInjectionContext<TargetNullableValueTypes>(
                 ConversionContext.Default, StringComparer.OrdinalIgnoreCase, reader);
-            element.Prepare(context);
+            record.Prepare(context);
 
-            context.Inject(ref element);
+            context.Inject(ref record);
 
-            return Verify($"{element.Value1},{element.Value2},{element.Value3},{element.Value4},{element.Value5},{element.Value6},{element.Value7},{element.Value8},{element.Value9},{element.Value10?.ToString(CultureInfo.InvariantCulture)},{element.Value11},{element.Value12},{element.Value13},{element.Value14},{element.Value15}");
+            return Verify($"{record.Value1},{record.Value2},{record.Value3},{record.Value4},{record.Value5},{record.Value6},{record.Value7},{record.Value8},{record.Value9},{record.Value10?.ToString(CultureInfo.InvariantCulture)},{record.Value11},{record.Value12},{record.Value13},{record.Value14},{record.Value15}");
         }
 
         [Test]
@@ -251,15 +251,15 @@ namespace FlyFlint.Internal.Static
             using var reader = data.CreateDataReader();
             Assert.IsTrue(reader.Read());
 
-            var element = new TargetNullableValueTypes();
+            var record = new TargetNullableValueTypes();
 
-            var context = new StaticDataInjectionContext<TargetNullableValueTypes>(
+            var context = new StaticRecordInjectionContext<TargetNullableValueTypes>(
                 ConversionContext.Default, StringComparer.OrdinalIgnoreCase, reader);
-            element.Prepare(context);
+            record.Prepare(context);
 
-            context.Inject(ref element);
+            context.Inject(ref record);
 
-            return Verify($"{element.Value1},{element.Value2},{element.Value3},{element.Value4},{element.Value5},{element.Value6},{element.Value7},{element.Value8},{element.Value9},{element.Value10?.ToString(CultureInfo.InvariantCulture)},{element.Value11},{element.Value12},{element.Value13},{element.Value14},{element.Value15}");
+            return Verify($"{record.Value1},{record.Value2},{record.Value3},{record.Value4},{record.Value5},{record.Value6},{record.Value7},{record.Value8},{record.Value9},{record.Value10?.ToString(CultureInfo.InvariantCulture)},{record.Value11},{record.Value12},{record.Value13},{record.Value14},{record.Value15}");
         }
     }
 }

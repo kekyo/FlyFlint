@@ -15,8 +15,8 @@ using System.Runtime.CompilerServices;
 
 namespace FlyFlint.Internal.Dynamic
 {
-    internal abstract class DynamicDataInjectionContext :
-        DataInjectionContext
+    internal abstract class DynamicRecordInjectionContext :
+        RecordInjectionContext
     {
         private static readonly Dictionary<Type, Func<ConversionContext, object, object?>> converts = new();
 
@@ -50,12 +50,12 @@ namespace FlyFlint.Internal.Dynamic
             return convert(cc, value);
         }
 
-        private protected DataInjectionMetadata[] metadataList = null!;
+        private protected RecordInjectionMetadata[] metadataList = null!;
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        private protected DynamicDataInjectionContext(
+        private protected DynamicRecordInjectionContext(
             ConversionContext cc,
             IComparer<string> fieldComparer,
             DbDataReader reader) :
@@ -75,14 +75,14 @@ namespace FlyFlint.Internal.Dynamic
         }
     }
 
-    internal sealed class DynamicDataInjectionContext<TRecord> :
-        DynamicDataInjectionContext
+    internal sealed class DynamicRecordInjectionContext<TRecord> :
+        DynamicRecordInjectionContext
         where TRecord : notnull
     {
         private delegate void Setter(ref TRecord record);
         private readonly Setter[] setters;
 
-        internal DynamicDataInjectionContext(
+        internal DynamicRecordInjectionContext(
             ConversionContext cc,
             IComparer<string> fieldComparer,
             DbDataReader reader) :

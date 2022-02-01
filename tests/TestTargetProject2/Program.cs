@@ -27,7 +27,7 @@ namespace TestTargetProject2
         {
             //var targetValueTypes = new TestTargetProject.TestClass.TargetValueTypes();
             var targetReferenceTypes = new TestTargetProject.TestClass.TargetReferenceTypesDerived2();
-            var q1 = Query.IsDataInjectable(targetReferenceTypes);
+            var q1 = Query.IsRecordInjectable(targetReferenceTypes);
             var q2 = Query.IsParameterExtractable(targetReferenceTypes);
             //Console.WriteLine(targetReferenceTypes);
             var r = TestTargetProject.TestClass.InjectExecuteNonQueryWithValueType();

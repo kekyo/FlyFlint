@@ -16,7 +16,7 @@ FlyFlint will generate data accessors infrastructure at that compile time
 and there are not use any runtime reflection.
 That means, It is an AOT friendly, faster and lightweight O/R mapper.
 
-To use it, you just need to define a record type (often called entity, element or model type)
+To use it, you just need to define a record type (often called entity, record or model type)
 as a vessel for your records.
 And then simply install [FlyFlint NuGet package](https://www.nuget.org/packages/FlyFlint).
 No additional work is required at all!

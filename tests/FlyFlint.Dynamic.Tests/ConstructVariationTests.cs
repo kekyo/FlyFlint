@@ -65,7 +65,7 @@ namespace FlyFlint
                 ExecuteAsync().
                 ToArrayAsync();
 
-            await Verify(targets.Select(element => $"{element.Id},{element.Name},{element.Birth.ToString(CultureInfo.InvariantCulture)}"));
+            await Verify(targets.Select(record => $"{record.Id},{record.Name},{record.Birth.ToString(CultureInfo.InvariantCulture)}"));
         }
 
         [Test]
@@ -78,7 +78,7 @@ namespace FlyFlint
                 ExecuteAsync().
                 ToArrayAsync();
 
-            await Verify(targets.Select(element => $"{element.Id},{element.Name},{element.Birth.ToString(CultureInfo.InvariantCulture)}"));
+            await Verify(targets.Select(record => $"{record.Id},{record.Name},{record.Birth.ToString(CultureInfo.InvariantCulture)}"));
         }
 
         /////////////////////////////////////////////////////////////////////////////
@@ -95,7 +95,7 @@ namespace FlyFlint
                 ExecuteAsync().
                 ToArrayAsync();
 
-            await Verify(targets.Select(element => $"{element.Id},{element.Name},{element.Birth.ToString(CultureInfo.InvariantCulture)}"));
+            await Verify(targets.Select(record => $"{record.Id},{record.Name},{record.Birth.ToString(CultureInfo.InvariantCulture)}"));
         }
 
         [Test]
@@ -110,7 +110,7 @@ namespace FlyFlint
                 ExecuteAsync().
                 ToArrayAsync();
 
-            await Verify(targets.Select(element => $"{element.Id},{element.Name},{element.Birth.ToString(CultureInfo.InvariantCulture)}"));
+            await Verify(targets.Select(record => $"{record.Id},{record.Name},{record.Birth.ToString(CultureInfo.InvariantCulture)}"));
         }
 
         /////////////////////////////////////////////////////////////////////////////
@@ -127,7 +127,7 @@ namespace FlyFlint
                 ExecuteAsync().
                 ToArrayAsync();
 
-            await Verify(targets.Select(element => $"{element.Id},{element.Name},{element.Birth.ToString(CultureInfo.InvariantCulture)}"));
+            await Verify(targets.Select(record => $"{record.Id},{record.Name},{record.Birth.ToString(CultureInfo.InvariantCulture)}"));
         }
 
         /////////////////////////////////////////////////////////////////////////////
@@ -144,7 +144,7 @@ namespace FlyFlint
                 ExecuteAsync().
                 ToArrayAsync();
 
-            await Verify(targets.Select(element => $"{element.Id},{element.Name},{element.Birth.ToString(CultureInfo.InvariantCulture)}"));
+            await Verify(targets.Select(record => $"{record.Id},{record.Name},{record.Birth.ToString(CultureInfo.InvariantCulture)}"));
         }
 
         [Test]
@@ -159,7 +159,7 @@ namespace FlyFlint
                 ExecuteAsync().
                 ToArrayAsync();
 
-            await Verify(targets.Select(element => $"{element.Id},{element.Name},{element.Birth.ToString(CultureInfo.InvariantCulture)}"));
+            await Verify(targets.Select(record => $"{record.Id},{record.Name},{record.Birth.ToString(CultureInfo.InvariantCulture)}"));
         }
     }
 }

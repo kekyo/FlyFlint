@@ -287,21 +287,21 @@ namespace FlyFlint
                 {
                     if (await reader.ReadAsync(ct).ConfigureAwait(false))
                     {
-                        var element = new TRecord();
+                        var record = new TRecord();
 
-                        var injector = QueryExecutor.GetDataInjector(
-                            query.trait.cc, query.trait.fieldComparer, reader, ref element);
+                        var injector = QueryExecutor.GetRecordInjector(
+                            query.trait.cc, query.trait.fieldComparer, reader, ref record);
 
-                        injector(ref element);
+                        injector(ref record);
                         var prefetchAwaitable = reader.ReadAsync(ct).ConfigureAwait(false);
-                        yield return element;
+                        yield return record;
 
                         while (await prefetchAwaitable)
                         {
-                            element = new TRecord();
-                            injector(ref element);
+                            record = new TRecord();
+                            injector(ref record);
                             prefetchAwaitable = reader.ReadAsync(ct).ConfigureAwait(false);
-                            yield return element;
+                            yield return record;
                         }
                     }
                 }

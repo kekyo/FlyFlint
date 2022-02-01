@@ -42,14 +42,14 @@ namespace FlyFlint.Internal.Dynamic
             using var reader = data.CreateDataReader();
             Assert.IsTrue(reader.Read());
 
-            var context = new DynamicDataInjectionContext<FieldValueType>(
+            var context = new DynamicRecordInjectionContext<FieldValueType>(
                 ConversionContext.Default, StringComparer.OrdinalIgnoreCase, reader);
 
-            var element = new FieldValueType();
+            var record = new FieldValueType();
 
-            context.Inject(ref element);
+            context.Inject(ref record);
 
-            return Verify($"{element.Id},{element.Name},{element.Birth.ToString(CultureInfo.InvariantCulture)},{element.Weight},{element.Age}");
+            return Verify($"{record.Id},{record.Name},{record.Birth.ToString(CultureInfo.InvariantCulture)},{record.Weight},{record.Age}");
         }
 
         public sealed class FieldReferenceType
@@ -75,14 +75,14 @@ namespace FlyFlint.Internal.Dynamic
             using var reader = data.CreateDataReader();
             Assert.IsTrue(reader.Read());
 
-            var context = new DynamicDataInjectionContext<FieldReferenceType>(
+            var context = new DynamicRecordInjectionContext<FieldReferenceType>(
                 ConversionContext.Default, StringComparer.OrdinalIgnoreCase, reader);
 
-            var element = new FieldReferenceType();
+            var record = new FieldReferenceType();
 
-            context.Inject(ref element);
+            context.Inject(ref record);
 
-            return Verify($"{element.Id},{element.Name},{element.Birth.ToString(CultureInfo.InvariantCulture)},{element.Weight},{element.Age}");
+            return Verify($"{record.Id},{record.Name},{record.Birth.ToString(CultureInfo.InvariantCulture)},{record.Weight},{record.Age}");
         }
 
         public struct PropertyValueType
@@ -108,14 +108,14 @@ namespace FlyFlint.Internal.Dynamic
             using var reader = data.CreateDataReader();
             Assert.IsTrue(reader.Read());
 
-            var context = new DynamicDataInjectionContext<PropertyValueType>(
+            var context = new DynamicRecordInjectionContext<PropertyValueType>(
                 ConversionContext.Default, StringComparer.OrdinalIgnoreCase, reader);
 
-            var element = new PropertyValueType();
+            var record = new PropertyValueType();
 
-            context.Inject(ref element);
+            context.Inject(ref record);
 
-            return Verify($"{element.Id},{element.Name},{element.Birth.ToString(CultureInfo.InvariantCulture)},{element.Weight},{element.Age}");
+            return Verify($"{record.Id},{record.Name},{record.Birth.ToString(CultureInfo.InvariantCulture)},{record.Weight},{record.Age}");
         }
 
         public sealed class PropertyReferenceType
@@ -141,14 +141,14 @@ namespace FlyFlint.Internal.Dynamic
             using var reader = data.CreateDataReader();
             Assert.IsTrue(reader.Read());
 
-            var context = new DynamicDataInjectionContext<PropertyReferenceType>(
+            var context = new DynamicRecordInjectionContext<PropertyReferenceType>(
                 ConversionContext.Default, StringComparer.OrdinalIgnoreCase, reader);
 
-            var element = new PropertyReferenceType();
+            var record = new PropertyReferenceType();
 
-            context.Inject(ref element);
+            context.Inject(ref record);
 
-            return Verify($"{element.Id},{element.Name},{element.Birth.ToString(CultureInfo.InvariantCulture)},{element.Weight},{element.Age}");
+            return Verify($"{record.Id},{record.Name},{record.Birth.ToString(CultureInfo.InvariantCulture)},{record.Weight},{record.Age}");
         }
     }
 }

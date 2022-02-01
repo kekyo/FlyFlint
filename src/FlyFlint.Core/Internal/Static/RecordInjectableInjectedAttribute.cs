@@ -15,14 +15,14 @@ namespace FlyFlint.Internal.Static
 {
     [EditorBrowsable(EditorBrowsableState.Never)]
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
-    public sealed class DataInjectableInjectedAttribute :
+    public sealed class RecordInjectableInjectedAttribute :
         Attribute
     {
         [EditorBrowsable(EditorBrowsableState.Never)]
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public DataInjectableInjectedAttribute()
+        public RecordInjectableInjectedAttribute()
         {
         }
     }

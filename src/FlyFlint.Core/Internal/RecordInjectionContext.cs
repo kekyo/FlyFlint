@@ -16,11 +16,11 @@ using System.Runtime.CompilerServices;
 namespace FlyFlint.Internal
 {
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public delegate void DataInjectorDelegate<TRecord>(ref TRecord record)
+    public delegate void RecordInjectorDelegate<TRecord>(ref TRecord record)
         where TRecord : notnull;
 
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public abstract class DataInjectionContext
+    public abstract class RecordInjectionContext
     {
         internal readonly ConversionContext cc;
         internal readonly IComparer<string> fieldComparer;
@@ -29,7 +29,7 @@ namespace FlyFlint.Internal
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        private protected DataInjectionContext(
+        private protected RecordInjectionContext(
             ConversionContext cc,
             IComparer<string> fieldComparer,
             DbDataReader reader)

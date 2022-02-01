@@ -69,16 +69,16 @@ namespace FlyFlint.Internal
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static DataInjectorDelegate<TRecord> GetDataInjector<TRecord>(
+        public static RecordInjectorDelegate<TRecord> GetRecordInjector<TRecord>(
             ConversionContext cc,
             IComparer<string> fieldComparer,
             DbDataReader reader,
             ref TRecord record)
             where TRecord : notnull =>
-            record is IDataInjectable di ?
-                StaticQueryExecutor.GetDataInjector<TRecord>(
+            record is IRecordInjectable di ?
+                StaticQueryExecutor.GetRecordInjector<TRecord>(
                     cc, fieldComparer, reader, di) :
-                DynamicQueryExecutorFacade.Instance.GetDataInjector<TRecord>(
+                DynamicQueryExecutorFacade.Instance.GetRecordInjector<TRecord>(
                     cc, fieldComparer, reader);
     }
 }

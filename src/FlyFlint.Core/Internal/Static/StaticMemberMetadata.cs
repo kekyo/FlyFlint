@@ -40,9 +40,9 @@ namespace FlyFlint.Internal.Static
     }
 
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public interface IDataInjectable
+    public interface IRecordInjectable
     {
         [EditorBrowsable(EditorBrowsableState.Never)]
-        void Prepare(StaticDataInjectionContext context);
+        void Prepare(StaticRecordInjectionContext context);
     }
 }

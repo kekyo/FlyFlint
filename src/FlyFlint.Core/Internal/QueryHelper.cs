@@ -94,12 +94,12 @@ namespace FlyFlint.Internal
         public struct MetadataMap
         {
             public readonly string[] FieldNames;
-            public readonly DataInjectionMetadata[] MetadataList;
+            public readonly RecordInjectionMetadata[] MetadataList;
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-            public MetadataMap(string[] fieldNames, DataInjectionMetadata[] metadataList)
+            public MetadataMap(string[] fieldNames, RecordInjectionMetadata[] metadataList)
             {
                 this.FieldNames = fieldNames;
                 this.MetadataList = metadataList;
@@ -111,14 +111,14 @@ namespace FlyFlint.Internal
         {
             var dbFieldCount = reader.FieldCount;
             var dbFieldNames = new string[dbFieldCount];
-            var dbFieldMetadataList = new DataInjectionMetadata[dbFieldCount];
+            var dbFieldMetadataList = new RecordInjectionMetadata[dbFieldCount];
 
             for (var dbFieldIndex = 0; dbFieldIndex < dbFieldCount; dbFieldIndex++)
             {
                 dbFieldNames[dbFieldIndex] =
                     reader.GetName(dbFieldIndex);
                 dbFieldMetadataList[dbFieldIndex] =
-                    new DataInjectionMetadata(dbFieldIndex, reader.GetFieldType(dbFieldIndex));
+                    new RecordInjectionMetadata(dbFieldIndex, reader.GetFieldType(dbFieldIndex));
             }
 
             Array.Sort(dbFieldNames, dbFieldMetadataList, fieldComparer);

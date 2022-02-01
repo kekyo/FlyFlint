@@ -26,19 +26,19 @@ namespace FlyFlint.Synchronized
                 {
                     if (reader.Read())
                     {
-                        var element = new TRecord();
+                        var record = new TRecord();
 
-                        var injector = QueryExecutor.GetDataInjector(
-                            query.trait.cc, query.trait.fieldComparer, reader, ref element);
+                        var injector = QueryExecutor.GetRecordInjector(
+                            query.trait.cc, query.trait.fieldComparer, reader, ref record);
 
-                        injector(ref element);
-                        yield return element;
+                        injector(ref record);
+                        yield return record;
 
                         while (reader.Read())
                         {
-                            element = new TRecord();
-                            injector(ref element);
-                            yield return element;
+                            record = new TRecord();
+                            injector(ref record);
+                            yield return record;
                         }
                     }
                 }

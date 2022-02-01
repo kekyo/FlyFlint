@@ -112,7 +112,7 @@ namespace FlyFlint.Internal.Static
             DbConnection connection,
             PreparedPartialQueryContext<TRecord> prepared,
             TParameters parameters)
-            where TRecord : notnull, IDataInjectable, new()
+            where TRecord : notnull, IRecordInjectable, new()
             where TParameters : notnull, IParameterExtractable
         {
             var built = prepared.builder();
@@ -136,7 +136,7 @@ namespace FlyFlint.Internal.Static
             DbTransaction transaction,
             PreparedPartialQueryContext<TRecord> prepared,
             TParameters parameters)
-            where TRecord : notnull, IDataInjectable, new()
+            where TRecord : notnull, IRecordInjectable, new()
             where TParameters : notnull, IParameterExtractable
         {
             var built = prepared.builder();
@@ -179,7 +179,7 @@ namespace FlyFlint.Internal.Static
         public static PreparedParameterizedQueryContext<TRecord> Parameter<TRecord, TParameters>(
             PreparedPartialQueryContext<TRecord> prepared,
             TParameters parameters)
-            where TRecord : notnull, IDataInjectable, new()
+            where TRecord : notnull, IRecordInjectable, new()
             where TParameters : notnull, IParameterExtractable
         {
             var (sql, dps) = prepared.builder();
@@ -220,7 +220,7 @@ namespace FlyFlint.Internal.Static
         public static PreparedParameterizedQueryContext<TRecord> Parameter<TRecord, TParameters>(
             PreparedPartialQueryContext<TRecord> prepared,
             Func<TParameters> getter)
-            where TRecord : notnull, IDataInjectable, new()
+            where TRecord : notnull, IRecordInjectable, new()
             where TParameters : notnull, IParameterExtractable
         {
             var (sql, dps) = prepared.builder();
@@ -275,7 +275,7 @@ namespace FlyFlint.Internal.Static
 
         private static IEnumerable<TRecord> InternalExecute<TRecord>(
             QueryContext<TRecord> query)
-            where TRecord : notnull, IDataInjectable, new()
+            where TRecord : notnull, IRecordInjectable, new()
         {
             using (var command = QueryHelper.CreateCommand(
                 query.connection, query.transaction, query.sql, query.parameters))
@@ -284,19 +284,19 @@ namespace FlyFlint.Internal.Static
                 {
                     if (reader.Read())
                     {
-                        var element = new TRecord();
+                        var record = new TRecord();
 
-                        var injector = StaticQueryExecutor.GetDataInjector<TRecord>(
-                            query.trait.cc, query.trait.fieldComparer, reader, element);
+                        var injector = StaticQueryExecutor.GetRecordInjector<TRecord>(
+                            query.trait.cc, query.trait.fieldComparer, reader, record);
 
-                        injector(ref element);
-                        yield return element;
+                        injector(ref record);
+                        yield return record;
 
                         while (reader.Read())
                         {
-                            element = new TRecord();
-                            injector(ref element);
-                            yield return element;
+                            record = new TRecord();
+                            injector(ref record);
+                            yield return record;
                         }
                     }
                 }
@@ -308,7 +308,7 @@ namespace FlyFlint.Internal.Static
 #endif
         public static IEnumerable<TRecord> Execute<TRecord>(
             ParameterizedQueryContext<TRecord> query)
-            where TRecord : notnull, IDataInjectable, new() =>
+            where TRecord : notnull, IRecordInjectable, new() =>
             InternalExecute(query);
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
@@ -316,14 +316,14 @@ namespace FlyFlint.Internal.Static
 #endif
         public static IEnumerable<TRecord> ExecuteNonParameterized<TRecord>(
             PartialQueryContext<TRecord> query)
-            where TRecord : notnull, IDataInjectable, new() =>
+            where TRecord : notnull, IRecordInjectable, new() =>
             InternalExecute(query);
 
 #if NET461_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         private static async IAsyncEnumerable<TRecord> InternalExecuteAsync<TRecord>(
             QueryContext<TRecord> query,
             [EnumeratorCancellation] CancellationToken ct)
-            where TRecord : notnull, IDataInjectable, new()
+            where TRecord : notnull, IRecordInjectable, new()
         {
             using (var command = QueryHelper.CreateCommand(
                 query.connection, query.transaction, query.sql, query.parameters))
@@ -332,21 +332,21 @@ namespace FlyFlint.Internal.Static
                 {
                     if (await reader.ReadAsync(ct).ConfigureAwait(false))
                     {
-                        var element = new TRecord();
+                        var record = new TRecord();
 
-                        var injector = StaticQueryExecutor.GetDataInjector<TRecord>(
-                            query.trait.cc, query.trait.fieldComparer, reader, element);
+                        var injector = StaticQueryExecutor.GetRecordInjector<TRecord>(
+                            query.trait.cc, query.trait.fieldComparer, reader, record);
 
-                        injector(ref element);
+                        injector(ref record);
                         var prefetchAwaitable = reader.ReadAsync(ct).ConfigureAwait(false);
-                        yield return element;
+                        yield return record;
 
                         while (await prefetchAwaitable)
                         {
-                            element = new TRecord();
-                            injector(ref element);
+                            record = new TRecord();
+                            injector(ref record);
                             prefetchAwaitable = reader.ReadAsync(ct).ConfigureAwait(false);
-                            yield return element;
+                            yield return record;
                         }
                     }
                 }
@@ -357,14 +357,14 @@ namespace FlyFlint.Internal.Static
         public static IAsyncEnumerable<TRecord> ExecuteAsync<TRecord>(
             ParameterizedQueryContext<TRecord> query,
             CancellationToken ct = default)
-            where TRecord : notnull, IDataInjectable, new() =>
+            where TRecord : notnull, IRecordInjectable, new() =>
             InternalExecuteAsync(query, ct);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IAsyncEnumerable<TRecord> ExecuteNonParameterizedAsync<TRecord>(
             PartialQueryContext<TRecord> query,
             CancellationToken ct = default)
-            where TRecord : notnull, IDataInjectable, new() =>
+            where TRecord : notnull, IRecordInjectable, new() =>
             InternalExecuteAsync(query, ct);
 #endif
     }

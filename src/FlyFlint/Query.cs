@@ -33,9 +33,9 @@ namespace FlyFlint
             where TParameters : notnull, new() =>
             parameters is IParameterExtractable;
 
-        public static bool IsDataInjectable<TRecord>(TRecord parameters)
+        public static bool IsRecordInjectable<TRecord>(TRecord parameters)
             where TRecord : new() =>
-            parameters is IDataInjectable;
+            parameters is IRecordInjectable;
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

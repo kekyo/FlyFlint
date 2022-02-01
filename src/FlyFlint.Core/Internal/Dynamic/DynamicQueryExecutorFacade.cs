@@ -63,7 +63,7 @@ namespace FlyFlint.Internal.Dynamic
             throw new InvalidOperationException(
                 $"Dynamic query feature is not enabled: Type={typeof(TParameters).FullName}");
 
-        public virtual DataInjectorDelegate<TRecord> GetDataInjector<TRecord>(
+        public virtual RecordInjectorDelegate<TRecord> GetRecordInjector<TRecord>(
             ConversionContext cc,
             IComparer<string> fieldComparer,
             DbDataReader reader)

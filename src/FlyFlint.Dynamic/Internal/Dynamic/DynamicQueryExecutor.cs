@@ -56,11 +56,11 @@ namespace FlyFlint.Internal.Dynamic
             return ps;
         }
 
-        public override DataInjectorDelegate<TRecord> GetDataInjector<TRecord>(
+        public override RecordInjectorDelegate<TRecord> GetRecordInjector<TRecord>(
             ConversionContext cc,
             IComparer<string> fieldComparer,
             DbDataReader reader) =>
-            new DynamicDataInjectionContext<TRecord>(
+            new DynamicRecordInjectionContext<TRecord>(
                 cc, fieldComparer, reader).Inject;
     }
 }

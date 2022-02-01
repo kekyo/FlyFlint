@@ -33,7 +33,7 @@ namespace FlyFlint.Internal
     }
 
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public sealed class DataInjectionMetadata
+    public sealed class RecordInjectionMetadata
     {
         [EditorBrowsable(EditorBrowsableState.Never)]
         public readonly int DbFieldIndex;
@@ -46,7 +46,7 @@ namespace FlyFlint.Internal
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public DataInjectionMetadata(int dbfieldIndex, Type dbType)
+        public RecordInjectionMetadata(int dbfieldIndex, Type dbType)
         {
             this.DbFieldIndex = dbfieldIndex;
             this.StoreDirect = false;

@@ -125,7 +125,7 @@ namespace TestTargetProject
             public int Value34;
             public long Value35;
 
-            protected override void foo()
+            public override void foo()
             {
                 base.foo();
             }
@@ -140,14 +140,19 @@ namespace TestTargetProject
             public int Value24;
             public long Value25;
 
-            protected override void foo()
+            public override void foo()
             {
                 base.foo();
             }
         }
 
+        public interface IHoge
+        {
+            void foo();
+        }
+
         [QueryRecord]
-        public class TargetReferenceTypesBase
+        public class TargetReferenceTypesBase : IHoge
         {
             public bool Value1;
             public byte Value2;
@@ -163,7 +168,7 @@ namespace TestTargetProject
             //public EnumValue Value12;
             public string Value13 = null!;
 
-            protected virtual void foo()
+            public virtual void foo()
             {
             }
         }
