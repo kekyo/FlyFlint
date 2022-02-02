@@ -11,6 +11,7 @@ using FlyFlint.Context;
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
 namespace FlyFlint.Internal.Static
@@ -48,6 +49,35 @@ namespace FlyFlint.Internal.Static
             return context.ExtractParameters(parameterPrefix);
         }
 
+        /////////////////////////////////////////////////////////////////
+
+        private static class RecordInjectorGenerator<TRecord>
+            where TRecord : notnull   // Couldn't apply IRecordInjectable constraint.
+        {
+            private static readonly bool isValueType =
+                typeof(TRecord).IsValueType;
+
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+            public static RecordInjectorDelegate<TRecord> GetRecordInjector(
+                ConversionContext cc,
+                IComparer<string> fieldComparer,
+                DbDataReader reader,
+                IRecordInjectable di)
+            {
+                StaticRecordInjectionContext<TRecord> context =
+                    isValueType ?
+                        new StaticRecordInjectionByRefContext<TRecord>(
+                            cc, fieldComparer, reader) :
+                        new StaticRecordInjectionObjRefContext<TRecord>(
+                            cc, fieldComparer, reader);
+                di.Prepare(context);
+
+                return context.Inject;
+            }
+        }
+
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
@@ -56,13 +86,8 @@ namespace FlyFlint.Internal.Static
             IComparer<string> fieldComparer,
             DbDataReader reader,
             IRecordInjectable di)
-            where TRecord : notnull
-        {
-            var context = new StaticRecordInjectionContext<TRecord>(
-                cc, fieldComparer, reader);
-            di.Prepare(context);
-
-            return context.Inject;
-        }
+            where TRecord : notnull =>
+            RecordInjectorGenerator<TRecord>.GetRecordInjector(
+                cc, fieldComparer, reader, di);
     }
 }

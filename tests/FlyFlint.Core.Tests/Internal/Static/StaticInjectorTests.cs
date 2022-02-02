@@ -32,7 +32,7 @@ namespace FlyFlint.Internal.Static
                 new StaticMemberMetadata(nameof(Birth), typeof(DateTime)),
             };
 
-            private static readonly StaticRecordInjectorDelegate<TargetValueType> injector = Inject;
+            private static readonly StaticRecordInjectorByRefDelegate<TargetValueType> injector = Inject;
 
             public void Prepare(StaticRecordInjectionContext context) =>
                 context.RegisterMetadata(members, injector);
@@ -60,7 +60,7 @@ namespace FlyFlint.Internal.Static
 
             var record = new TargetValueType();
 
-            var context = new StaticRecordInjectionContext<TargetValueType>(
+            var context = new StaticRecordInjectionByRefContext<TargetValueType>(
                 ConversionContext.Default, StringComparer.OrdinalIgnoreCase, reader);
             record.Prepare(context);
 
@@ -82,7 +82,7 @@ namespace FlyFlint.Internal.Static
                 new StaticMemberMetadata(nameof(Birth), typeof(DateTime)),
             };
 
-            private static readonly StaticRecordInjectorDelegate<TargetReferenceType> injector = Inject;
+            private static readonly StaticRecordInjectorByRefDelegate<TargetReferenceType> injector = Inject;
 
             public void Prepare(StaticRecordInjectionContext context) =>
                 context.RegisterMetadata(members, injector);
@@ -110,7 +110,7 @@ namespace FlyFlint.Internal.Static
 
             var record = new TargetReferenceType();
 
-            var context = new StaticRecordInjectionContext<TargetReferenceType>(
+            var context = new StaticRecordInjectionByRefContext<TargetReferenceType>(
                 ConversionContext.Default, StringComparer.OrdinalIgnoreCase, reader);
             record.Prepare(context);
 

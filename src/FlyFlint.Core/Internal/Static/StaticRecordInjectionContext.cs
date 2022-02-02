@@ -18,8 +18,13 @@ using System.Runtime.CompilerServices;
 namespace FlyFlint.Internal.Static
 {
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public delegate void StaticRecordInjectorDelegate<TRecord>(
+    public delegate void StaticRecordInjectorByRefDelegate<TRecord>(
         StaticRecordInjectionContext context, ref TRecord record)
+        where TRecord : notnull;  // struct on the runtime
+
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public delegate void StaticRecordInjectorObjRefDelegate<TRecord>(
+        StaticRecordInjectionContext context, TRecord record)
         where TRecord : notnull;
 
     [EditorBrowsable(EditorBrowsableState.Never)]
@@ -399,16 +404,35 @@ namespace FlyFlint.Internal.Static
     }
 
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public sealed class StaticRecordInjectionContext<TRecord> :
+    public abstract class StaticRecordInjectionContext<TRecord> :
         StaticRecordInjectionContext
         where TRecord : notnull
     {
-        private StaticRecordInjectorDelegate<TRecord> injector = null!;
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        private protected StaticRecordInjectionContext(
+            ConversionContext cc,
+            IComparer<string> fieldComparer,
+            DbDataReader reader) :
+            base(cc, fieldComparer, reader)
+        {
+        }
+
+        public abstract void Inject(ref TRecord record);
+    }
+
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public sealed class StaticRecordInjectionByRefContext<TRecord> :
+        StaticRecordInjectionContext<TRecord>
+        where TRecord : notnull
+    {
+        private StaticRecordInjectorByRefDelegate<TRecord> injector = null!;
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        internal StaticRecordInjectionContext(
+        internal StaticRecordInjectionByRefContext(
             ConversionContext cc,
             IComparer<string> fieldComparer,
             DbDataReader reader) :
@@ -422,18 +446,57 @@ namespace FlyFlint.Internal.Static
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override void RegisterMetadata(
             StaticMemberMetadata[] members,
-            Delegate injector)   // StaticRecordInjectorDelegate<TRecord>
+            Delegate injector)   // StaticRecordInjectorByRefDelegate<TRecord>
         {
             Debug.Assert(this.injector == null);    // TODO: combine multiple
 
-            this.injector = (StaticRecordInjectorDelegate<TRecord>)injector;
+            this.injector = (StaticRecordInjectorByRefDelegate<TRecord>)injector;
             this.RegisterMemberMetadata(members);
         }
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public void Inject(ref TRecord record) =>
+        public override void Inject(ref TRecord record) =>
             this.injector(this, ref record);
+    }
+
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public sealed class StaticRecordInjectionObjRefContext<TRecord> :
+        StaticRecordInjectionContext<TRecord>
+        where TRecord : notnull
+    {
+        private StaticRecordInjectorObjRefDelegate<TRecord> injector = null!;
+
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        internal StaticRecordInjectionObjRefContext(
+            ConversionContext cc,
+            IComparer<string> fieldComparer,
+            DbDataReader reader) :
+            base(cc, fieldComparer, reader)
+        {
+        }
+
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public override void RegisterMetadata(
+            StaticMemberMetadata[] members,
+            Delegate injector)   // StaticRecordInjectorObjRefDelegate<TRecord>
+        {
+            Debug.Assert(this.injector == null);    // TODO: combine multiple
+
+            this.injector = (StaticRecordInjectorObjRefDelegate<TRecord>)injector;
+            this.RegisterMemberMetadata(members);
+        }
+
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public override void Inject(ref TRecord record) =>
+            this.injector(this, record);
     }
 }

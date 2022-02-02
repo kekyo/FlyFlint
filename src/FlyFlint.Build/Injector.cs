@@ -79,8 +79,10 @@ namespace FlyFlint
         private readonly MethodDefinition parameterExtractableInjectedAttributeConstructor;
         private readonly TypeDefinition staticMemberMetadataType;
         private readonly MethodDefinition staticMemberMetadataConstructor;
-        private readonly TypeDefinition staticRecordInjectorDelegateType;
-        private readonly MethodDefinition staticRecordInjectorDelegateConstructor;
+        private readonly TypeDefinition staticRecordInjectorByRefDelegateType;
+        private readonly MethodDefinition staticRecordInjectorByRefDelegateConstructor;
+        private readonly TypeDefinition staticRecordInjectorObjRefDelegateType;
+        private readonly MethodDefinition staticRecordInjectorObjRefDelegateConstructor;
         private readonly TypeDefinition staticRecordInjectionContextType;
         private readonly MethodDefinition registerMetadataMethod;
         private readonly TypeDefinition parameterExtractableType;
@@ -196,9 +198,14 @@ namespace FlyFlint
             this.staticMemberMetadataConstructor = staticMemberMetadataType.Methods.
                 First(m => m.IsConstructor);
 
-            this.staticRecordInjectorDelegateType = flyFlintCoreAssembly.MainModule.Types.
-                First(t => t.FullName.StartsWith("FlyFlint.Internal.Static.StaticRecordInjectorDelegate"));
-            this.staticRecordInjectorDelegateConstructor = this.staticRecordInjectorDelegateType.Methods.
+            this.staticRecordInjectorByRefDelegateType = flyFlintCoreAssembly.MainModule.Types.
+                First(t => t.FullName.StartsWith("FlyFlint.Internal.Static.StaticRecordInjectorByRefDelegate"));
+            this.staticRecordInjectorByRefDelegateConstructor = this.staticRecordInjectorByRefDelegateType.Methods.
+                First(m => m.IsConstructor && !m.IsStatic);
+
+            this.staticRecordInjectorObjRefDelegateType = flyFlintCoreAssembly.MainModule.Types.
+                First(t => t.FullName.StartsWith("FlyFlint.Internal.Static.StaticRecordInjectorObjRefDelegate"));
+            this.staticRecordInjectorObjRefDelegateConstructor = this.staticRecordInjectorObjRefDelegateType.Methods.
                 First(m => m.IsConstructor && !m.IsStatic);
 
             this.staticRecordInjectionContextType = flyFlintCoreAssembly.MainModule.GetType(
@@ -297,7 +304,10 @@ namespace FlyFlint
         {
             var staticRecordInjectorDelegateType =
                 new GenericInstanceType(
-                    module.ImportReference(this.staticRecordInjectorDelegateType));
+                    module.ImportReference(
+                        targetType.IsValueType ?
+                            this.staticRecordInjectorByRefDelegateType :
+                            this.staticRecordInjectorObjRefDelegateType));
             staticRecordInjectorDelegateType.GenericArguments.
                 Add(targetType);
 
@@ -337,7 +347,9 @@ namespace FlyFlint
                 new ParameterDefinition(
                     "record",
                     ParameterAttributes.None,
-                    new ByReferenceType(targetType)));
+                    targetType.IsValueType ?
+                        new ByReferenceType(targetType) :
+                        targetType));
             injectMethod.ImplAttributes = MethodImplAttributes.AggressiveInlining;
             injectMethod.CustomAttributes.Add(
                 new CustomAttribute(
@@ -397,11 +409,6 @@ namespace FlyFlint
 
                 injectMethodInsts.Add(
                     Instruction.Create(OpCodes.Ldarg_1));
-                if (!targetType.IsValueType)
-                {
-                    injectMethodInsts.Add(
-                        Instruction.Create(OpCodes.Ldind_Ref));
-                }
                 injectMethodInsts.Add(
                     Instruction.Create(OpCodes.Ldarg_0));
                 injectMethodInsts.Add(

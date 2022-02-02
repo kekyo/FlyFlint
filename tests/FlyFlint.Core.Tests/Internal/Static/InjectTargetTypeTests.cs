@@ -64,7 +64,7 @@ namespace FlyFlint.Internal.Static
                 new StaticMemberMetadata(nameof(Value15), typeof(string)),
             };
 
-            private static readonly StaticRecordInjectorDelegate<TargetValueTypes> injector = Inject;
+            private static readonly StaticRecordInjectorByRefDelegate<TargetValueTypes> injector = Inject;
 
             public void Prepare(StaticRecordInjectionContext context) =>
                 context.RegisterMetadata(members, injector);
@@ -118,7 +118,7 @@ namespace FlyFlint.Internal.Static
 
             var record = new TargetValueTypes();
 
-            var context = new StaticRecordInjectionContext<TargetValueTypes>(
+            var context = new StaticRecordInjectionByRefContext<TargetValueTypes>(
                 ConversionContext.Default, StringComparer.OrdinalIgnoreCase, reader);
             record.Prepare(context);
 
@@ -164,7 +164,7 @@ namespace FlyFlint.Internal.Static
                 new StaticMemberMetadata(nameof(Value15), typeof(string)),
             };
 
-            private static readonly StaticRecordInjectorDelegate<TargetNullableValueTypes> injector = Inject;
+            private static readonly StaticRecordInjectorByRefDelegate<TargetNullableValueTypes> injector = Inject;
 
             public void Prepare(StaticRecordInjectionContext context) =>
                 context.RegisterMetadata(members, injector);
@@ -218,7 +218,7 @@ namespace FlyFlint.Internal.Static
 
             var record = new TargetNullableValueTypes();
 
-            var context = new StaticRecordInjectionContext<TargetNullableValueTypes>(
+            var context = new StaticRecordInjectionByRefContext<TargetNullableValueTypes>(
                 ConversionContext.Default, StringComparer.OrdinalIgnoreCase, reader);
             record.Prepare(context);
 
@@ -253,7 +253,7 @@ namespace FlyFlint.Internal.Static
 
             var record = new TargetNullableValueTypes();
 
-            var context = new StaticRecordInjectionContext<TargetNullableValueTypes>(
+            var context = new StaticRecordInjectionByRefContext<TargetNullableValueTypes>(
                 ConversionContext.Default, StringComparer.OrdinalIgnoreCase, reader);
             record.Prepare(context);
 
