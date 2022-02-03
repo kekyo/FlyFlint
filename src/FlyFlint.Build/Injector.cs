@@ -62,11 +62,8 @@ namespace FlyFlint
         private readonly MethodDefinition getTypeFromHandleMethod;
         private readonly TypeDefinition delegateType;
 
-        private readonly TypeDefinition debuggerHiddenAttributeType;
         private readonly TypeDefinition compilerGeneratedAttributeType;
         private readonly MethodDefinition compilerGeneratedAttributeConstructor;
-        private readonly TypeDefinition debuggerBrowsableAttributeType;
-        private readonly TypeDefinition debuggerBrowsableStateType;
 
         private readonly TypeDefinition queryFacadeExtensionType;
         private readonly TypeDefinition synchronizedQueryFacadeExtensionType;
@@ -105,7 +102,12 @@ namespace FlyFlint
 
             var flyFlintCorePath = referencesBasePath.
                 Select(basePath => Path.Combine(basePath, "FlyFlint.Core.dll")).
-                First(File.Exists);
+                FirstOrDefault(File.Exists);
+            if (flyFlintCorePath == null)
+            {
+                throw new InvalidOperationException(
+                    $"Couldn't find FlyFlint.Core.dll: Path=[{string.Join(",", referencesBasePath)}]");
+            }
 
             var flyFlintCoreAssembly = AssemblyDefinition.ReadAssembly(
                 flyFlintCorePath,
@@ -121,7 +123,12 @@ namespace FlyFlint
 
             var flyFlintPath = referencesBasePath.
                 Select(basePath => Path.Combine(basePath, "FlyFlint.dll")).
-                First(File.Exists);
+                FirstOrDefault(File.Exists);
+            if (flyFlintPath == null)
+            {
+                throw new InvalidOperationException(
+                    $"Couldn't find FlyFlint.dll: Path=[{string.Join(",", referencesBasePath)}]");
+            }
 
             var flyFlintAssembly = AssemblyDefinition.ReadAssembly(
                 flyFlintPath,
@@ -144,16 +151,10 @@ namespace FlyFlint
             this.delegateType = typeSystem.Object.Resolve().Module.Types.First(
                 t => t.FullName == "System.Delegate");
 
-            this.debuggerHiddenAttributeType = typeSystem.Object.Resolve().Module.Types.First(
-                t => t.FullName == "System.Diagnostics.DebuggerHiddenAttribute");
             this.compilerGeneratedAttributeType = typeSystem.Object.Resolve().Module.Types.First(
                 t => t.FullName == "System.Runtime.CompilerServices.CompilerGeneratedAttribute");
             this.compilerGeneratedAttributeConstructor = this.compilerGeneratedAttributeType.Methods.
                 First(m => m.IsConstructor);
-            this.debuggerBrowsableAttributeType = typeSystem.Object.Resolve().Module.Types.First(
-                t => t.FullName == "System.Diagnostics.DebuggerBrowsableAttribute");
-            this.debuggerBrowsableStateType = typeSystem.Object.Resolve().Module.Types.First(
-                t => t.FullName == "System.Diagnostics.DebuggerBrowsableState");
 
             this.queryFacadeExtensionType = flyFlintAssembly.MainModule.GetType(
                 "FlyFlint.QueryFacadeExtension")!;

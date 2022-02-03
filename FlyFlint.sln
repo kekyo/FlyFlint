@@ -37,6 +37,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestTargetProject2", "tests
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FlyFlint", "src\FlyFlint\FlyFlint.csproj", "{D63FC8B8-BCB6-4A57-9C09-2A9C641EFFE2}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FlyFlint.Build.Tests", "tests\FlyFlint.Build.Tests\FlyFlint.Build.Tests.csproj", "{E1F42D91-A432-40E2-B087-3059B414B4A5}"
+	ProjectSection(ProjectDependencies) = postProject
+		{AFB7B061-0083-485F-8F8A-3DAE98C2011F} = {AFB7B061-0083-485F-8F8A-3DAE98C2011F}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -75,6 +80,10 @@ Global
 		{D63FC8B8-BCB6-4A57-9C09-2A9C641EFFE2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D63FC8B8-BCB6-4A57-9C09-2A9C641EFFE2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D63FC8B8-BCB6-4A57-9C09-2A9C641EFFE2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E1F42D91-A432-40E2-B087-3059B414B4A5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E1F42D91-A432-40E2-B087-3059B414B4A5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E1F42D91-A432-40E2-B087-3059B414B4A5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E1F42D91-A432-40E2-B087-3059B414B4A5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

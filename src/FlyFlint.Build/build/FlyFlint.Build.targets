@@ -43,15 +43,6 @@
   <Target Name="FlyFlintBuild" AfterTargets="AfterCompile"
     Condition="'$(FlyFlintBuildEnable)' == 'True'">
       
-    <PropertyGroup Condition="'$(MSBuildRuntimeType)' == 'Core'">
-      <_FF_PlatformName Condition="('$(MicrosoftNETBuildTasksTFM)' == '') AND ('$(BundledNETCoreAppTargetFrameworkVersion)' == '')">netcoreapp2.0</_FF_PlatformName>
-      <_FF_PlatformName Condition="'$(MicrosoftNETBuildTasksTFM)' == ''">netcoreapp$(BundledNETCoreAppTargetFrameworkVersion)</_FF_PlatformName>
-      <_FF_PlatformName Condition="'$(MicrosoftNETBuildTasksTFM)' != ''">$(MicrosoftNETBuildTasksTFM)</_FF_PlatformName>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(MSBuildRuntimeType)' != 'Core'">
-      <_FF_PlatformName>net45</_FF_PlatformName>
-    </PropertyGroup>
-
     <PropertyGroup>
       <FlyFlintBuildToolingRuntimeName Condition="'$(FlyFlintBuildToolingRuntimeName)' == ''">$(_FF_RuntimeName)</FlyFlintBuildToolingRuntimeName>
       <_EB_ToolingDir>$([System.IO.Path]::Combine('$(MSBuildThisFileDirectory)','..','tools','$(_FF_PlatformName)'))</_EB_ToolingDir>
