@@ -25,7 +25,8 @@
 
   <PropertyGroup Condition="'$(MSBuildRuntimeType)' == 'Core'">
     <_FF_PlatformName Condition="('$(MicrosoftNETBuildTasksTFM)' == '') AND ('$(BundledNETCoreAppTargetFrameworkVersion)' == '')">netcoreapp2.0</_FF_PlatformName>
-    <_FF_PlatformName Condition="'$(MicrosoftNETBuildTasksTFM)' == ''">netcoreapp$(BundledNETCoreAppTargetFrameworkVersion)</_FF_PlatformName>
+    <_FF_PlatformName Condition="('$(MicrosoftNETBuildTasksTFM)' == '') AND ($(BundledNETCoreAppTargetFrameworkVersion) &gt;= 5.0)">net$(BundledNETCoreAppTargetFrameworkVersion)</_FF_PlatformName>
+    <_FF_PlatformName Condition="('$(MicrosoftNETBuildTasksTFM)' == '') AND ($(BundledNETCoreAppTargetFrameworkVersion) &lt; 5.0)">netcoreapp$(BundledNETCoreAppTargetFrameworkVersion)</_FF_PlatformName>
     <_FF_PlatformName Condition="'$(MicrosoftNETBuildTasksTFM)' != ''">$(MicrosoftNETBuildTasksTFM)</_FF_PlatformName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(MSBuildRuntimeType)' != 'Core'">
