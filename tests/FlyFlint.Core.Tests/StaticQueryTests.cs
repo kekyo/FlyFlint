@@ -37,13 +37,13 @@ namespace FlyFlint
                  new StaticMemberMetadata(nameof(Birth), typeof(DateTime)),
             };
 
-            private static readonly StaticRecordInjectorByRefDelegate<Target> injector = Inject;
+            private static readonly StaticRecordInjectorObjRefDelegate<Target> injector = Inject;
 
             public void Prepare(StaticRecordInjectionContext context) =>
                 context.RegisterMetadata(members, injector);
 
             private static void Inject(
-                StaticRecordInjectionContext context, ref Target record)
+                StaticRecordInjectionContext context, Target record)
             {
                 record.Id = context.GetInt32(0);
                 record.Name = context.GetString(1);

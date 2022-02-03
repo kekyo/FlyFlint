@@ -17,7 +17,7 @@ using static VerifyNUnit.Verifier;
 
 namespace FlyFlint.Internal.Dynamic
 {
-    public sealed class DynamicInjectorWithDataMemberTests
+    public sealed class DynamicInjectorWithQueryFieldTests
     {
         public struct FieldValueType
         {
@@ -28,11 +28,17 @@ namespace FlyFlint.Internal.Dynamic
             [QueryField]
             private int Id;
             private string Address;
+            [QueryField("Data1")]
+            public int Foo1;
+            [QueryField("Data2")]
+            private int Foo2;
 
             public int GetId() =>
                 this.Id;
             public string GetAddress() =>
                 this.Address;
+            public int GetFoo2() =>
+                this.Foo2;
         }
 
         [Test]
@@ -43,7 +49,9 @@ namespace FlyFlint.Internal.Dynamic
             data.Columns.Add("Name", typeof(string));
             data.Columns.Add("Birth", typeof(DateTime));
             data.Columns.Add("Address", typeof(string));
-            data.Rows.Add(1, "AAAA", new DateTime(2022, 1, 23, 12, 34, 56, 789), "ABC");
+            data.Columns.Add("Data1", typeof(int));
+            data.Columns.Add("Data2", typeof(int));
+            data.Rows.Add(1, "AAAA", new DateTime(2022, 1, 23, 12, 34, 56, 789), "ABC", 111, 222);
 
             using var reader = data.CreateDataReader();
             Assert.IsTrue(reader.Read());
@@ -55,7 +63,7 @@ namespace FlyFlint.Internal.Dynamic
 
             context.Inject(ref record);
 
-            return Verify($"{record.GetId()},{record.Name},{record.Birth.ToString(CultureInfo.InvariantCulture)},{record.GetAddress()}");
+            return Verify($"{record.GetId()},{record.Name},{record.Birth.ToString(CultureInfo.InvariantCulture)},{record.GetAddress()},{record.Foo1},{record.GetFoo2()}");
         }
 
         public sealed class FieldReferenceType
@@ -67,11 +75,17 @@ namespace FlyFlint.Internal.Dynamic
             [QueryField]
             private int Id;
             private string? Address;
+            [QueryField("Data1")]
+            public int Foo1;
+            [QueryField("Data2")]
+            private int Foo2;
 
             public int GetId() =>
                 this.Id;
             public string? GetAddress() =>
                 this.Address;
+            public int GetFoo2() =>
+                this.Foo2;
         }
 
         [Test]
@@ -82,7 +96,9 @@ namespace FlyFlint.Internal.Dynamic
             data.Columns.Add("Name", typeof(string));
             data.Columns.Add("Birth", typeof(DateTime));
             data.Columns.Add("Address", typeof(string));
-            data.Rows.Add(1, "AAAA", new DateTime(2022, 1, 23, 12, 34, 56, 789), "ABC");
+            data.Columns.Add("Data1", typeof(int));
+            data.Columns.Add("Data2", typeof(int));
+            data.Rows.Add(1, "AAAA", new DateTime(2022, 1, 23, 12, 34, 56, 789), "ABC", 111, 222);
 
             using var reader = data.CreateDataReader();
             Assert.IsTrue(reader.Read());
@@ -94,7 +110,7 @@ namespace FlyFlint.Internal.Dynamic
 
             context.Inject(ref record);
 
-            return Verify($"{record.GetId()},{record.Name},{record.Birth.ToString(CultureInfo.InvariantCulture)},{record.GetAddress()}");
+            return Verify($"{record.GetId()},{record.Name},{record.Birth.ToString(CultureInfo.InvariantCulture)},{record.GetAddress()},{record.Foo1},{record.GetFoo2()}");
         }
 
         public struct PropertyValueType
@@ -106,11 +122,17 @@ namespace FlyFlint.Internal.Dynamic
             [QueryField]
             private int Id { get; set; }
             private string? Address { get; set; }
+            [QueryField("Data1")]
+            public int Foo1 { get; set; }
+            [QueryField("Data2")]
+            private int Foo2 { get; set; }
 
             public int GetId() =>
                 this.Id;
             public string? GetAddress() =>
                 this.Address;
+            public int GetFoo2() =>
+                this.Foo2;
         }
 
         [Test]
@@ -121,7 +143,9 @@ namespace FlyFlint.Internal.Dynamic
             data.Columns.Add("Name", typeof(string));
             data.Columns.Add("Birth", typeof(DateTime));
             data.Columns.Add("Address", typeof(string));
-            data.Rows.Add(1, "AAAA", new DateTime(2022, 1, 23, 12, 34, 56, 789), "ABC");
+            data.Columns.Add("Data1", typeof(int));
+            data.Columns.Add("Data2", typeof(int));
+            data.Rows.Add(1, "AAAA", new DateTime(2022, 1, 23, 12, 34, 56, 789), "ABC", 111, 222);
 
             using var reader = data.CreateDataReader();
             Assert.IsTrue(reader.Read());
@@ -133,7 +157,7 @@ namespace FlyFlint.Internal.Dynamic
 
             context.Inject(ref record);
 
-            return Verify($"{record.GetId()},{record.Name},{record.Birth.ToString(CultureInfo.InvariantCulture)},{record.GetAddress()}");
+            return Verify($"{record.GetId()},{record.Name},{record.Birth.ToString(CultureInfo.InvariantCulture)},{record.GetAddress()},{record.Foo1},{record.GetFoo2()}");
         }
 
         public sealed class PropertyReferenceType
@@ -145,11 +169,17 @@ namespace FlyFlint.Internal.Dynamic
             [QueryField]
             private int Id { get; set; }
             private string? Address { get; set; }
+            [QueryField("Data1")]
+            public int Foo1 { get; set; }
+            [QueryField("Data2")]
+            private int Foo2 { get; set; }
 
             public int GetId() =>
                 this.Id;
             public string? GetAddress() =>
                 this.Address;
+            public int GetFoo2() =>
+                this.Foo2;
         }
 
         [Test]
@@ -160,7 +190,9 @@ namespace FlyFlint.Internal.Dynamic
             data.Columns.Add("Name", typeof(string));
             data.Columns.Add("Birth", typeof(DateTime));
             data.Columns.Add("Address", typeof(string));
-            data.Rows.Add(1, "AAAA", new DateTime(2022, 1, 23, 12, 34, 56, 789), "ABC");
+            data.Columns.Add("Data1", typeof(int));
+            data.Columns.Add("Data2", typeof(int));
+            data.Rows.Add(1, "AAAA", new DateTime(2022, 1, 23, 12, 34, 56, 789), "ABC", 111, 222);
 
             using var reader = data.CreateDataReader();
             Assert.IsTrue(reader.Read());
@@ -172,7 +204,7 @@ namespace FlyFlint.Internal.Dynamic
 
             context.Inject(ref record);
 
-            return Verify($"{record.GetId()},{record.Name},{record.Birth.ToString(CultureInfo.InvariantCulture)},{record.GetAddress()}");
+            return Verify($"{record.GetId()},{record.Name},{record.Birth.ToString(CultureInfo.InvariantCulture)},{record.GetAddress()},{record.Foo1},{record.GetFoo2()}");
         }
     }
 }

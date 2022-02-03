@@ -25,7 +25,7 @@ namespace FlyFlint.Internal.Static
     [EditorBrowsable(EditorBrowsableState.Never)]
     public delegate void StaticRecordInjectorObjRefDelegate<TRecord>(
         StaticRecordInjectionContext context, TRecord record)
-        where TRecord : notnull;
+        where TRecord : notnull;  // class on the runtime
 
     [EditorBrowsable(EditorBrowsableState.Never)]
     public abstract class StaticRecordInjectionContext :
@@ -419,6 +419,11 @@ namespace FlyFlint.Internal.Static
         {
         }
 
+        public void MakeInjectable()
+        {
+            // TODO:
+        }
+
         public abstract void Inject(ref TRecord record);
     }
 
@@ -438,6 +443,7 @@ namespace FlyFlint.Internal.Static
             DbDataReader reader) :
             base(cc, fieldComparer, reader)
         {
+            Debug.Assert(typeof(TRecord).IsValueType);
         }
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
@@ -477,6 +483,7 @@ namespace FlyFlint.Internal.Static
             DbDataReader reader) :
             base(cc, fieldComparer, reader)
         {
+            Debug.Assert(!typeof(TRecord).IsValueType);
         }
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER

@@ -29,8 +29,6 @@ namespace FlyFlint
 
     public sealed class Injector
     {
-        private const string dirtySymbolPrefix = "<>`";
-
         private sealed class TypeKey : IEquatable<TypeKey?>
         {
             public readonly TypeReference Type;
@@ -244,7 +242,7 @@ namespace FlyFlint
                 module.ImportReference(this.staticMemberMetadataType));
 
             var membersField = new FieldDefinition(
-                dirtySymbolPrefix + "flyflint_members__",
+                "flyflint_members__",
                 FieldAttributes.Private | FieldAttributes.Static | FieldAttributes.InitOnly,
                 staticMemberMetadatasType);
             membersField.CustomAttributes.Add(
@@ -271,7 +269,9 @@ namespace FlyFlint
                 cctorInsts.Insert(instIndex++,
                     Instruction.Create(OpCodes.Ldc_I4_S, (sbyte)metadataIndex));
                 cctorInsts.Insert(instIndex++,
-                    Instruction.Create(OpCodes.Ldstr, targetMember.Name));  // TODO: DataMemberAttribute
+                    Instruction.Create(
+                        OpCodes.Ldstr,
+                        Utilities.GetTargetMemberName(targetMember)));
                 cctorInsts.Insert(instIndex++,
                     Instruction.Create(
                         OpCodes.Ldtoken,
@@ -324,7 +324,7 @@ namespace FlyFlint
                 new ParameterDefinition(this.typeSystem.IntPtr));
 
             var injectorField = new FieldDefinition(
-                dirtySymbolPrefix + "flyflint_injector__",
+                "flyflint_injector__",
                 FieldAttributes.Private | FieldAttributes.Static | FieldAttributes.InitOnly,
                 module.ImportReference(this.delegateType));
             injectorField.CustomAttributes.Add(
@@ -335,7 +335,7 @@ namespace FlyFlint
             //////////////////////////////////////////////
 
             var injectMethod = new MethodDefinition(
-                dirtySymbolPrefix + "flyflint_inject__",
+                "flyflint_inject__",
                 MethodAttributes.HideBySig | MethodAttributes.Private | MethodAttributes.Static,
                 this.typeSystem.Void);
             injectMethod.Parameters.Add(
@@ -348,8 +348,8 @@ namespace FlyFlint
                     "record",
                     ParameterAttributes.None,
                     targetType.IsValueType ?
-                        new ByReferenceType(targetType) :
-                        targetType));
+                        new ByReferenceType(targetType) :   // ref TRecord record
+                        targetType));                       // TRecord record
             injectMethod.ImplAttributes = MethodImplAttributes.AggressiveInlining;
             injectMethod.CustomAttributes.Add(
                 new CustomAttribute(
@@ -358,26 +358,12 @@ namespace FlyFlint
 
             var injectMethodInsts = injectMethod.Body.Instructions;
 
-            static bool IsNullableForMember(
-                MemberReference targetMember, TypeReference memberType)
-            {
-                if (memberType.IsValueType)
-                {
-                    return memberType.FullName.StartsWith("System.Nullable");
-                }
-                else
-                {
-                    return
-                        (targetMember is FieldDefinition f ? f.CustomAttributes :
-                         ((PropertyDefinition)targetMember).CustomAttributes).
-                        Any(ca => ca.AttributeType.FullName.StartsWith("System.Runtime.CompilerServices.NullableAttribute"));
-                }
-            }
-
             MethodReference GetValueMethod(
                 MemberReference targetMember, TypeReference memberType)
             {
-                var key = new TypeKey(memberType, IsNullableForMember(targetMember, memberType));
+                var key = new TypeKey(
+                    memberType,
+                    Utilities.IsNullableForMember(targetMember, memberType));
 
                 if (this.getValueMethods.TryGetValue(key, out var gvm))
                 {
@@ -465,13 +451,10 @@ namespace FlyFlint
             }
 
             var targetFields = targetType.Fields.
-                Where(f => f.IsPublic && !f.IsStatic && !f.IsInitOnly).
+                Where(f => !f.IsInitOnly && Utilities.IsTargetMember(f)).
                 Cast<MemberReference>();
             var targetProperties = targetType.Properties.
-                Where(p =>
-                    p.SetMethod is MethodReference mr &&
-                    mr.Resolve() is { } m &&
-                    m.IsPublic && !m.IsStatic).   // TODO: DataMemberAttribute
+                Where(p => Utilities.IsTargetMember(p, p.SetMethod)).
                 Cast<MemberReference>();
 
             var targetMembers = targetFields.Concat(targetProperties).ToArray();
@@ -513,7 +496,7 @@ namespace FlyFlint
 
             var prepareMethod = new MethodDefinition(
                 // The CLR and CoreCLR, will cause TypeLoadException when uses different name in inferface member method...
-                /* dirtySymbolPrefix + */ "Prepare",
+                "Prepare",
                 MethodAttributes.HideBySig | MethodAttributes.Public | MethodAttributes.Virtual |
                     ((requiredOverrideMethod != null) ?
                         MethodAttributes.ReuseSlot :
@@ -579,47 +562,6 @@ namespace FlyFlint
 
         ////////////////////////////////////////////////////////////////////////////
 
-        private static bool IsTargetMember(FieldDefinition field)
-        {
-            if (!field.IsStatic)
-            {
-                if (field.IsPublic &&
-                    !field.CustomAttributes.Any(ca => ca.AttributeType.FullName == "FlyFlint.QueryIgnoreAttribute"))
-                {
-                    return true;
-                }
-                if (!field.IsPublic &&
-                    field.CustomAttributes.Any(ca => ca.AttributeType.FullName == "FlyFlint.QueryFieldAttribute"))
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        private static bool IsTargetMember(PropertyDefinition property, MethodReference? setter)
-        {
-            if (setter is { } mr && mr.Resolve() is { } method)
-            {
-                if (!method.IsStatic)
-                {
-                    if (method.IsPublic &&
-                        !property.CustomAttributes.Any(ca => ca.AttributeType.FullName == "FlyFlint.QueryIgnoreAttribute"))
-                    {
-                        return true;
-                    }
-                    if (!method.IsPublic &&
-                        property.CustomAttributes.Any(ca => ca.AttributeType.FullName == "FlyFlint.QueryFieldAttribute"))
-                    {
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
-
-        ////////////////////////////////////////////////////////////////////////////
-
         private bool InjectExtractMethod(
             ModuleDefinition module,
             TypeDefinition targetType)
@@ -631,10 +573,10 @@ namespace FlyFlint
             }
 
             var targetFields = targetType.Fields.
-                Where(f => !f.IsInitOnly && IsTargetMember(f)).
+                Where(f => Utilities.IsTargetMember(f)).
                 Cast<MemberReference>();
             var targetProperties = targetType.Properties.
-                Where(p => IsTargetMember(p, p.SetMethod)).
+                Where(p => Utilities.IsTargetMember(p, p.GetMethod)).
                 Cast<MemberReference>();
 
             var targetMembers = targetFields.Concat(targetProperties).ToArray();

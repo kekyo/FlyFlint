@@ -121,6 +121,7 @@ namespace FlyFlint.Internal.Static
             var context = new StaticRecordInjectionByRefContext<TargetValueTypes>(
                 ConversionContext.Default, StringComparer.OrdinalIgnoreCase, reader);
             record.Prepare(context);
+            context.MakeInjectable();
 
             context.Inject(ref record);
 
@@ -221,6 +222,7 @@ namespace FlyFlint.Internal.Static
             var context = new StaticRecordInjectionByRefContext<TargetNullableValueTypes>(
                 ConversionContext.Default, StringComparer.OrdinalIgnoreCase, reader);
             record.Prepare(context);
+            context.MakeInjectable();
 
             context.Inject(ref record);
 
@@ -256,6 +258,7 @@ namespace FlyFlint.Internal.Static
             var context = new StaticRecordInjectionByRefContext<TargetNullableValueTypes>(
                 ConversionContext.Default, StringComparer.OrdinalIgnoreCase, reader);
             record.Prepare(context);
+            context.MakeInjectable();
 
             context.Inject(ref record);
 

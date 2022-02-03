@@ -73,6 +73,7 @@ namespace FlyFlint.Internal.Static
                         new StaticRecordInjectionObjRefContext<TRecord>(
                             cc, fieldComparer, reader);
                 di.Prepare(context);
+                context.MakeInjectable();
 
                 return context.Inject;
             }
