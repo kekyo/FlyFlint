@@ -9,7 +9,7 @@
  
   <PropertyGroup>
     <FlyFlintBuildTrace>true</FlyFlintBuildTrace>
-    <FlyFlintBuildToolingDir>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)\..\..\src\FlyFlint.Build\bin\$(Configuration)\$(_FF_PlatformName)'))</FlyFlintBuildToolingDir>
+    <FlyFlintBuildToolingDir>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)\..\..\src\FlyFlint.Build\bin\$(Configuration)\$(_FFB_PlatformName)'))</FlyFlintBuildToolingDir>
   </PropertyGroup>
 
   <ItemGroup>
