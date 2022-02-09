@@ -166,7 +166,6 @@ namespace FlyFlint.Internal.Converter
 #endif
         public override sealed T ConvertTo(ConversionContext context, object? value) =>
             value is null ? throw new NullReferenceException($"Could not convert from null to {typeof(T).FullName}.") :
-            value is DBNull ? throw new NullReferenceException($"Could not convert from DBNull to {typeof(T).FullName}.") :
             value is T v ? v :
             convert(value, context.FormatProvider);
 
@@ -301,7 +300,6 @@ namespace FlyFlint.Internal.Converter
 #endif
         public override sealed T ConvertTo(ConversionContext context, object? value) =>
             value is null ? default! :
-            value is DBNull ? default! :
             value is TUnderlying v ? cast(v) :
             convert(value, context.FormatProvider);
 
@@ -481,7 +479,6 @@ namespace FlyFlint.Internal.Converter
 #endif
         public override T ConvertTo(ConversionContext context, object? value) =>
             value is null ? default! :
-            value is DBNull ? default! :
             value is T v ? v :
             convert(value!, context.FormatProvider);
 
@@ -501,7 +498,6 @@ namespace FlyFlint.Internal.Converter
 #endif
         public override T ConvertTo(ConversionContext context, object? value) =>
             value is null ? default! :
-            value is DBNull ? default! :
             value is T v ? v :
             EnumConverter<T>.convert(value!, context.FormatProvider);
 
@@ -525,7 +521,6 @@ namespace FlyFlint.Internal.Converter
 #endif
         public override T ConvertTo(ConversionContext context, object? value) =>
             value is null ? default! :
-            value is DBNull ? default! :
             value is T v ? v :
             convert(context, value!);
 

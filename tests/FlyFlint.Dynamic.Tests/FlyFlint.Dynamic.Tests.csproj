@@ -18,6 +18,21 @@
     <ProjectReference Include="..\..\src\FlyFlint.Dynamic\FlyFlint.Dynamic.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Internal\Dynamic\DynamicInjectorWithQueryFieldTests.InjectToPropertyValueType.verified.txt">
+      <DependentUpon>DynamicInjectorWithQueryFieldTests.cs</DependentUpon>
+    </None>
+    <None Update="Internal\Dynamic\DynamicInjectorWithQueryFieldTests.InjectToPropertyReferenceType.verified.txt">
+      <DependentUpon>DynamicInjectorWithQueryFieldTests.cs</DependentUpon>
+    </None>
+    <None Update="Internal\Dynamic\DynamicInjectorWithQueryFieldTests.InjectToFieldValueType.verified.txt">
+      <DependentUpon>DynamicInjectorWithQueryFieldTests.cs</DependentUpon>
+    </None>
+    <None Update="Internal\Dynamic\DynamicInjectorWithQueryFieldTests.InjectToFieldReferenceType.verified.txt">
+      <DependentUpon>DynamicInjectorWithQueryFieldTests.cs</DependentUpon>
+    </None>
+  </ItemGroup>
+
   <!-- https://stackoverflow.com/questions/21293105/system-dllnotfoundexception-on-mono-sqlite -->
   <Target Name="FixSQLiteInteropFilesOnLinuxAndOSX" BeforeTargets="CopySQLiteInteropFiles">
     <ItemGroup>

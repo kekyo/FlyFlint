@@ -8,11 +8,8 @@
 ////////////////////////////////////////////////////////////////////////////
 
 using FlyFlint.Collections;
-using FlyFlint.Internal;
-using FlyFlint.Internal.Static;
 using NUnit.Framework;
 using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
 using System.Globalization;
@@ -24,31 +21,11 @@ namespace FlyFlint
 {
     public sealed class StaticQueryTests
     {
-        private sealed class Target : IRecordInjectable
+        private sealed class Target
         {
             public int Id;
             public string? Name;
             public DateTime Birth;
-
-            private static readonly StaticMemberMetadata[] members = new[]
-            {
-                 new StaticMemberMetadata(nameof(Id), typeof(int)),
-                 new StaticMemberMetadata(nameof(Name), typeof(string)),
-                 new StaticMemberMetadata(nameof(Birth), typeof(DateTime)),
-            };
-
-            private static readonly StaticRecordInjectorObjRefDelegate<Target> injector = Inject;
-
-            public void Prepare(StaticRecordInjectionContext context) =>
-                context.RegisterMetadata(members, injector);
-
-            private static void Inject(
-                StaticRecordInjectionContext context, Target record)
-            {
-                record.Id = context.GetInt32(0);
-                record.Name = context.GetString(1);
-                record.Birth = context.GetDateTime(2);
-            }
         }
 
         [Test]
@@ -75,16 +52,10 @@ namespace FlyFlint
             await Verify(targets.Select(record => $"{record.Id},{record.Name},{record.Birth.ToString(CultureInfo.InvariantCulture)}"));
         }
 
-        public sealed class Parameter : IParameterExtractable
+#pragma warning disable CS8618
+        private sealed class Parameter<T>
         {
-            public int idparam { get; set; }
-
-            public void Extract(
-                StaticParameterExtractionContext context)
-            {
-                //base.Extract(context);
-                context.SetParameter<int>(nameof(idparam), this.idparam);
-            }
+            public T idparam { get; set; }
         }
 
         [Test]
@@ -105,14 +76,37 @@ namespace FlyFlint
             c.CommandText = "INSERT INTO target VALUES (3,'CCCCC','2022/01/23 12:34:58.789')";
             await c.ExecuteNonQueryAsync();
 
-            //var query = QueryFacadeExtension.Parameter(
-            //    QueryExtension.Query<Target>(
-            //        connection, "SELECT * FROM target WHERE Id = @idparam"),
-            //        new Parameter { idparam = 2 });
             var query = QueryFacadeExtension.Parameter(
                 QueryExtension.Query<Target>(
                     connection, "SELECT * FROM target WHERE Id = @idparam"),
-                    new Parameter { idparam = 2 });
+                    new Parameter<int> { idparam = 2 });
+            var targets = await QueryFacadeExtension.ExecuteAsync(query).ToArrayAsync();
+
+            await Verify(targets.Select(record => $"{record.Id},{record.Name},{record.Birth.ToString(CultureInfo.InvariantCulture)}"));
+        }
+
+        [Test]
+        public async Task QueryWithAnonymousParameter()
+        {
+            using var connection = new SQLiteConnection("Data Source=:memory:");
+            await connection.OpenAsync();
+
+            var c = connection.CreateCommand();
+            c.CommandType = CommandType.Text;
+            c.CommandText = "CREATE TABLE target (Id INTEGER PRIMARY KEY,Name TEXT,Birth TEXT)";
+            await c.ExecuteNonQueryAsync();
+
+            c.CommandText = "INSERT INTO target VALUES (1,'AAAAA','2022/01/23 12:34:56.789')";
+            await c.ExecuteNonQueryAsync();
+            c.CommandText = "INSERT INTO target VALUES (2,'BBBBB','2022/01/23 12:34:57.789')";
+            await c.ExecuteNonQueryAsync();
+            c.CommandText = "INSERT INTO target VALUES (3,'CCCCC','2022/01/23 12:34:58.789')";
+            await c.ExecuteNonQueryAsync();
+
+            var query = QueryFacadeExtension.Parameter(
+                QueryExtension.Query<Target>(
+                    connection, "SELECT * FROM target WHERE Id = @idparam"),
+                    new { idparam = 2 });
             var targets = await QueryFacadeExtension.ExecuteAsync(query).ToArrayAsync();
 
             await Verify(targets.Select(record => $"{record.Id},{record.Name},{record.Birth.ToString(CultureInfo.InvariantCulture)}"));

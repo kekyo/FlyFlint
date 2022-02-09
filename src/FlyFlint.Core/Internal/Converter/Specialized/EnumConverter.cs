@@ -128,23 +128,4 @@ namespace FlyFlint.Internal.Converter.Specialized
                 System.Convert.ChangeType(value, underlyingType, fp));
         }
     }
-
-    internal static class EnumConverter
-    {
-        //private static readonly Dictionary<Type, Func<object, IFormatProvider, Enum>> converters = new();
-
-        //public static Enum Convert(Type enumType, object value, IFormatProvider fp)
-        //{
-        //    Func<object, IFormatProvider, Enum> convert;
-        //    lock (converters)
-        //    {
-        //        if (!converters.TryGetValue(enumType, out convert!))
-        //        {
-        //            convert = EnumConverter<Enum>.convert;
-        //            converters.Add(enumType, convert);
-        //        }
-        //    }
-        //    return convert(value, fp);
-        //}
-    }
 }

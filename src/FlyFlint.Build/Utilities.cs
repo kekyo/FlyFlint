@@ -101,6 +101,102 @@ namespace FlyFlint
                 member is FieldReference fr ? fr.FieldType :
                 ((PropertyReference)member).PropertyType);
 
+        public static bool IsTargetMember(FieldDefinition field)
+        {
+            if (!field.IsStatic)
+            {
+                if (field.IsPublic &&
+                    !field.CustomAttributes.Any(ca => ca.AttributeType.FullName == "FlyFlint.QueryIgnoreAttribute"))
+                {
+                    return true;
+                }
+                if (!field.IsPublic &&
+                    field.CustomAttributes.Any(ca => ca.AttributeType.FullName == "FlyFlint.QueryFieldAttribute"))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public static bool IsTargetMember(PropertyDefinition property, bool isSetter)
+        {
+            var accessor = isSetter ? property.SetMethod : property.GetMethod;
+            if (accessor is { } mr && mr.Resolve() is { } method)
+            {
+                if (!method.IsStatic &&
+                    method.Parameters.Count == (isSetter ? 1 : 0))   // Dodge indexer
+                {
+                    if (method.IsPublic &&
+                        !property.CustomAttributes.Any(ca => ca.AttributeType.FullName == "FlyFlint.QueryIgnoreAttribute"))
+                    {
+                        return true;
+                    }
+                    if (!method.IsPublic &&
+                        property.CustomAttributes.Any(ca => ca.AttributeType.FullName == "FlyFlint.QueryFieldAttribute"))
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        public static string GetTargetMemberName(MemberReference member)
+        {
+            if (member is FieldReference fr)
+            {
+                if (fr.Resolve().CustomAttributes.
+                    FirstOrDefault(ca => ca.AttributeType.FullName == "FlyFlint.QueryFieldAttribute")?.
+                    ConstructorArguments[0].Value is string name &&
+                    !string.IsNullOrWhiteSpace(name))
+                {
+                    return name;
+                }
+                else
+                {
+                    return fr.Name;
+                }
+            }
+            else
+            {
+                var pr = (PropertyReference)member;
+                if (pr.Resolve().CustomAttributes.
+                    FirstOrDefault(ca => ca.AttributeType.FullName == "FlyFlint.QueryFieldAttribute")?.
+                    ConstructorArguments[0].Value is string name &&
+                    !string.IsNullOrWhiteSpace(name))
+                {
+                    return name;
+                }
+                else
+                {
+                    return pr.Name;
+                }
+            }
+        }
+
+        public static bool IsNullableForMember(
+            MemberReference targetMember, TypeReference memberType)
+        {
+            if (memberType.IsValueType)
+            {
+                return memberType.FullName.StartsWith("System.Nullable");
+            }
+            else
+            {
+                return
+                    (targetMember is FieldDefinition f ? f.CustomAttributes :
+                     ((PropertyDefinition)targetMember).CustomAttributes).
+                    Any(ca => ca.AttributeType.FullName.StartsWith("System.Runtime.CompilerServices.NullableAttribute"));
+            }
+        }
+
+        public static TypeReference DereferenceWhenNullableType(
+            ModuleDefinition module, TypeReference type) =>
+            (type.IsValueType && type is GenericInstanceType git &&
+             git.FullName.StartsWith("System.Nullable`1")) ?
+                module.ImportReference(git.GenericArguments[0]) :
+                type;
     }
 
     public sealed class SignatureDroppedGenericTypeEqualityComparer : IEqualityComparer<MethodReference?>

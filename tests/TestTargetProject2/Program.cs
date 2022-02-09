@@ -8,15 +8,14 @@
 ////////////////////////////////////////////////////////////////////////////
 
 using FlyFlint;
-using FlyFlint.Internal.Static;
-using System;
-using System.Threading.Tasks;
+using System.Diagnostics;
 
 namespace TestTargetProject2
 {
-    public sealed class Inherited : TestTargetProject.TestClass.TargetReferenceTypesDerived2
+    public sealed class InheritedTest :
+        TestTargetProject.WithoutUsingTypes.TargetReferenceTypesDerived2
     {
-        public Inherited()
+        public InheritedTest()
         {
         }
     }
@@ -25,12 +24,15 @@ namespace TestTargetProject2
     {
         public static void Main()
         {
-            //var targetValueTypes = new TestTargetProject.TestClass.TargetValueTypes();
-            var targetReferenceTypes = new TestTargetProject.TestClass.TargetReferenceTypesDerived2();
+            var targetReferenceTypes = new InheritedTest();
             var q1 = Query.IsRecordInjectable(targetReferenceTypes);
             var q2 = Query.IsParameterExtractable(targetReferenceTypes);
+            Debug.Assert(q1);
+            Debug.Assert(!q2);
+
             //Console.WriteLine(targetReferenceTypes);
-            var r = TestTargetProject.TestClass.InjectExecuteNonQueryWithValueType();
+            var r1 = TestTargetProject.TestClass.InjectExecuteNonQueryWithValueType();
+            var r2 = TestTargetProject.TestClass.InjectExecuteNonQueryWithReferenceType();
         }
     }
 }

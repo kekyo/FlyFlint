@@ -23,31 +23,11 @@ namespace FlyFlint
 {
     public sealed class ConstructVariationTests
     {
-        private struct Target : IRecordInjectable
+        private struct Target
         {
             public int Id;
             public string? Name;
             public DateTime Birth;
-
-            private static readonly StaticMemberMetadata[] members = new[]
-            {
-                 new StaticMemberMetadata(nameof(Id), typeof(int)),
-                 new StaticMemberMetadata(nameof(Name), typeof(string)),
-                 new StaticMemberMetadata(nameof(Birth), typeof(DateTime)),
-            };
-
-            private static readonly StaticRecordInjectorByRefDelegate<Target> injector = Inject;
-
-            public void Prepare(StaticRecordInjectionContext context) =>
-                context.RegisterMetadata(members, injector);
-
-            private static void Inject(
-                StaticRecordInjectionContext context, ref Target record)
-            {
-                record.Id = context.GetInt32(0);
-                record.Name = context.GetString(1);
-                record.Birth = context.GetDateTime(2);
-            }
         }
 
         public sealed class Parameter : IParameterExtractable

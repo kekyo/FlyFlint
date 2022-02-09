@@ -43,20 +43,10 @@
   <Target Name="FlyFlintBuild" AfterTargets="AfterCompile"
     Condition="'$(FlyFlintBuildEnable)' == 'True'">
       
-    <PropertyGroup Condition="'$(MSBuildRuntimeType)' == 'Core'">
-      <_FF_PlatformName Condition="('$(MicrosoftNETBuildTasksTFM)' == '') AND ('$(BundledNETCoreAppTargetFrameworkVersion)' == '')">netcoreapp2.0</_FF_PlatformName>
-      <_FF_PlatformName Condition="'$(MicrosoftNETBuildTasksTFM)' == ''">netcoreapp$(BundledNETCoreAppTargetFrameworkVersion)</_FF_PlatformName>
-      <_FF_PlatformName Condition="'$(MicrosoftNETBuildTasksTFM)' != ''">$(MicrosoftNETBuildTasksTFM)</_FF_PlatformName>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(MSBuildRuntimeType)' != 'Core'">
-      <_FF_PlatformName>net45</_FF_PlatformName>
-    </PropertyGroup>
-
     <PropertyGroup>
-      <FlyFlintBuildToolingRuntimeName Condition="'$(FlyFlintBuildToolingRuntimeName)' == ''">$(_FF_RuntimeName)</FlyFlintBuildToolingRuntimeName>
-      <_EB_ToolingDir>$([System.IO.Path]::Combine('$(MSBuildThisFileDirectory)','..','tools','$(_FF_PlatformName)'))</_EB_ToolingDir>
-      <FlyFlintBuildToolingDir Condition="'$(FlyFlintBuildToolingDir)' == ''">$([System.IO.Path]::GetFullPath('$(_EB_ToolingDir)'))</FlyFlintBuildToolingDir>
-      <FlyFlintBuildToolingPath Condition="'$(FlyFlintBuildToolingPath)' == ''">$([System.IO.Path]::Combine('$(FlyFlintBuildToolingDir)','$(_FF_ExecutableName)'))</FlyFlintBuildToolingPath>
+      <FlyFlintBuildToolingRuntimeName Condition="'$(FlyFlintBuildToolingRuntimeName)' == ''">$(_FFB_RuntimeName)</FlyFlintBuildToolingRuntimeName>
+      <FlyFlintBuildToolingDir Condition="'$(FlyFlintBuildToolingDir)' == ''">$([System.IO.Path]::GetFullPath('$(_FFB_ToolingDir)'))</FlyFlintBuildToolingDir>
+      <FlyFlintBuildToolingPath Condition="'$(FlyFlintBuildToolingPath)' == ''">$([System.IO.Path]::Combine('$(FlyFlintBuildToolingDir)','$(_FFB_ExecutableName)'))</FlyFlintBuildToolingPath>
       <FlyFlintBuildTraceOption Condition="$(FlyFlintBuildTrace)">-t</FlyFlintBuildTraceOption>
       <FlyFlintBuildTraceOption Condition="'$(FlyFlintBuildTraceOption)' == ''"></FlyFlintBuildTraceOption>
     </PropertyGroup>

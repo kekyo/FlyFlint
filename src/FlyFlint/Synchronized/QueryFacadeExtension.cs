@@ -10,6 +10,7 @@
 using FlyFlint.Context;
 using FlyFlint.Internal;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace FlyFlint.Synchronized
 {
@@ -45,11 +46,17 @@ namespace FlyFlint.Synchronized
             }
         }
 
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
         public static IEnumerable<TRecord> Execute<TRecord>(
             this ParameterizedQueryContext<TRecord> query)
             where TRecord : notnull, new() =>
             InternalExecute(query);
 
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
         public static IEnumerable<TRecord> ExecuteNonParameterized<TRecord>(
             this PartialQueryContext<TRecord> query)
             where TRecord : notnull, new() =>
