@@ -19,31 +19,12 @@ namespace FlyFlint.Internal.Static
 {
     public sealed class StaticInjectorTests
     {
-        private struct TargetValueType : IRecordInjectable
+        [QueryRecord]
+        private struct TargetValueType
         {
             public int Id;
             public string? Name;
             public DateTime Birth;
-
-            private static readonly StaticMemberMetadata[] members = new[]
-            {
-                new StaticMemberMetadata(nameof(Id), typeof(int)),
-                new StaticMemberMetadata(nameof(Name), typeof(string)),
-                new StaticMemberMetadata(nameof(Birth), typeof(DateTime)),
-            };
-
-            private static readonly StaticRecordInjectorByRefDelegate<TargetValueType> injector = Inject;
-
-            public void Prepare(StaticRecordInjectionContext context) =>
-                context.RegisterMetadata(members, injector);
-
-            private static void Inject(
-                StaticRecordInjectionContext context, ref TargetValueType record)
-            {
-                record.Id = context.GetInt32(0);
-                record.Name = context.GetString(1);
-                record.Birth = context.GetDateTime(2);
-            }
         }
 
         [Test]
@@ -62,7 +43,7 @@ namespace FlyFlint.Internal.Static
 
             var context = new StaticRecordInjectionByRefContext<TargetValueType>(
                 ConversionContext.Default, StringComparer.OrdinalIgnoreCase, reader);
-            record.Prepare(context);
+            ((IRecordInjectable)(object)record).Prepare(context);
             context.MakeInjectable();
 
             context.Inject(ref record);
@@ -70,31 +51,12 @@ namespace FlyFlint.Internal.Static
             return Verify($"{record.Id},{record.Name},{record.Birth.ToString(CultureInfo.InvariantCulture)}");
         }
 
-        private sealed class TargetReferenceType : IRecordInjectable
+        [QueryRecord]
+        private sealed class TargetReferenceType
         {
             public int Id;
             public string? Name;
             public DateTime Birth;
-
-            private static readonly StaticMemberMetadata[] members = new[]
-            {
-                new StaticMemberMetadata(nameof(Id), typeof(int)),
-                new StaticMemberMetadata(nameof(Name), typeof(string)),
-                new StaticMemberMetadata(nameof(Birth), typeof(DateTime)),
-            };
-
-            private static readonly StaticRecordInjectorObjRefDelegate<TargetReferenceType> injector = Inject;
-
-            public void Prepare(StaticRecordInjectionContext context) =>
-                context.RegisterMetadata(members, injector);
-
-            private static void Inject(
-                StaticRecordInjectionContext context, TargetReferenceType record)
-            {
-                record.Id = context.GetInt32(0);
-                record.Name = context.GetString(1);
-                record.Birth = context.GetDateTime(2);
-            }
         }
 
         [Test]
@@ -113,7 +75,7 @@ namespace FlyFlint.Internal.Static
 
             var context = new StaticRecordInjectionObjRefContext<TargetReferenceType>(
                 ConversionContext.Default, StringComparer.OrdinalIgnoreCase, reader);
-            record.Prepare(context);
+            ((IRecordInjectable)(object)record).Prepare(context);
             context.MakeInjectable();
 
             context.Inject(ref record);

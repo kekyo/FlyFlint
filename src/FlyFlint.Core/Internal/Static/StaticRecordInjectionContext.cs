@@ -460,9 +460,19 @@ namespace FlyFlint.Internal.Static
         {
         }
 
+#if DEBUG
+        private protected bool made;  // TODO:
+#endif
+
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
         public void MakeInjectable()
         {
             // TODO:
+#if DEBUG
+            this.made = true;
+#endif
         }
 
         public abstract void Inject(ref TRecord record);
@@ -504,8 +514,11 @@ namespace FlyFlint.Internal.Static
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public override void Inject(ref TRecord record) =>
+        public override void Inject(ref TRecord record)
+        {
+            Debug.Assert(this.made);
             this.injector(this, ref record);
+        }
     }
 
     [EditorBrowsable(EditorBrowsableState.Never)]
@@ -544,7 +557,10 @@ namespace FlyFlint.Internal.Static
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public override void Inject(ref TRecord record) =>
+        public override void Inject(ref TRecord record)
+        {
+            Debug.Assert(this.made);
             this.injector(this, record);
+        }
     }
 }

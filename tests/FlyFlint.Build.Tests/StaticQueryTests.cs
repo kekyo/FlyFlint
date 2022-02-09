@@ -8,12 +8,10 @@
 ////////////////////////////////////////////////////////////////////////////
 
 using FlyFlint.Collections;
-using FlyFlint.Internal.Static;
 using NUnit.Framework;
 using System;
 using System.Data;
 using System.Data.SQLite;
-using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
@@ -55,22 +53,10 @@ namespace FlyFlint
         }
 
 #pragma warning disable CS8618
-#if true
         private sealed class Parameter<T>
         {
             public T idparam { get; set; }
         }
-#else
-        private sealed class Parameter<T> : IParameterExtractable
-        {
-            public T idparam { get; set; }
-
-            public void Extract(StaticParameterExtractionContext context)
-            {
-                context.SetParameter(nameof(idparam), this.idparam);
-            }
-        }
-#endif
 
         [Test]
         public async Task QueryWithParameter()
