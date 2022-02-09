@@ -23,11 +23,15 @@
     <_FFB_ExecutableName>ffb.exe</_FFB_ExecutableName>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(MSBuildRuntimeType)' == 'Core'">
-    <_FFB_PlatformName Condition="('$(MicrosoftNETBuildTasksTFM)' == '') AND ('$(BundledNETCoreAppTargetFrameworkVersion)' == '')">netcoreapp2.0</_FFB_PlatformName>
-    <_FFB_PlatformName Condition="('$(MicrosoftNETBuildTasksTFM)' == '') AND ($(BundledNETCoreAppTargetFrameworkVersion) &gt;= 5.0)">net$(BundledNETCoreAppTargetFrameworkVersion)</_FFB_PlatformName>
-    <_FFB_PlatformName Condition="('$(MicrosoftNETBuildTasksTFM)' == '') AND ($(BundledNETCoreAppTargetFrameworkVersion) &lt; 5.0)">netcoreapp$(BundledNETCoreAppTargetFrameworkVersion)</_FFB_PlatformName>
-    <_FFB_PlatformName Condition="'$(MicrosoftNETBuildTasksTFM)' != ''">$(MicrosoftNETBuildTasksTFM)</_FFB_PlatformName>
+  <PropertyGroup Condition="('$(MSBuildRuntimeType)' == 'Core') AND ('$(MicrosoftNETBuildTasksTFM)' != '')">
+    <_FFB_PlatformName>$(MicrosoftNETBuildTasksTFM)</_FFB_PlatformName>
+  </PropertyGroup>
+  <PropertyGroup Condition="('$(MSBuildRuntimeType)' == 'Core') AND ('$(MicrosoftNETBuildTasksTFM)' == '') AND ('$(BundledNETCoreAppTargetFrameworkVersion)' != '')">
+    <_FFB_PlatformName Condition="$(BundledNETCoreAppTargetFrameworkVersion) &gt;= 5.0">net$(BundledNETCoreAppTargetFrameworkVersion)</_FFB_PlatformName>
+    <_FFB_PlatformName Condition="$(BundledNETCoreAppTargetFrameworkVersion) &lt; 5.0">netcoreapp$(BundledNETCoreAppTargetFrameworkVersion)</_FFB_PlatformName>
+  </PropertyGroup>
+  <PropertyGroup Condition="('$(MSBuildRuntimeType)' == 'Core') AND ('$(MicrosoftNETBuildTasksTFM)' == '') AND ('$(BundledNETCoreAppTargetFrameworkVersion)' == '')">
+    <_FFB_PlatformName>netcoreapp2.0</_FFB_PlatformName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(MSBuildRuntimeType)' != 'Core'">
     <_FFB_PlatformName>net45</_FFB_PlatformName>

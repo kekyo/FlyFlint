@@ -460,9 +460,7 @@ namespace FlyFlint.Internal.Static
         {
         }
 
-#if DEBUG
         private protected bool made;  // TODO:
-#endif
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -470,9 +468,7 @@ namespace FlyFlint.Internal.Static
         public void MakeInjectable()
         {
             // TODO:
-#if DEBUG
             this.made = true;
-#endif
         }
 
         public abstract void Inject(ref TRecord record);
