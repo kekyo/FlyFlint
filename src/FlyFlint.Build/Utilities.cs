@@ -119,11 +119,13 @@ namespace FlyFlint
             return false;
         }
 
-        public static bool IsTargetMember(PropertyDefinition property, MethodReference? setter)
+        public static bool IsTargetMember(PropertyDefinition property, bool isSetter)
         {
-            if (setter is { } mr && mr.Resolve() is { } method)
+            var accessor = isSetter ? property.SetMethod : property.GetMethod;
+            if (accessor is { } mr && mr.Resolve() is { } method)
             {
-                if (!method.IsStatic)
+                if (!method.IsStatic &&
+                    method.Parameters.Count == (isSetter ? 1 : 0))   // Dodge indexer
                 {
                     if (method.IsPublic &&
                         !property.CustomAttributes.Any(ca => ca.AttributeType.FullName == "FlyFlint.QueryIgnoreAttribute"))

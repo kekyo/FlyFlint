@@ -82,10 +82,10 @@ namespace FlyFlint.Internal.Static
                 record.Value8 = context.GetDecimal(7);
                 record.Value9 = context.GetGuid(8);
                 record.Value10 = context.GetDateTime(9);
-                record.Value11 = context.GetEnum<EnumValue>(10);
-                record.Value12 = context.GetEnum<EnumValue>(11);
-                record.Value13 = context.GetEnum<EnumValue>(12);
-                record.Value14 = context.GetEnum<EnumValue>(13);
+                record.Value11 = context.GetValue<EnumValue>(10);
+                record.Value12 = context.GetValue<EnumValue>(11);
+                record.Value13 = context.GetValue<EnumValue>(12);
+                record.Value14 = context.GetValue<EnumValue>(13);
                 record.Value15 = context.GetString(14);
             }
         }
@@ -183,10 +183,10 @@ namespace FlyFlint.Internal.Static
                 record.Value8 = context.GetNullableDecimal(7);
                 record.Value9 = context.GetNullableGuid(8);
                 record.Value10 = context.GetNullableDateTime(9);
-                record.Value11 = context.GetNullableEnum<EnumValue>(10);
-                record.Value12 = context.GetNullableEnum<EnumValue>(11);
-                record.Value13 = context.GetNullableEnum<EnumValue>(12);
-                record.Value14 = context.GetNullableEnum<EnumValue>(13);
+                record.Value11 = context.GetNullableValue<EnumValue>(10);
+                record.Value12 = context.GetNullableValue<EnumValue>(11);
+                record.Value13 = context.GetNullableValue<EnumValue>(12);
+                record.Value14 = context.GetNullableValue<EnumValue>(13);
                 record.Value15 = context.GetNullableString(14);
             }
         }

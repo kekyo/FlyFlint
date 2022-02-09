@@ -8,6 +8,7 @@
 ////////////////////////////////////////////////////////////////////////////
 
 using FlyFlint.Collections;
+using FlyFlint.Internal.Static;
 using NUnit.Framework;
 using System;
 using System.Data;
@@ -53,6 +54,24 @@ namespace FlyFlint
             await Verify(targets.Select(record => $"{record.Id},{record.Name},{record.Birth.ToString(CultureInfo.InvariantCulture)}"));
         }
 
+#pragma warning disable CS8618
+#if true
+        private sealed class Parameter<T>
+        {
+            public T idparam { get; set; }
+        }
+#else
+        private sealed class Parameter<T> : IParameterExtractable
+        {
+            public T idparam { get; set; }
+
+            public void Extract(StaticParameterExtractionContext context)
+            {
+                context.SetParameter(nameof(idparam), this.idparam);
+            }
+        }
+#endif
+
         [Test]
         public async Task QueryWithParameter()
         {
@@ -71,10 +90,33 @@ namespace FlyFlint
             c.CommandText = "INSERT INTO target VALUES (3,'CCCCC','2022/01/23 12:34:58.789')";
             await c.ExecuteNonQueryAsync();
 
-            //var query = QueryFacadeExtension.Parameter(
-            //    QueryExtension.Query<Target>(
-            //        connection, "SELECT * FROM target WHERE Id = @idparam"),
-            //        new Parameter { idparam = 2 });
+            var query = QueryFacadeExtension.Parameter(
+                QueryExtension.Query<Target>(
+                    connection, "SELECT * FROM target WHERE Id = @idparam"),
+                    new Parameter<int> { idparam = 2 });
+            var targets = await QueryFacadeExtension.ExecuteAsync(query).ToArrayAsync();
+
+            await Verify(targets.Select(record => $"{record.Id},{record.Name},{record.Birth.ToString(CultureInfo.InvariantCulture)}"));
+        }
+
+        [Test]
+        public async Task QueryWithAnonymousParameter()
+        {
+            using var connection = new SQLiteConnection("Data Source=:memory:");
+            await connection.OpenAsync();
+
+            var c = connection.CreateCommand();
+            c.CommandType = CommandType.Text;
+            c.CommandText = "CREATE TABLE target (Id INTEGER PRIMARY KEY,Name TEXT,Birth TEXT)";
+            await c.ExecuteNonQueryAsync();
+
+            c.CommandText = "INSERT INTO target VALUES (1,'AAAAA','2022/01/23 12:34:56.789')";
+            await c.ExecuteNonQueryAsync();
+            c.CommandText = "INSERT INTO target VALUES (2,'BBBBB','2022/01/23 12:34:57.789')";
+            await c.ExecuteNonQueryAsync();
+            c.CommandText = "INSERT INTO target VALUES (3,'CCCCC','2022/01/23 12:34:58.789')";
+            await c.ExecuteNonQueryAsync();
+
             var query = QueryFacadeExtension.Parameter(
                 QueryExtension.Query<Target>(
                     connection, "SELECT * FROM target WHERE Id = @idparam"),

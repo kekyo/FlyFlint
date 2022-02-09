@@ -79,12 +79,28 @@ namespace FlyFlint.Internal.Static
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+        private static object AssertNotDBNull<T>(object value) =>
+            value is DBNull ?
+                throw new NullReferenceException($"Could not convert from DBNull to {typeof(T).FullName}.") :
+                value;
+
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        private static T AssertNotNull<T>(T value) =>
+            value == null ?
+                throw new NullReferenceException($"Could not convert from Null to {typeof(T).FullName}.") :
+                value;
+
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
         [EditorBrowsable(EditorBrowsableState.Never)]
         public bool GetBoolean(int metadataIndex)
         {
             var metadata = this.metadataList[metadataIndex];
             return metadata.StoreDirect ? this.reader.GetBoolean(metadata.DbFieldIndex) :
-                this.cc.ConvertTo<bool>(this.reader.GetValue(metadata.DbFieldIndex));
+                this.cc.ConvertTo<bool>(AssertNotDBNull<bool>(this.reader.GetValue(metadata.DbFieldIndex)));
         }
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
@@ -95,7 +111,7 @@ namespace FlyFlint.Internal.Static
         {
             var metadata = this.metadataList[metadataIndex];
             return metadata.StoreDirect ? this.reader.GetByte(metadata.DbFieldIndex) :
-                this.cc.ConvertTo<byte>(this.reader.GetValue(metadata.DbFieldIndex));
+                this.cc.ConvertTo<byte>(AssertNotDBNull<byte>(this.reader.GetValue(metadata.DbFieldIndex)));
         }
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
@@ -106,7 +122,7 @@ namespace FlyFlint.Internal.Static
         {
             var metadata = this.metadataList[metadataIndex];
             return metadata.StoreDirect ? this.reader.GetInt16(metadata.DbFieldIndex) :
-                this.cc.ConvertTo<short>(this.reader.GetValue(metadata.DbFieldIndex));
+                this.cc.ConvertTo<short>(AssertNotDBNull<short>(this.reader.GetValue(metadata.DbFieldIndex)));
         }
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
@@ -117,7 +133,7 @@ namespace FlyFlint.Internal.Static
         {
             var metadata = this.metadataList[metadataIndex];
             return metadata.StoreDirect ? this.reader.GetInt32(metadata.DbFieldIndex) :
-                this.cc.ConvertTo<int>(this.reader.GetValue(metadata.DbFieldIndex));
+                this.cc.ConvertTo<int>(AssertNotDBNull<int>(this.reader.GetValue(metadata.DbFieldIndex)));
         }
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
@@ -128,7 +144,7 @@ namespace FlyFlint.Internal.Static
         {
             var metadata = this.metadataList[metadataIndex];
             return metadata.StoreDirect ? this.reader.GetInt64(metadata.DbFieldIndex) :
-                this.cc.ConvertTo<long>(this.reader.GetValue(metadata.DbFieldIndex));
+                this.cc.ConvertTo<long>(AssertNotDBNull<long>(this.reader.GetValue(metadata.DbFieldIndex)));
         }
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
@@ -139,7 +155,7 @@ namespace FlyFlint.Internal.Static
         {
             var metadata = this.metadataList[metadataIndex];
             return metadata.StoreDirect ? this.reader.GetFloat(metadata.DbFieldIndex) :
-                this.cc.ConvertTo<float>(this.reader.GetValue(metadata.DbFieldIndex));
+                this.cc.ConvertTo<float>(AssertNotDBNull<float>(this.reader.GetValue(metadata.DbFieldIndex)));
         }
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
@@ -150,7 +166,7 @@ namespace FlyFlint.Internal.Static
         {
             var metadata = this.metadataList[metadataIndex];
             return metadata.StoreDirect ? this.reader.GetDouble(metadata.DbFieldIndex) :
-                this.cc.ConvertTo<double>(this.reader.GetValue(metadata.DbFieldIndex));
+                this.cc.ConvertTo<double>(AssertNotDBNull<double>(this.reader.GetValue(metadata.DbFieldIndex)));
         }
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
@@ -161,7 +177,7 @@ namespace FlyFlint.Internal.Static
         {
             var metadata = this.metadataList[metadataIndex];
             return metadata.StoreDirect ? this.reader.GetDecimal(metadata.DbFieldIndex) :
-                this.cc.ConvertTo<decimal>(this.reader.GetValue(metadata.DbFieldIndex));
+                this.cc.ConvertTo<decimal>(AssertNotDBNull<decimal>(this.reader.GetValue(metadata.DbFieldIndex)));
         }
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
@@ -172,7 +188,7 @@ namespace FlyFlint.Internal.Static
         {
             var metadata = this.metadataList[metadataIndex];
             return metadata.StoreDirect ? this.reader.GetChar(metadata.DbFieldIndex) :
-                this.cc.ConvertTo<char>(this.reader.GetValue(metadata.DbFieldIndex));
+                this.cc.ConvertTo<char>(AssertNotDBNull<char>(this.reader.GetValue(metadata.DbFieldIndex)));
         }
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
@@ -183,7 +199,7 @@ namespace FlyFlint.Internal.Static
         {
             var metadata = this.metadataList[metadataIndex];
             return metadata.StoreDirect ? this.reader.GetGuid(metadata.DbFieldIndex) :
-                this.cc.ConvertTo<Guid>(this.reader.GetValue(metadata.DbFieldIndex));
+                this.cc.ConvertTo<Guid>(AssertNotDBNull<Guid>(this.reader.GetValue(metadata.DbFieldIndex)));
         }
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
@@ -194,19 +210,7 @@ namespace FlyFlint.Internal.Static
         {
             var metadata = this.metadataList[metadataIndex];
             return metadata.StoreDirect ? this.reader.GetDateTime(metadata.DbFieldIndex) :
-                this.cc.ConvertTo<DateTime>(this.reader.GetValue(metadata.DbFieldIndex));
-        }
-
-#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public TEnum GetEnum<TEnum>(int metadataIndex)
-            where TEnum : struct, Enum
-        {
-            var metadata = this.metadataList[metadataIndex];
-            return metadata.StoreDirect ? (TEnum)this.reader.GetValue(metadata.DbFieldIndex) :
-                this.cc.ConvertTo<TEnum>(this.reader.GetValue(metadata.DbFieldIndex));
+                this.cc.ConvertTo<DateTime>(AssertNotDBNull<DateTime>(this.reader.GetValue(metadata.DbFieldIndex)));
         }
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
@@ -217,7 +221,7 @@ namespace FlyFlint.Internal.Static
         {
             var metadata = this.metadataList[metadataIndex];
             return metadata.StoreDirect ? this.reader.GetString(metadata.DbFieldIndex) :
-                this.cc.ConvertTo<string>(this.reader.GetValue(metadata.DbFieldIndex));
+                AssertNotNull(this.cc.ConvertTo<string>(AssertNotDBNull<string>(this.reader.GetValue(metadata.DbFieldIndex))));
         }
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
@@ -228,7 +232,31 @@ namespace FlyFlint.Internal.Static
         {
             var metadata = this.metadataList[metadataIndex];
             return metadata.StoreDirect ? (byte[])this.reader.GetValue(metadata.DbFieldIndex) :
-                this.cc.ConvertTo<byte[]>(this.reader.GetValue(metadata.DbFieldIndex));
+                AssertNotNull(this.cc.ConvertTo<byte[]>(AssertNotDBNull<byte[]>(this.reader.GetValue(metadata.DbFieldIndex))));
+        }
+
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public TValue GetValue<TValue>(int metadataIndex)
+            where TValue : struct
+        {
+            var metadata = this.metadataList[metadataIndex];
+            return metadata.StoreDirect ? (TValue)this.reader.GetValue(metadata.DbFieldIndex) :
+                this.cc.ConvertTo<TValue>(AssertNotDBNull<TValue>(this.reader.GetValue(metadata.DbFieldIndex)));
+        }
+
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public TValue GetObjRefValue<TValue>(int metadataIndex)
+            where TValue : class
+        {
+            var metadata = this.metadataList[metadataIndex];
+            return metadata.StoreDirect ? (TValue)this.reader.GetValue(metadata.DbFieldIndex) :
+                AssertNotNull(this.cc.ConvertTo<TValue>(AssertNotDBNull<TValue>(this.reader.GetValue(metadata.DbFieldIndex))));
         }
 
         /////////////////////////////////////////////////////////////////////////////
@@ -369,19 +397,6 @@ namespace FlyFlint.Internal.Static
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public TEnum? GetNullableEnum<TEnum>(int metadataIndex)
-            where TEnum : struct, Enum
-        {
-            var metadata = this.metadataList[metadataIndex];
-            return this.reader.IsDBNull(metadata.DbFieldIndex) ? default(TEnum?) :
-                metadata.StoreDirect ? (TEnum)this.reader.GetValue(metadata.DbFieldIndex) :
-                    this.cc.ConvertTo<TEnum?>(this.reader.GetValue(metadata.DbFieldIndex));
-        }
-
-#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-        [EditorBrowsable(EditorBrowsableState.Never)]
         public string? GetNullableString(int metadataIndex)
         {
             var metadata = this.metadataList[metadataIndex];
@@ -400,6 +415,32 @@ namespace FlyFlint.Internal.Static
             return this.reader.IsDBNull(metadata.DbFieldIndex) ? null :
                 metadata.StoreDirect ? (byte[])this.reader.GetValue(metadata.DbFieldIndex) :
                     this.cc.ConvertTo<byte[]?>(this.reader.GetValue(metadata.DbFieldIndex));
+        }
+
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public TValue? GetNullableValue<TValue>(int metadataIndex)
+            where TValue : struct
+        {
+            var metadata = this.metadataList[metadataIndex];
+            return this.reader.IsDBNull(metadata.DbFieldIndex) ? null :
+                metadata.StoreDirect ? (TValue)this.reader.GetValue(metadata.DbFieldIndex) :
+                    this.cc.ConvertTo<TValue?>(this.reader.GetValue(metadata.DbFieldIndex));
+        }
+
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public TValue? GetNullableObjRefValue<TValue>(int metadataIndex)
+            where TValue : class
+        {
+            var metadata = this.metadataList[metadataIndex];
+            return this.reader.IsDBNull(metadata.DbFieldIndex) ? null :
+                metadata.StoreDirect ? (TValue)this.reader.GetValue(metadata.DbFieldIndex) :
+                    this.cc.ConvertTo<TValue?>(this.reader.GetValue(metadata.DbFieldIndex));
         }
     }
 
