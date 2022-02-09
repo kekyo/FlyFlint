@@ -190,6 +190,13 @@ namespace FlyFlint
                     Any(ca => ca.AttributeType.FullName.StartsWith("System.Runtime.CompilerServices.NullableAttribute"));
             }
         }
+
+        public static TypeReference DereferenceWhenNullableType(
+            ModuleDefinition module, TypeReference type) =>
+            (type.IsValueType && type is GenericInstanceType git &&
+             git.FullName.StartsWith("System.Nullable`1")) ?
+                module.ImportReference(git.GenericArguments[0]) :
+                type;
     }
 
     public sealed class SignatureDroppedGenericTypeEqualityComparer : IEqualityComparer<MethodReference?>

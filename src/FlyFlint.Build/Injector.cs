@@ -294,7 +294,9 @@ namespace FlyFlint
                 cctorInsts.Insert(instIndex++,
                     Instruction.Create(
                         OpCodes.Ldtoken,
-                        Utilities.GetMemberType(module, targetMember)));   // TODO: dereference nullable
+                        Utilities.DereferenceWhenNullableType(
+                            module,
+                            Utilities.GetMemberType(module, targetMember))));
                 cctorInsts.Insert(instIndex++,
                     Instruction.Create(
                         OpCodes.Call,
@@ -398,7 +400,10 @@ namespace FlyFlint
                                 (true, false) => this.getNullableObjRefValueMethod,
                                 (true, true) => this.getNullableValueMethod,
                             }));
-                    m.GenericArguments.Add(memberType);   // TODO: dereferenced generic argument type on Nullable<T>
+                    m.GenericArguments.Add(
+                        Utilities.DereferenceWhenNullableType(
+                            module,
+                            memberType));
                     return m;
                 }
             }
