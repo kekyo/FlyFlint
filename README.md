@@ -2,9 +2,13 @@
 
 ![FlyFlint](Images/FlyFlint.100.png)
 
-[![NuGet FlyFlint](https://img.shields.io/nuget/v/FlyFlint.svg?style=flat)](https://www.nuget.org/packages/FlyFlint)
+[![Project Status: WIP – Initial development is in progress, but there has not yet been a stable, usable release suitable for the public.](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip)
 
-[![Project Status: Concept – Minimal or no implementation has been done yet, or the repository is only intended to be a limited example, demo, or proof-of-concept.](https://www.repostatus.org/badges/latest/concept.svg)](https://www.repostatus.org/#concept)
+|FlyFlint|FlyFlint.Dynamic|
+|--|--|
+|[![NuGet FlyFlint](https://img.shields.io/nuget/v/FlyFlint.svg?style=flat)](https://www.nuget.org/packages/FlyFlint)|[![NuGet FlyFlint.Dynamic](https://img.shields.io/nuget/v/FlyFlint.Dynamic.svg?style=flat)](https://www.nuget.org/packages/FlyFlint.Dynamic)|
+
+[![Japanese is here](Images/Japanese.256.png)](https://github.com/kekyo/FlyFlint/blob/main/README_ja.md)
 
 ---
 
@@ -78,6 +82,7 @@ Note: This is still a work in progress and does not cover all features.
 * Totally unused reflection API.
 * Simple and faster.
 * Type safe query construction interface.
+* Free from DBNull and support for Nullable types.
 * Build parameterized query with string interpolation syntax.
 * Supported all ADO.NET driver by common interface type.
 * Easy hook up with dynamic query solution when using un-injected types.

@@ -2,9 +2,13 @@
 
 ![FlyFlint](Images/FlyFlint.100.png)
 
-[![NuGet FlyFlint](https://img.shields.io/nuget/v/FlyFlint.svg?style=flat)](https://www.nuget.org/packages/FlyFlint)
+[![Project Status: WIP – Initial development is in progress, but there has not yet been a stable, usable release suitable for the public.](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip)
 
-[![Project Status: Concept – Minimal or no implementation has been done yet, or the repository is only intended to be a limited example, demo, or proof-of-concept.](https://www.repostatus.org/badges/latest/concept.svg)](https://www.repostatus.org/#concept)
+|FlyFlint|FlyFlint.Dynamic|
+|--|--|
+|[![NuGet FlyFlint](https://img.shields.io/nuget/v/FlyFlint.svg?style=flat)](https://www.nuget.org/packages/FlyFlint)|[![NuGet FlyFlint.Dynamic](https://img.shields.io/nuget/v/FlyFlint.Dynamic.svg?style=flat)](https://www.nuget.org/packages/FlyFlint.Dynamic)|
+
+[English is here](https://github.com/kekyo/FlyFlint)
 
 ---
 
@@ -78,6 +82,7 @@ FlyFlintは、レコードデータをインスタンスに格納するときに
 * リフレクションAPIを一切使用しない
 * シンプルで高速なアーキテクチャ
 * タイプセーフ性のあるクエリビルダインターフェイス
+* DBNullからの解放とNullable型のサポート
 * string interpolation構文でパラメタライズドクエリを記述可能
 * 全てのADO.NETドライバに対応
 * 必要であれば、未挿入の型に対してリフレクションによる動的クエリを使用可能
@@ -114,71 +119,207 @@ FlyFlintは、レコードデータをインスタンスに格納するときに
 
 ## 基本的な使い方
 
-[NuGetからパッケージをインストールします](https://www.nuget.org/packages/FlyFlint)。
+最初に、[NuGetからパッケージをインストール](https://www.nuget.org/packages/FlyFlint)します。
 
-データベースアクセスは、度々SQLインジェクション攻撃の標的となります。
-もちろん、FlyFlintはパラメータ化クエリに対応していますが、
-C#ユーザーが安全かつ簡便にクエリを書くことが出来るように、
-C#の `string interporation` に対応しています:
+FlyFlintは、軽量なO/Rマッパーです。
+つまり、クエリ文(SQL文)は、再解釈されずにそのままデータベースサービスで実行され、
+結果がレコード型に格納されて返されます。
+
+以下に、最も簡単な例を示します:
 
 ```csharp
-    // このようなクエリパラメータ値があるとします:
-    var id = 123;
+// レコード型の定義
+public struct Target
+{
+    public int Id;
+    public string? Name;
+    public DateTime? Birth;
+}
 
-    // これをクエリに含めるには、string interporation構文を使います:
+public static async Task Main()
+{
+    // データベースに接続 (ADO.NETならどれでもOK)
+    using var connection = new SqlClient("...");
+
+    // レコード型(ここではTarget型)を返すクエリ文を定義して:
     var query = connection.Query<Target>(
-        $"SELECT * FROM target WHERE Id = {id}");
+        $"SELECT * FROM target");
 
-    Target[] targets = await query.
-        ExecuteAsync().
-        ToArrayAsync();
+    // 実行し、結果がレコード型に格納されて返される
+    await foreach (var target in query.ExecuteAsync())
+    {
+        Console.WriteLine($"Id={target.Id}, Name={target.Name}");
+    }
+}
+```
+
+クエリ文の実行には2段階のステップがあります:
+
+1. データベース接続 `DbConnection` に対して、`Query` メソッドを呼び出して
+クエリ文を定義します。
+2. 定義済みのクエリ文を実行します。
+
+クエリ文を定義する `Query` メソッドには、レコード型を指定するメソッドと指定しないメソッドがあります:
+
+* `Query(...)`: クエリの結果がレコードを返さない場合。
+* `Query<TRecord>(...)`: クエリの結果がレコードを返す場合。ジェネリック引数にレコード型を指定する。
+
+一度クエリ文を定義すれば、何度でも呼び出す事が出来ます（但し同じデータベース接続を使います）。
+
+クエリ文の実行は、以下のバリエーションがあります。
+これらはADO.NETのメソッド名慣例に習っているので、理解は容易なはずです:
+
+* `ExecuteNonQueryAsync()`: クエリを実行し、反映行数のみ返される。
+* `ExecuteScalarAsync()`: 単一の値が返されるクエリを実行する。
+* `ExecuteAsync()`: 複数レコードが返されるクエリを実行し、結果を列挙する。
+  * レコードの型は、クエリ文の定義で与える（上記例を参照）。
+
+最後の `ExecuteAsync` メソッドは、 .NET Core 3で対応した `IAsyncEnumerable<TRecord>`
+を返します。このインターフェイスは、非同期列挙を行うことが出来ます。
+
+上記の例では `await foreach` 文を使って非同期列挙を行いましたが、
+組み込みで、いくつかのLINQ相当の演算子 (`Select`, `Where`, `ToArrayAsync` など) を
+持っているため、これを使う事も出来ます:
+
+```csharp
+// FlyFlint組み込みのLINQ演算子を使う
+using FlyFlint.Utilities;
+
+// ...
+
+// LINQで絞り込んで配列に格納する
+Target[] targets = await query.
+    Where(target => target.Id < 100).
+    ExecuteAsync().
+    ToArrayAsync();
+```
+
+このLINQ演算は、データベースエンジンで実行されるのではなく、結果が得られた後にローカルで実行することに注意してください。
+例えば、何百万件ものレコードを絞り込む場合は、普通にクエリ文内で `WHERE` 句を使います。
+
+より高度なLINQ演算を行いたい場合は、Reactive Extensionsの公式の実装である、
+[System.Linq.Asyncパッケージ](https://www.nuget.org/packages/System.Linq.Async)を使うと良いでしょう。
+
+---
+
+## 同期インターフェイス
+
+理由があって、非同期ではなく同期的な操作を行いたい場合、又は.NET Framework 4.6.1未満の環境で使用する場合は、
+`FlyFlint.Synchronized` 名前空間の `ExecuteNonQuery`, `ExecuteScalar`, `Execute` を使う事が出来ます。
+
+(FlyFlintでは、同期インターフェイスはサポートしますが、使用は推奨しません)
+
+---
+
+## 安全なパラメータ化クエリ
+
+クエリ文は、度々SQLインジェクション攻撃の標的となります。
+FlyFlintは、いわゆるパラメータ化クエリに対応していますが、
+安全かつ簡便にクエリを書くことが出来るように、
+C#やF#の `string interporation` 構文に対応しています:
+
+```csharp
+// このようなクエリパラメータ値があるとします:
+var id = 123;
+
+// これをクエリに含めるには、string interporation構文を使います:
+var query = connection.Query<Target>(
+    $"SELECT * FROM target WHERE Id = {id}");
 ```
 
 見ての通り、これは非常に自然に書けて、確認も容易です。
 そして、このように書いても、実際には文字列として解釈されるのではなく、
 パラメータ化クエリに展開されて、データベースに送信されます。
 
-恐らく、あなたは既に似たようなO/Rマッパーである `Dapper` を使った事があるでしょう。
-FlyFlintは、 `Dapper` のようなパラメータ指定も可能です:
+仮に、普通の文字列としてクエリ文を与えた場合は:
 
 ```csharp
-    // Dapperライクなパラメータ指定
-    var query = connection.Query<Target>(
-        "SELECT * FROM target WHERE Id = @id").
-        Parameter(new { id = 123 });
+var id = 123;
 
-    Target[] targets = await query.
-        ExecuteAsync().
-        ToArrayAsync();
+// string interporation構文を使っていない:
+var query = connection.Query<Target>(
+    "SELECT * FROM target WHERE Id = " + id);
+
+// コンパイルできない
+Target[] targets = await query.
+    ExecuteAsync().    // `ExecuteAsyncは定義されていません`
+    ToArrayAsync();
+
+// 正しくは:
+Target[] targets = await query.
+    ExecuteNonParameterizedAsync().   // `NonParameterized`バージョンを使う
+    ToArrayAsync();
 ```
 
-O/Rマッパーの内部実装に詳しい人なら、このコードは内部でリフレクションを使う筈だと思うかもしれません。
-そして、もちろんFlyFlintは、このようなコードをコンパイル時に解析して、アクセサコードを生成するため、
-リフレクションAPIは使用しません。
+このように、明示的に `NonParameterized` と命名されたメソッドを使用する必要があります。
+この制約は、FlyFlintの設計によるもので、誤って文字列でクエリを定義してしまうことを防止したり、コードレビューでの確認を容易にします。
 
-機能はまだあります! パラメータ化クエリの生成には、追加のコストがあります。
-そこで、クエリを発行する前に `prepared query` を生成する方法もあります:
+---
+
+## Dapperライクなパラメータ化クエリ
+
+恐らく、あなたは既に似たような軽量O/Rマッパーである `Dapper` を知っているか、使った事があるでしょう。
+FlyFlintは、Dapperのようなパラメータ指定も可能です:
 
 ```csharp
-    // prepared queryを生成します
-    var prepared = Query.Prepare<Model>(
-        () => $"SELECT * FROM target WHERE Id = {id}");
+// Dapperライクなパラメータ指定
+var query = connection.Query<Target>(
+    "SELECT * FROM target WHERE Id = @id").
+    Parameter(new { id = 123 });    // Parameterメソッドでパラメータを付与
 
-    // prepared queryを使います
-    var query = connection.Query(prepared);
+// 実行
+Target[] targets = await query.
+    ExecuteAsync().
+    ToArrayAsync();
+```
 
-    Target[] targets = await query.
-        ExecuteAsync().
-        ToArrayAsync();
+Dapperライクなパラメータ化クエリを使う場合は、クエリ文本体は `string interpolation`
+構文を「使わずに」記述してください。
+その後、`Parameter`メソッドでパラメータ値を与えます。
+
+O/Rマッパーの内部実装に詳しい人なら、このコードは内部でリフレクションを使う筈だと思うかもしれません。
+もちろんFlyFlintは、このようなコードをコンパイル時に解析して、アクセサコードを生成するため、
+リフレクションAPIは使用しません。
+
+---
+
+## クエリの事前定義
+
+パラメータ化クエリの生成には、追加のコストがあります。
+そこで、クエリを発行する前に、事前に定義しておく方法もあります:
+
+```csharp
+// prepared queryを生成します
+var prepared = Query.Prepare<Target>(
+    () => $"SELECT * FROM target WHERE Id = {id}");
+
+// prepared queryを使います
+var query = connection.Query(prepared);
+
+Target[] targets = await query.
+    ExecuteAsync().
+    ToArrayAsync();
 ```
 
 この `prepared query` は、クエリ式の評価を、実行時まで遅らせる事が出来ます。
 データベース接続(`DbConnection`)に依存しないため、予め生成しておけば、何度でも使いまわす事が出来ます。
 
+---
+
+## レコード型とパラメータ型定義の詳細
+
+TODO: 自動で抽出される場合
+
+TODO: 属性が必要な場合
+
+TODO: パラメータ型への属性適用が必要な場合
+
+---
+
 ## Database特性の定義
 
 `Database`クラスには、いくつかのデータベース特性の定義があり、
-これを使用して、データベース固有の定義を行う事が出来ます。
+これを使用して、データベース固有の処理を行う事が出来ます。
 この定義を `Trait` と呼びます:
 
 ```csharp
@@ -189,52 +330,117 @@ public static class Database
 
     // SQL Serverの定義
     public static readonly Trait SQLServer;
-
     // ORACLEの定義
     public static readonly Trait Oracle;
-
     // SQLiteの定義
     public static readonly Trait SQLite;
-
     // MySQLの定義
     public static readonly Trait MySQL;
-
     // Postgresqlの定義
     public static readonly Trait Postgresql;
 }
 ```
 
 デフォルトの定義は、ORACLE以外のデータベースで全て共通です。
-
-独自のデータベースで使う場合は、自分で `Trait` を定義することが出来ます:
+実際には、ほとんどここで定義されているものをそのまま使う事で間に合うでしょう。
+以下のようにして、デフォルトの `Query` メソッドの特性を変更する事が出来ます:
 
 ```csharp
-// Traitの定義
-var customTrait = Database.CreateTrait(
-    ConversionContext.Default,          // カスタム型変換の方法
-    StringComparer.OrdinalIgnoreCase,   // フィールド名一致方法
-    "@");                               // パラメタライズドクエリのプレフィックス
+// デフォルトの特性をORACLEに変更
+Query.DefaultTrait = Database.Oracle;
 
-// Traitを明示的に使用
-var query1 = customTrait.Query<Target>(
-    connection,
+// ORACLE向けのクエリが発行される
+var query = connection.Query<Target>(
+    $"SELECT * FROM dbo.persons WHERE id={id}");
+```
+
+但し、`DefaultTrait` の変更は、グローバルに反映されるので注意してください。
+同じアプリケーション内で同時に異なるデータベースを操作する場合は、
+`DbConnection.Query` メソッドを使わずに、次のように `Trait` から操作するようにします:
+
+```csharp
+// ORACLE traitからクエリを生成:
+var oraQuery = Database.Oracle.Query<Target>(
+    oraConnection,
     $"SELECT * FROM [persons] WHERE id={id}");
 
-// Traitを暗黙に使用するために変更
-Query.DefaultTrait = customTrait;
-
-// (暗黙に指定されたTraitを使用)
-var query2 = connection.Query<Target>(
+// SQL Server traitからクエリを生成（両立できる）:
+var sqlQuery = Database.SQLServer.Query<Target>(
+    sqlConnection,
     $"SELECT * FROM [persons] WHERE id={id}");
 ```
 
-## 動的クエリ (IL emitter)
+クエリの事前定義も、 `Trait` から `Prepare` メソッドを呼び出して定義する事が出来ます。
+
+自分で `Trait` を定義することも出来ます。
+
+* ほぼ存在しないと思いますが、デフォルトの `Trait` に合わない独自のデータベースで使う場合。
+* カスタム型変換を使いたい場合（後述）
+
+```csharp
+// 独自Traitの定義
+var customTrait = Database.CreateTrait(
+    ConversionContext.Default,          // カスタム型変換の方法
+    StringComparer.OrdinalIgnoreCase,   // フィールド名一致方法
+    "@");                               // パラメータ化クエリのプレフィックス
+
+// Traitを明示的に使用
+var customQuery = customTrait.Query<Target>(
+    customConnection,
+    $"SELECT * FROM [persons] WHERE id={id}");
+```
+
+---
+
+## 動的クエリ
+
+FlyFlintは完全スタティック動作が特徴ですが、動的クエリ（リフレクションを使用）を必要とする場合もあります:
+
+* レコード型やパラメータ型が、コンパイル時コード生成を行えない場合:
+  * コンパイル時警告: TODO:
+  * 実行時例外: `InvalidOperationException("Dynamic query feature is not enabled")`
+  * 別のアセンブリに定義されている既存の型を流用していて、しかもその型を含むアセンブリを同時にビルド出来ない。
+  * .NETの標準的な型の流用や、NuGetパッケージに定義されている型を流用する場合。
+* 複雑な理由で、コンパイル時コード生成を使用したくない場合。
+
+TODO: public memberに対してアクセスする静的コードの生成
+
+TODO: 生成出来ない場合の無視・警告・エラーの選択
+
+そのような場合は、[`FlyFlint.Dynamic` NuGetパッケージ](https://www.nuget.org/packages/FlyFlint.Dynamic) をインストールして、クエリ実行前に、以下のメソッドを呼び出します:
+
+```csharp
+// 動的クエリを有効にする（何度呼び出しても良い）
+DynamicQuery.Enable();
+```
+
+動的クエリはリフレクションAPIを使いますが、IL emitting（動的コード生成）を行っているため、素のリフレクションよりは高速に動作します。この機能は強力なため、あらゆる型に対してアクセスが可能になりますが、AOT環境を要求する.NETランタイムでは使用出来ない可能性があることに注意してください。
+
+---
+
+### フォールバック動作
+
+TODO: 静的クエリに失敗した場合の動的クエリ
+
+フォールバックが発生するより技術的な詳細については、Deeper FlyFlintの項を参照して下さい。
+
+---
+
+### カスタム型変換
+
+TODO: 実装方法
+
+TODO: デフォルトのサポート型
+
+TODO: Nullable reference typeの扱い
+
+---
+
+### F#固有の情報
 
 TODO:
 
-### Fallback usage
-
-TODO:
+---
 
 ## Deeper FlyFlint
 
@@ -245,4 +451,3 @@ TODO: injected type case
 ## License
 
 Apache-v2.
-
