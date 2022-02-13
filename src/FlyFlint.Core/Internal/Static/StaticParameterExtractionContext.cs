@@ -32,13 +32,13 @@ namespace FlyFlint.Internal.Static
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public void SetParameter<TValue>(string fieldName, ref TValue parameterValue) =>
-            this.parameters.Add(new ExtractedParameter(fieldName, cc.ConvertFrom(ref parameterValue)));
+            this.parameters.Add(new ExtractedParameter(fieldName, cc.ConvertFrom(in parameterValue)));
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public void SetParameter<TValue>(string fieldName, TValue parameterValue) =>
-            this.parameters.Add(new ExtractedParameter(fieldName, cc.ConvertFrom(ref parameterValue)));
+            this.parameters.Add(new ExtractedParameter(fieldName, cc.ConvertFrom(in parameterValue)));
 
         internal ExtractedParameter[] ExtractParameters(string parameterPrefix)
         {

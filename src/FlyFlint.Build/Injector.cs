@@ -527,7 +527,7 @@ namespace FlyFlint
 
             //////////////////////////////////////////////
 
-            // Define Prepare method.
+            // Define `Prepare` method.
             var prepareMethod = new MethodDefinition(
                 // The CLR and CoreCLR, will cause TypeLoadException when uses different name in inferface member method...
                 "Prepare",
@@ -549,7 +549,7 @@ namespace FlyFlint
 
             //////////////////////////////////////////////
 
-            // Inject Prepare method body.
+            // Inject `Prepare` method body.
             var prepareMethodInsts = prepareMethod.Body.Instructions;
 
             if (requiredOverrideMethod != null)
@@ -640,7 +640,7 @@ namespace FlyFlint
 
             //////////////////////////////////////////////
 
-            // Define Extract method.
+            // Define `Extract` method.
             var extractMethod = new MethodDefinition(
                 // The CLR and CoreCLR, will cause TypeLoadException when uses different name in inferface member method...
                 "Extract",
@@ -662,7 +662,7 @@ namespace FlyFlint
 
             //////////////////////////////////////////////
             
-            // Inject Extract method body.
+            // Inject `Extract` method body.
             var extractMethodInsts = extractMethod.Body.Instructions;
 
             if (requiredOverrideMethod != null)
@@ -786,15 +786,30 @@ namespace FlyFlint
         private (TypeDefinition[] parametersTypes, TypeDefinition[] recordTypes) GetTargetTypes(
             AssemblyDefinition targetAssembly)
         {
-            var queryRecordTypes =
+            /////////////////////////////////////////////////////////
+            // Step 1. Extract types by the target attributes.
+
+            var targetTypes = Utilities.ParallelSelect(
                 targetAssembly.Modules.
-                SelectMany(Utilities.GetAllTypes).
-                Where(type => type.CustomAttributes.Any(ca =>
-                    ca.AttributeType.FullName == "FlyFlint.QueryRecordAttribute")).
+                    SelectMany(Utilities.GetAllTypes),
+                type =>
+                    (queryParameterType: type.CustomAttributes.Any(ca =>
+                        ca.AttributeType.FullName == "FlyFlint.QueryParameterAttribute") ? type : null,
+                     queryRecordType: type.CustomAttributes.Any(ca =>
+                        ca.AttributeType.FullName == "FlyFlint.QueryRecordAttribute") ? type : null));
+
+            var queryParameterTypes = targetTypes.
+                Select(entry => entry.queryParameterType).
+                OfType<TypeDefinition>().
                 ToArray();
 
-            //static MethodReference GetGenericMethodDefinitionIfApplicable(MethodReference method) =>
-            //    method.IsGenericInstance ? method.GetElementMethod() : method;
+            var queryRecordTypes = targetTypes.
+                Select(entry => entry.queryRecordType).
+                OfType<TypeDefinition>().
+                ToArray();
+
+            /////////////////////////////////////////////////////////
+            // Step 2. Extract types by type usages from method body opcodes.
 
             var aggregatedTypes = Utilities.ParallelSelect(
                 targetAssembly.Modules.
@@ -896,6 +911,7 @@ namespace FlyFlint
 
             var parametersTypes = aggregatedTypes.
                 SelectMany(entry => entry.parametersTypes).
+                Concat(queryParameterTypes).
                 Distinct().
                 Select(t => t.Resolve()).
                 ToArray();

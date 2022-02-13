@@ -1,0 +1,12 @@
+﻿AValue1=
+AValue2=
+AValue3=
+AValue4=
+AValue5=
+AValue6=
+AValue7=
+AValue8=
+AValue9=
+AValue10=
+AValue11=
+AValue12=

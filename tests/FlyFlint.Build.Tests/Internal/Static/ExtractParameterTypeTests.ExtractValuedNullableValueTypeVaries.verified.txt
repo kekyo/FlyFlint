@@ -1,0 +1,12 @@
+﻿AValue1=True
+AValue2=111
+AValue3=222
+AValue4=333
+AValue5=444
+AValue6=555.55
+AValue7=666.66
+AValue8=777.77
+AValue9=fd752796-8c8e-4f87-8efd-b982d3d28bcb
+AValue10=01/23/2022 12:34:56
+AValue11=ValueB
+AValue12=ABCD
