@@ -182,7 +182,7 @@ FlyFlintは、軽量O/Rマッパーなので、クエリ文(SQL文)は、
 以下に、SQLiteを使用した、最も簡単な例を示します:
 
 * 想定環境: .NET 6/5, .NET Core 3, .NET Framework 4.6.1以上
-* SQLiteは例に挙げているだけで、SQL ServerやMySqlなどでも同様です。
+* SQLiteは例に挙げているだけで、SQL ServerやMySQLなどでも同様です。
 
 ```csharp
 using FlyFlint;
@@ -321,8 +321,8 @@ FlyFlintは、Dapperのようなパラメータ指定も可能です:
 ```csharp
 // Dapperライクなパラメータ指定
 var query = connection.Query<Target>(
-    "SELECT * FROM target WHERE Id = @id").
-    Parameter(new { id = 123 });    // Parameterメソッドでパラメータを付与
+    "SELECT * FROM target WHERE Id=@id").  // 文字列として記述
+    Parameter(new { id = 123 });           // Parameterメソッドでパラメータを付与
 
 // 実行
 Target[] targets = await query.
@@ -335,7 +335,7 @@ Dapperライクなパラメータ化クエリを使う場合は、クエリ文�
 その後、`Parameter`メソッドでパラメータ値を与えます。
 
 O/Rマッパーの内部実装に詳しい人なら、このコードは内部でリフレクションを使う筈だと思うかもしれません。
-もちろんFlyFlintは、このようなコードをコンパイル時に解析して、アクセサコードを生成するため、
+もちろんFlyFlintは、このようなコードをコンパイル時に解析してアクセサコードを生成するため、
 リフレクションAPIは使用しません。
 
 ---
@@ -346,11 +346,13 @@ O/Rマッパーの内部実装に詳しい人なら、このコードは内部�
 そこで、クエリを発行する前に、事前に定義しておく方法もあります:
 
 ```csharp
-// prepared queryを生成します
-var prepared = Query.Prepare<Target>(
-    () => $"SELECT * FROM target WHERE Id = {id}");
+var id = 123;
 
-// prepared queryを使います
+// 事前定義クエリを生成します
+var prepared = Query.Prepare<Target>(
+    $"SELECT * FROM target WHERE Id={id}");
+
+// 事前定義クエリを使います
 var query = connection.Query(prepared);
 
 Target[] targets = await query.
@@ -358,18 +360,169 @@ Target[] targets = await query.
     ToArrayAsync();
 ```
 
-この `prepared query` は、クエリ式の評価を、実行時まで遅らせる事が出来ます。
-データベース接続(`DbConnection`)に依存しないため、予め生成しておけば、何度でも使いまわす事が出来ます。
+事前定義クエリは、事前に定義しておくと言うだけで、
+通常の `Query` メソッドを使った定義と変わりません。
+
+但し、定義しただけでは `DbConnection` と紐づいていないため、
+フィールドに保存して使いまわす事が出来ます。
+
+上記の例では、事前定義した時点のパラメータ (id) を保持しますが、
+このパラメータ評価自体を遅延させることも出来ます:
+
+```csharp
+var id = 123;
+
+// 事前定義遅延クエリを生成します
+// この時点ではまだ id は保持されません
+var prepared = Query.Prepare<Target>(
+    () => $"SELECT * FROM target WHERE Id={id}");
+
+id = 456;
+
+// 事前定義を使います
+// この時点の id が保持されます（この場合は456）
+var query = connection.Query(prepared);
+
+Target[] targets = await query.
+    ExecuteAsync().
+    ToArrayAsync();
+```
+
+パラメータ値だけ変化する状況での、クエリの使い回しが可能です。
+但し、事前評価することによるコスト低減の効果は、前者の方が大きくなります。
 
 ---
 
-## レコード型とパラメータ型定義の詳細
+## パラメータ型とレコード型定義の細かい調整
 
-TODO: 自動で抽出される場合
+レコード型のフィールドは、別名を定義したり、対象を手動で調整する方法があります:
 
-TODO: 属性が必要な場合
+```csharp
+public class User
+{
+    // 別名を適用する
+    [QueryField("id")]
+    public int Identity;
 
-TODO: パラメータ型への属性適用が必要な場合
+    // プライベートフィールドを対象とする
+    [QueryField]
+    private string? Name;
+
+    // パブリックフィールドを除外する
+    [QueryIgnore]
+    public DateTime? Birth;
+}
+```
+
+通常、パブリック定義された.NETのフィールドとプロパティが、自動的に対象となりますが、
+`QueryField` や `QueryIgnore` 属性を適用することで、
+対象を手動で調整する事が出来ます。
+
+パラメータ型はDapperライクな使用方法を想定しているため、通常は匿名型で暗黙に定義されますが、
+手動で定義することもできます:
+
+```csharp
+// パラメータを匿名型で定義
+var query1 = connection.Query<Target>(
+    "SELECT * FROM target WHERE Id=@id").
+    Parameter(new { id = 123 });      // 匿名型
+
+// パラメータを明示的に定義した型で定義
+public struct IdParameter
+{
+    public int id;
+}
+
+var query2 = connection.Query<Target>(
+    "SELECT * FROM target WHERE Id=@id").
+    Parameter(new IdParameter { id = 123 });    // IdParameter型
+```
+
+このように、匿名型でも明示的に指定する型でも、どちらでも問題ありません。
+また、明示的に指定する場合は、レコード型同様に属性を使用して、
+対象のフィールドを細かく調整することも可能です。
+
+---
+
+## パラメータ型とレコード型の継承による拡張
+
+パラメータ型とレコード型は、クラス型を使用することで、継承を利用して拡張する事が出来ます:
+
+```csharp
+// 基底クラス
+public class Base
+{
+    public int Id;
+}
+
+// 派生クラス
+public class User : Base
+{
+    public string? Name;
+    public DateTime? Birth;
+}
+public class Item : Base
+{
+    public string? Name;
+    public int Amount;
+}
+```
+
+上記の定義を使うと、`User`型の場合はテーブルに `Id`, `Name`, `Birth` が存在する事が想定され、
+`Item`型の場合は `Id`, `Name`, `Amount` が存在することが想定されます。
+
+---
+
+## パラメータ型とレコード型を分割して定義する
+
+FlyFlintは、 `Query` メソッドの呼び出しを解析して、自動的にパラメータ型とレコード型を認識します
+
+しかし、例えばレコード型の定義が別のアセンブリで行われている場合は、コードの操作が出来ないため、
+少し工夫が必要です。
+
+例えば、以下のようなシナリオを考えます:
+
+* レコード型 `User` は、別のプロジェクト `Models.csproj` に定義されている。
+* `User` を使ってクエリを発行するプロジェクトは、 `Accessor.csproj` で実装されている。
+
+この場合、FlyFlintが自動的に処理できるのは、`Accessor.csproj` が生成するアセンブリのみで、
+`Models.csproj`は自動的には処理しません。
+
+このような場合は、以下のどちらかの手法を使う事が出来ます:
+
+1. `Models.csproj` の `User` 型定義に、対象の属性を適用する。
+2. 動的クエリを有効化する（後述）
+
+ここでは、1について説明します。
+
+`Models.csproj` に、FlyFlintのパッケージをインストールして、
+`User` 型に対して、以下のように `QueryRecord` 属性を適用します:
+
+`Models.csproj`:
+
+```csharp
+// レコードとなる型に属性を適用
+[QueryRecord]
+public class User
+{
+    public int Id;
+    public string? Name;
+    public DateTime? Birth;
+}
+```
+
+`Accessor.csproj`:
+
+```csharp
+// User型を使用可能
+var query = connection.Query<User>(
+    $"SELECT * FROM users");
+```
+
+これで、 `User` 型がレコード型として使用出来るように認識されます。
+
+パラメータ型についても同様の制約がありますが、パラメータ型に適用可能な属性はないため、
+別のプロジェクトで定義されている型をパラメータ型に使用することはできません。
 
 ---
 
