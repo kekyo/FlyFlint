@@ -268,7 +268,7 @@ namespace FlyFlint.Internal.Converter
             Debug.Assert(typeof(T).IsEnum);
 
         public EnumValueConverter() :
-            base(EnumConverter<T>.convert)
+            base(EnumConverter<T>.convertTo)
         { }
     }
 
@@ -499,14 +499,14 @@ namespace FlyFlint.Internal.Converter
         public override T ConvertTo(ConversionContext context, object? value) =>
             value is null ? default! :
             value is T v ? v :
-            EnumConverter<T>.convert(value!, context.FormatProvider);
+            EnumConverter<T>.convertTo(value!, context.FormatProvider);
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public override T UnsafeConvertTo(ConversionContext context, object value) =>
             value is T v ? v :
-            EnumConverter<T>.convert(value, context.FormatProvider);
+            EnumConverter<T>.convertTo(value, context.FormatProvider);
     }
 
     internal sealed class NullableByteArrayValueConverter<T> :

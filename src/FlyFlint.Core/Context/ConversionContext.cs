@@ -7,7 +7,9 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
+using FlyFlint.Internal;
 using FlyFlint.Internal.Converter;
+using FlyFlint.Internal.Converter.Specialized;
 using System;
 using System.Diagnostics;
 using System.Globalization;
@@ -42,8 +44,14 @@ namespace FlyFlint.Context
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public virtual object? ConvertFrom<T>(in T value) =>
-            value;
+        public virtual object? ConvertFrom<T>(in T value, string? format) =>
+            QueryHelper.IsNullOrWhiteSpace(format) ?
+                value :
+                value is Enum ev ?
+                    EnumConverter.ConvertFrom(ev, format) :
+                    value is IFormattable f ?
+                        f.ToString(format, this.FormatProvider) :
+                        value;
 
         public static readonly ConversionContext Default =
             new ConversionContext(CultureInfo.InvariantCulture, Encoding.UTF8);

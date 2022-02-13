@@ -68,23 +68,31 @@ namespace FlyFlint
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public PreparedParameterizedQueryContext Prepare(FormattableString sql) =>
-            new PreparedParameterizedQueryContext(
+        public PreparedParameterizedQueryContext Prepare(FormattableString sql)
+        {
+            var formatted = QueryHelper.GetFormattedSqlString(
+                sql, this.parameterPrefix);
+            var parameters = QueryHelper.GetSqlParameters(
+                sql, formatted.Value, this.parameterPrefix, this.cc);
+            return new PreparedParameterizedQueryContext(
                 this,
-                () => new QueryParameterBuilderResult(
-                    QueryHelper.GetFormattedSqlString(sql, this.parameterPrefix),
-                    QueryHelper.GetSqlParameters(sql, this.parameterPrefix)));
+                () => new QueryParameterBuilderResult(formatted.Key, parameters));
+        }
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public PreparedParameterizedQueryContext<T> Prepare<T>(FormattableString sql)
-            where T : new() =>
-            new PreparedParameterizedQueryContext<T>(
+        public PreparedParameterizedQueryContext<TRecord> Prepare<TRecord>(FormattableString sql)
+            where TRecord : new()
+        {
+            var formatted = QueryHelper.GetFormattedSqlString(
+                sql, this.parameterPrefix);
+            var parameters = QueryHelper.GetSqlParameters(
+                sql, formatted.Value, this.parameterPrefix, this.cc);
+            return new PreparedParameterizedQueryContext<TRecord>(
                 this,
-                () => new QueryParameterBuilderResult(
-                    QueryHelper.GetFormattedSqlString(sql, this.parameterPrefix),
-                    QueryHelper.GetSqlParameters(sql, this.parameterPrefix)));
+                () => new QueryParameterBuilderResult(formatted.Key, parameters));
+        }
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -95,24 +103,28 @@ namespace FlyFlint
                 () =>
                 {
                     var sql = sqlBuilder();
-                    return new QueryParameterBuilderResult(
-                        QueryHelper.GetFormattedSqlString(sql, this.parameterPrefix),
-                        QueryHelper.GetSqlParameters(sql, this.parameterPrefix));
+                    var formatted = QueryHelper.GetFormattedSqlString(
+                        sql, this.parameterPrefix);
+                    var parameters = QueryHelper.GetSqlParameters(
+                        sql, formatted.Value, this.parameterPrefix, this.cc);
+                    return new QueryParameterBuilderResult(formatted.Key, parameters);
                 });
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public PreparedParameterizedQueryContext<T> Prepare<T>(Func<FormattableString> sqlBuilder)
-            where T : new() =>
-            new PreparedParameterizedQueryContext<T>(
+        public PreparedParameterizedQueryContext<TRecord> Prepare<TRecord>(Func<FormattableString> sqlBuilder)
+            where TRecord : new() =>
+            new PreparedParameterizedQueryContext<TRecord>(
                 this,
                 () =>
                 {
                     var sql = sqlBuilder();
-                    return new QueryParameterBuilderResult(
-                        QueryHelper.GetFormattedSqlString(sql, this.parameterPrefix),
-                        QueryHelper.GetSqlParameters(sql, this.parameterPrefix));
+                    var formatted = QueryHelper.GetFormattedSqlString(
+                        sql, this.parameterPrefix);
+                    var parameters = QueryHelper.GetSqlParameters(
+                        sql, formatted.Value, this.parameterPrefix, this.cc);
+                    return new QueryParameterBuilderResult(formatted.Key, parameters);
                 });
 
         /////////////////////////////////////////////////////////////////////////////
@@ -134,13 +146,15 @@ namespace FlyFlint
 #endif
         public ParameterizedQueryContext Query(
             DbConnection connection,
-            FormattableString sql) =>
-            new ParameterizedQueryContext(
-                connection,
-                null,
-                this,
-                QueryHelper.GetFormattedSqlString(sql, this.parameterPrefix),
-                QueryHelper.GetSqlParameters(sql, this.parameterPrefix));
+            FormattableString sql)
+        {
+            var formatted = QueryHelper.GetFormattedSqlString(
+                sql, this.parameterPrefix);
+            var parameters = QueryHelper.GetSqlParameters(
+                sql, formatted.Value, this.parameterPrefix, this.cc);
+            return new ParameterizedQueryContext(
+                connection, null, this, formatted.Key, parameters);
+        }
 
         /////////////////////////////////////////////////////////////////////////////
 
@@ -163,13 +177,15 @@ namespace FlyFlint
         public ParameterizedQueryContext Query(
             DbConnection connection,
             DbTransaction? transaction,
-            FormattableString sql) =>
-            new ParameterizedQueryContext(
-                connection,
-                transaction,
-                this,
-                QueryHelper.GetFormattedSqlString(sql, this.parameterPrefix),
-                QueryHelper.GetSqlParameters(sql, this.parameterPrefix));
+            FormattableString sql)
+        {
+            var formatted = QueryHelper.GetFormattedSqlString(
+                sql, this.parameterPrefix);
+            var parameters = QueryHelper.GetSqlParameters(
+                sql, formatted.Value, this.parameterPrefix, this.cc);
+            return new ParameterizedQueryContext(
+                connection, transaction, this, formatted.Key, parameters);
+        }
 
         /////////////////////////////////////////////////////////////////////////////
 
@@ -192,13 +208,15 @@ namespace FlyFlint
         public ParameterizedQueryContext<TRecord> Query<TRecord>(
             DbConnection connection,
             FormattableString sql)
-            where TRecord : new() =>
-            new ParameterizedQueryContext<TRecord>(
-                connection,
-                null,
-                this,
-                QueryHelper.GetFormattedSqlString(sql, this.parameterPrefix),
-                QueryHelper.GetSqlParameters(sql, this.parameterPrefix));
+            where TRecord : new()
+        {
+            var formatted = QueryHelper.GetFormattedSqlString(
+                sql, this.parameterPrefix);
+            var parameters = QueryHelper.GetSqlParameters(
+                sql, formatted.Value, this.parameterPrefix, this.cc);
+            return new ParameterizedQueryContext<TRecord>(
+                connection, null, this, formatted.Key, parameters);
+        }
 
         /////////////////////////////////////////////////////////////////////////////
 
@@ -223,12 +241,14 @@ namespace FlyFlint
             DbConnection connection,
             DbTransaction? transaction,
             FormattableString sql)
-            where TRecord : new() =>
-            new ParameterizedQueryContext<TRecord>(
-                connection,
-                transaction,
-                this,
-                QueryHelper.GetFormattedSqlString(sql, this.parameterPrefix),
-                QueryHelper.GetSqlParameters(sql, this.parameterPrefix));
+            where TRecord : new()
+        {
+            var formatted = QueryHelper.GetFormattedSqlString(
+                sql, this.parameterPrefix);
+            var parameters = QueryHelper.GetSqlParameters(
+                sql, formatted.Value, this.parameterPrefix, this.cc);
+            return new ParameterizedQueryContext<TRecord>(
+                connection, transaction, this, formatted.Key, parameters);
+        }
     }
 }

@@ -12,11 +12,52 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 
+#pragma warning disable CS8618
+
 namespace FlyFlint.Internal
 {
+    internal sealed class FormatterParameter : IFormattable
+    {
+        private readonly string placeholder;
+
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public FormatterParameter(string placeholder) =>
+            this.placeholder = placeholder;
+
+        public string? FormatParameter
+        {
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+            get;
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+            private set;
+        }
+
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public override string ToString() =>
+            this.placeholder;
+
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public string ToString(string? format, IFormatProvider? formatProvider)
+        {
+            this.FormatParameter = format;
+            return this.placeholder;
+        }
+    }
+
     internal static class QueryHelper
     {
         public static readonly ExtractedParameter[] DefaultParameters = { };
@@ -41,27 +82,44 @@ namespace FlyFlint.Internal
 
         /////////////////////////////////////////////////////////////////////
 
-        public static string GetFormattedSqlString(
-            FormattableString fs, string parameterPrefix)
+        public static KeyValuePair<string, string?[]> GetFormattedSqlString(
+            FormattableString fs,
+            string parameterPrefix)
         {
             var args = fs.GetArguments();
-            var formatArgs = new string[args.Length];
+            var formatArgs = new FormatterParameter[args.Length];
             for (var index = 0; index < formatArgs.Length; index++)
             {
-                formatArgs[index] = parameterPrefix + "a" + index;
+                formatArgs[index] = new FormatterParameter(parameterPrefix + "a" + index);
             }
-            return string.Format(fs.Format, formatArgs);
+
+            var formatted = string.Format(fs.Format, formatArgs);
+
+            var formatParameters = new string?[formatArgs.Length];
+            for (var index = 0; index < formatParameters.Length; index++)
+            {
+                formatParameters[index] = formatArgs[index].FormatParameter;
+            }
+
+            return new KeyValuePair<string, string?[]>(formatted, formatParameters);
         }
 
         public static ExtractedParameter[] GetSqlParameters(
-            FormattableString fs, string parameterPrefix)
+            FormattableString fs,
+            string?[] formatParameters,
+            string parameterPrefix,
+            ConversionContext cc)
         {
             var args = fs.GetArguments();
             var parameters = new ExtractedParameter[args.Length];
             for (var index = 0; index < parameters.Length; index++)
             {
+                var formatParameter = formatParameters[index];
+                var argument = args[index];
+
                 parameters[index] = new ExtractedParameter(
-                    parameterPrefix + "a" + index, args[index]);
+                    parameterPrefix + "a" + index,
+                    cc.ConvertFrom(in argument, formatParameter));
             }
             return parameters;
         }

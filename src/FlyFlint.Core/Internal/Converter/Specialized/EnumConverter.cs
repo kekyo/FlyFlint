@@ -13,30 +13,47 @@ using System.Linq;
 
 namespace FlyFlint.Internal.Converter.Specialized
 {
+    internal static class EnumConverter
+    {
+        public static object ConvertFrom(Enum value, string? format)
+        {
+            switch (format)
+            {
+                case "N":
+                    // https://docs.microsoft.com/en-us/dotnet/standard/base-types/enumeration-format-strings#d-or-d
+                    var ut = Enum.GetUnderlyingType(value.GetType());
+                    return Convert.ChangeType(value, ut);
+                default:
+                    return value.ToString(format);
+            }
+        }
+    }
+
     internal abstract class EnumConverter<TEnum>
     {
-        public static readonly Func<object, IFormatProvider, TEnum> convert;
+        public static readonly Func<object, IFormatProvider, TEnum> convertTo;
 
         static EnumConverter()
         {
             if (typeof(TEnum).IsEnum)
             {
                 var converter = new NonNullableEnumConverter<TEnum>();
-                convert = converter.Convert;
+                convertTo = converter.ConvertTo;
             }
             else
             {
                 Debug.Assert(Nullable.GetUnderlyingType(typeof(TEnum))?.IsEnum ?? false);
 
                 var converter = new NullableEnumConverter<TEnum>();
-                convert = converter.Convert;
+                convertTo = converter.ConvertTo;
             }
         }
 
-        public abstract TEnum Convert(object value, IFormatProvider fp);
+        public abstract TEnum ConvertTo(object value, IFormatProvider fp);
     }
 
-    internal sealed class NonNullableEnumConverter<TEnum> : EnumConverter<TEnum>
+    internal sealed class NonNullableEnumConverter<TEnum> :
+        EnumConverter<TEnum>
     {
         private static readonly Type enumType = typeof(TEnum);
         private static readonly Type underlyingType = Enum.GetUnderlyingType(typeof(TEnum));
@@ -55,7 +72,7 @@ namespace FlyFlint.Internal.Converter.Specialized
             Array.Sort(fieldNames, fieldNameValues);
         }
 
-        public override TEnum Convert(object value, IFormatProvider fp)
+        public override TEnum ConvertTo(object value, IFormatProvider fp)
         {
             if (value is string sv)
             {
@@ -79,7 +96,8 @@ namespace FlyFlint.Internal.Converter.Specialized
         }
     }
 
-    internal sealed class NullableEnumConverter<TNullableEnum> : EnumConverter<TNullableEnum>
+    internal sealed class NullableEnumConverter<TNullableEnum> :
+        EnumConverter<TNullableEnum>
     {
         private static readonly Type enumType = Nullable.GetUnderlyingType(typeof(TNullableEnum))!;
         private static readonly Type underlyingType;
@@ -100,7 +118,7 @@ namespace FlyFlint.Internal.Converter.Specialized
             Array.Sort(fieldNames, fieldNameValues);
         }
 
-        public override TNullableEnum Convert(object value, IFormatProvider fp)
+        public override TNullableEnum ConvertTo(object value, IFormatProvider fp)
         {
             if (value is string sv)
             {

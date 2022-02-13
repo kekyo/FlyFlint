@@ -111,6 +111,27 @@ namespace FlyFlint
             await Verify(targets.Select(record => $"{record.Id},{record.Name},{record.Birth.ToString(CultureInfo.InvariantCulture)}"));
         }
 
+        private enum PEV
+        {
+            A = 0,
+            B = 1,
+            C = 2,
+            D = 3,
+        }
+
+        [Test]
+        public async Task QueryWithInlineEnumFormattedParameter()
+        {
+            using var connection = await CreateConnectionAsync();
+
+            var idparam = PEV.C;
+            var targets = await connection.Query<Target>($"SELECT * FROM target WHERE Id = {idparam:N}").
+                ExecuteAsync().
+                ToArrayAsync();
+
+            await Verify(targets.Select(record => $"{record.Id},{record.Name},{record.Birth.ToString(CultureInfo.InvariantCulture)}"));
+        }
+
         /////////////////////////////////////////////////////////////////////////////
 
         [Test]
