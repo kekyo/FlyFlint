@@ -81,8 +81,8 @@ namespace FlyFlint
         private readonly TypeDefinition staticRecordInjectionContextType;
         private readonly MethodDefinition registerMetadataMethod;
         private readonly TypeDefinition staticParameterExtractionContextType;
-        private readonly MethodDefinition setParameterByRefMethod;
-        private readonly MethodDefinition setParameterMethod;
+        private readonly MethodDefinition setByRefParameterMethod;
+        private readonly MethodDefinition setByValParameterMethod;
         private readonly TypeDefinition parameterExtractableType;
         private readonly TypeDefinition recordInjectableType;
         private readonly MethodDefinition extractMethod;
@@ -219,10 +219,10 @@ namespace FlyFlint
 
             this.staticParameterExtractionContextType = flyFlintCoreAssembly.MainModule.GetType(
                 "FlyFlint.Internal.Static.StaticParameterExtractionContext")!;
-            this.setParameterByRefMethod = staticParameterExtractionContextType.Methods.
-                First(m => m.IsPublic && m.Name.StartsWith("SetParameter") && m.Parameters[1].ParameterType.IsByReference);
-            this.setParameterMethod = staticParameterExtractionContextType.Methods.
-                First(m => m.IsPublic && m.Name.StartsWith("SetParameter") && !m.Parameters[1].ParameterType.IsByReference);
+            this.setByRefParameterMethod = staticParameterExtractionContextType.Methods.
+                First(m => m.IsPublic && m.Name.StartsWith("SetByRefParameter") && m.Parameters[1].ParameterType.IsByReference);
+            this.setByValParameterMethod = staticParameterExtractionContextType.Methods.
+                First(m => m.IsPublic && m.Name.StartsWith("SetByValParameter") && !m.Parameters[1].ParameterType.IsByReference);
 
             this.parameterExtractableType = flyFlintCoreAssembly.MainModule.GetType(
                 "FlyFlint.Internal.Static.IParameterExtractable")!;
@@ -702,7 +702,7 @@ namespace FlyFlint
                             Instruction.Create(
                                 OpCodes.Ldflda,
                                 module.ImportReference(fr)));
-                        setParameterMethod = this.setParameterByRefMethod;
+                        setParameterMethod = this.setByRefParameterMethod;
                     }
                     else
                     {
@@ -710,7 +710,7 @@ namespace FlyFlint
                             Instruction.Create(
                                 OpCodes.Ldfld,
                                 module.ImportReference(fr)));
-                        setParameterMethod = this.setParameterMethod;
+                        setParameterMethod = this.setByValParameterMethod;
                     }
                 }
                 else
@@ -744,7 +744,7 @@ namespace FlyFlint
                         Instruction.Create(
                             getMethod.IsVirtual ? OpCodes.Callvirt : OpCodes.Call,
                             getter));
-                    setParameterMethod = this.setParameterMethod;
+                    setParameterMethod = this.setByValParameterMethod;
                 }
 
                 var setParameterGenericInstanceMethod =

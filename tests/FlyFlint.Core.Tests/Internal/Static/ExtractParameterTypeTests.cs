@@ -44,18 +44,18 @@ namespace FlyFlint.Internal.Static
 
             public void Extract(StaticParameterExtractionContext context)
             {
-                context.SetParameter(nameof(Value1), ref this.Value1);
-                context.SetParameter(nameof(Value2), ref this.Value2);
-                context.SetParameter(nameof(Value3), ref this.Value3);
-                context.SetParameter(nameof(Value4), ref this.Value4);
-                context.SetParameter(nameof(Value5), ref this.Value5);
-                context.SetParameter(nameof(Value6), ref this.Value6);
-                context.SetParameter(nameof(Value7), ref this.Value7);
-                context.SetParameter(nameof(Value8), ref this.Value8);
-                context.SetParameter(nameof(Value9), ref this.Value9);
-                context.SetParameter(nameof(Value10), ref this.Value10);
-                context.SetParameter(nameof(Value11), ref this.Value11);
-                context.SetParameter(nameof(Value12), this.Value12);
+                context.SetByRefParameter(nameof(Value1), ref this.Value1);
+                context.SetByRefParameter(nameof(Value2), ref this.Value2);
+                context.SetByRefParameter(nameof(Value3), ref this.Value3);
+                context.SetByRefParameter(nameof(Value4), ref this.Value4);
+                context.SetByRefParameter(nameof(Value5), ref this.Value5);
+                context.SetByRefParameter(nameof(Value6), ref this.Value6);
+                context.SetByRefParameter(nameof(Value7), ref this.Value7);
+                context.SetByRefParameter(nameof(Value8), ref this.Value8);
+                context.SetByRefParameter(nameof(Value9), ref this.Value9);
+                context.SetByRefParameter(nameof(Value10), ref this.Value10);
+                context.SetByRefParameter(nameof(Value11), ref this.Value11);
+                context.SetByValParameter(nameof(Value12), this.Value12);
             }
         }
 
@@ -109,18 +109,18 @@ namespace FlyFlint.Internal.Static
 
             public void Extract(StaticParameterExtractionContext context)
             {
-                context.SetParameter(nameof(Value1), ref this.Value1);
-                context.SetParameter(nameof(Value2), ref this.Value2);
-                context.SetParameter(nameof(Value3), ref this.Value3);
-                context.SetParameter(nameof(Value4), ref this.Value4);
-                context.SetParameter(nameof(Value5), ref this.Value5);
-                context.SetParameter(nameof(Value6), ref this.Value6);
-                context.SetParameter(nameof(Value7), ref this.Value7);
-                context.SetParameter(nameof(Value8), ref this.Value8);
-                context.SetParameter(nameof(Value9), ref this.Value9);
-                context.SetParameter(nameof(Value10), ref this.Value10);
-                context.SetParameter(nameof(Value11), ref this.Value11);
-                context.SetParameter(nameof(Value12), this.Value12);
+                context.SetByRefParameter(nameof(Value1), ref this.Value1);
+                context.SetByRefParameter(nameof(Value2), ref this.Value2);
+                context.SetByRefParameter(nameof(Value3), ref this.Value3);
+                context.SetByRefParameter(nameof(Value4), ref this.Value4);
+                context.SetByRefParameter(nameof(Value5), ref this.Value5);
+                context.SetByRefParameter(nameof(Value6), ref this.Value6);
+                context.SetByRefParameter(nameof(Value7), ref this.Value7);
+                context.SetByRefParameter(nameof(Value8), ref this.Value8);
+                context.SetByRefParameter(nameof(Value9), ref this.Value9);
+                context.SetByRefParameter(nameof(Value10), ref this.Value10);
+                context.SetByRefParameter(nameof(Value11), ref this.Value11);
+                context.SetByValParameter(nameof(Value12), this.Value12);
             }
         }
 

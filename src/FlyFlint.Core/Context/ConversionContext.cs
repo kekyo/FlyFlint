@@ -35,16 +35,16 @@ namespace FlyFlint.Context
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public virtual T ConvertTo<T>(object? value)
+        public virtual TValue ConvertTo<TValue>(object? value)
         {
             Debug.Assert(value is not DBNull);
-            return InternalValueConverter<T>.converter.UnsafeConvertTo(this, value!);
+            return InternalValueConverter<TValue>.converter.UnsafeConvertTo(this, value!);
         }
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public virtual object? ConvertFrom<T>(in T value, string? format) =>
+        protected virtual object? ConvertFrom(object? value, string? format) =>
             QueryHelper.IsNullOrWhiteSpace(format) ?
                 value :
                 value is Enum ev ?
@@ -52,6 +52,18 @@ namespace FlyFlint.Context
                     value is IFormattable f ?
                         f.ToString(format, this.FormatProvider) :
                         value;
+
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public virtual object? ConvertFromByRef<TValue>(ref TValue value, string? format) =>
+            this.ConvertFrom(value, format);
+
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public virtual object? ConvertFromByVal<TValue>(TValue? value, string? format) =>
+            this.ConvertFrom(value, format);
 
         public static readonly ConversionContext Default =
             new ConversionContext(CultureInfo.InvariantCulture, Encoding.UTF8);

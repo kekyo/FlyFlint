@@ -119,7 +119,7 @@ namespace FlyFlint.Internal
 
                 parameters[index] = new ExtractedParameter(
                     parameterPrefix + "a" + index,
-                    cc.ConvertFrom(in argument, formatParameter));
+                    cc.ConvertFromByVal(argument, formatParameter));
             }
             return parameters;
         }

@@ -27,9 +27,9 @@ namespace FlyFlint.Internal.Static
 
             public void Extract(StaticParameterExtractionContext context)
             {
-                context.SetParameter(nameof(Id), ref this.Id);
-                context.SetParameter(nameof(Name), this.Name);
-                context.SetParameter(nameof(Birth), ref this.Birth);
+                context.SetByRefParameter(nameof(Id), ref this.Id);
+                context.SetByValParameter(nameof(Name), this.Name);
+                context.SetByRefParameter(nameof(Birth), ref this.Birth);
             }
         }
 
@@ -64,9 +64,9 @@ namespace FlyFlint.Internal.Static
 
             public void Extract(StaticParameterExtractionContext context)
             {
-                context.SetParameter(nameof(Id), ref this.Id);
-                context.SetParameter(nameof(Name), this.Name);
-                context.SetParameter(nameof(Birth), ref this.Birth);
+                context.SetByRefParameter(nameof(Id), ref this.Id);
+                context.SetByValParameter(nameof(Name), this.Name);
+                context.SetByRefParameter(nameof(Birth), ref this.Birth);
             }
         }
 

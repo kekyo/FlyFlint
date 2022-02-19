@@ -83,7 +83,7 @@ namespace FlyFlint
                 StaticParameterExtractionContext context)
             {
                 //base.Extract(context);
-                context.SetParameter<int>(nameof(idparam), this.idparam);
+                context.SetByValParameter<int>(nameof(idparam), this.idparam);
             }
         }
 
