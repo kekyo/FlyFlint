@@ -15,6 +15,7 @@ using System.Data.Common;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace FlyFlint
 {
@@ -271,6 +272,107 @@ namespace FlyFlint
                     query.trait.cc,
                     query.trait.parameterPrefix,
                     ref parameters));
+
+        /////////////////////////////////////////////////////////////////////////////
+
+#if NET461_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+        private static async Task<TRecord[]> InternalExecuteImmediatelyAsync<TRecord>(
+            QueryContext<TRecord> query,
+            CancellationToken ct)
+            where TRecord : notnull, new()
+        {
+            using (var command = QueryHelper.CreateCommand(
+                query.connection, query.transaction, query.sql, query.parameters))
+            {
+                using (var reader = await command.ExecuteReaderAsync().ConfigureAwait(false))
+                {
+                    var results = new List<TRecord>();
+
+                    if (await reader.ReadAsync(ct).ConfigureAwait(false))
+                    {
+                        var record = new TRecord();
+
+                        var injector = QueryExecutor.GetRecordInjector(
+                            query.trait.cc, query.trait.fieldComparer, reader, ref record);
+
+                        injector(ref record);
+                        var prefetchAwaitable = reader.ReadAsync(ct).ConfigureAwait(false);
+                        results.Add(record);
+
+                        while (await prefetchAwaitable)
+                        {
+                            record = new TRecord();
+                            injector(ref record);
+                            prefetchAwaitable = reader.ReadAsync(ct).ConfigureAwait(false);
+                            results.Add(record);
+                        }
+                    }
+
+                    return results.ToArray();
+                }
+            }
+        }
+#else
+        private static Task<TRecord[]> InternalExecuteImmediatelyAsync<TRecord>(
+            QueryContext<TRecord> query,
+            CancellationToken ct)
+            where TRecord : notnull, new() =>
+            Task.Factory.StartNew(() =>
+            {
+                using (var command = QueryHelper.CreateCommand(
+                    query.connection, query.transaction, query.sql, query.parameters))
+                {
+                    using (var reader = command.ExecuteReader())
+                    {
+                        ct.ThrowIfCancellationRequested();
+
+                        var results = new List<TRecord>();
+
+                        if (reader.Read())
+                        {
+                            ct.ThrowIfCancellationRequested();
+
+                            var record = new TRecord();
+
+                            var injector = QueryExecutor.GetRecordInjector(
+                                query.trait.cc, query.trait.fieldComparer, reader, ref record);
+
+                            injector(ref record);
+                            results.Add(record);
+
+                            while (reader.Read())
+                            {
+                                ct.ThrowIfCancellationRequested();
+
+                                record = new TRecord();
+                                injector(ref record);
+                                results.Add(record);
+                            }
+                        }
+
+                        return results.ToArray();
+                    }
+                }
+            });
+#endif
+
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public static Task<TRecord[]> ExecuteImmediatelyAsync<TRecord>(
+            this ParameterizedQueryContext<TRecord> query,
+            CancellationToken ct = default)
+            where TRecord : notnull, new() =>
+            InternalExecuteImmediatelyAsync(query, ct);
+
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public static Task<TRecord[]> ExecuteImmediatelyNonParameterizedAsync<TRecord>(
+            this PartialQueryContext<TRecord> query,
+            CancellationToken ct = default)
+            where TRecord : notnull, new() =>
+            InternalExecuteImmediatelyAsync(query, ct);
 
         /////////////////////////////////////////////////////////////////////////////
 
