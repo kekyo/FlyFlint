@@ -21,6 +21,7 @@ namespace FlyFlint.Internal.Static
     {
         /////////////////////////////////////////////////////////////
 
+        [QueryRecord]
         public struct FieldValueType
         {
             [QueryField]
@@ -72,6 +73,7 @@ namespace FlyFlint.Internal.Static
 
         /////////////////////////////////////////////////////////////
 
+        [QueryRecord]
         public sealed class FieldReferenceType
         {
             [QueryField]
@@ -123,6 +125,7 @@ namespace FlyFlint.Internal.Static
 
         /////////////////////////////////////////////////////////////
 
+        [QueryRecord]
         public struct PropertyValueType
         {
             [QueryField]
@@ -174,6 +177,7 @@ namespace FlyFlint.Internal.Static
 
         /////////////////////////////////////////////////////////////
 
+        [QueryRecord]
         public sealed class PropertyReferenceType
         {
             [QueryField]
