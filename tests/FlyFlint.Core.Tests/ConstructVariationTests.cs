@@ -36,7 +36,8 @@ namespace FlyFlint
                  new StaticMemberMetadata(nameof(Birth), typeof(DateTime)),
             };
 
-            private static readonly StaticRecordInjectorByRefDelegate<Target> injector = Inject;
+            private static readonly Delegate injector =
+                (StaticRecordInjectorByRefDelegate<Target>)Inject;
 
             public void Prepare(StaticRecordInjectionContext context) =>
                 context.RegisterMetadata(members, injector);
@@ -44,9 +45,10 @@ namespace FlyFlint
             private static void Inject(
                 StaticRecordInjectionContext context, ref Target record)
             {
-                record.Id = context.GetInt32(0);
-                record.Name = context.GetString(1);
-                record.Birth = context.GetDateTime(2);
+                var isAvailable = context.IsAvailable;
+                if (isAvailable[0]) record.Id = context.GetInt32(0);
+                if (isAvailable[1]) record.Name = context.GetString(1);
+                if (isAvailable[2]) record.Birth = context.GetDateTime(2);
             }
         }
 
@@ -57,7 +59,7 @@ namespace FlyFlint
             public void Extract(
                 StaticParameterExtractionContext context)
             {
-                context.SetParameter(nameof(idparam), this.idparam);
+                context.SetByValParameter(nameof(idparam), idparam);
             }
         }
 
@@ -105,6 +107,27 @@ namespace FlyFlint
 
             var idparam = 2;
             var targets = await connection.Query<Target>($"SELECT * FROM target WHERE Id = {idparam}").
+                ExecuteAsync().
+                ToArrayAsync();
+
+            await Verify(targets.Select(record => $"{record.Id},{record.Name},{record.Birth.ToString(CultureInfo.InvariantCulture)}"));
+        }
+
+        private enum PEV
+        {
+            A = 0,
+            B = 1,
+            C = 2,
+            D = 3,
+        }
+
+        [Test]
+        public async Task QueryWithInlineEnumFormattedParameter()
+        {
+            using var connection = await CreateConnectionAsync();
+
+            var idparam = PEV.C;
+            var targets = await connection.Query<Target>($"SELECT * FROM target WHERE Id = {idparam:N}").
                 ExecuteAsync().
                 ToArrayAsync();
 

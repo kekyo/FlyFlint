@@ -11,6 +11,7 @@ using FlyFlint.Collections;
 using NUnit.Framework;
 using System;
 using System.Data;
+using System.Data.Common;
 using System.Data.SQLite;
 using System.Globalization;
 using System.Linq;
@@ -28,10 +29,11 @@ namespace FlyFlint
             public DateTime Birth;
         }
 
-        [Test]
-        public async Task Query()
+        /////////////////////////////////////////////////////////////////////////////
+
+        private async Task<DbConnection> CreateConnectionAsync()
         {
-            using var connection = new SQLiteConnection("Data Source=:memory:");
+            var connection = new SQLiteConnection("Data Source=:memory:");
             await connection.OpenAsync();
 
             var c = connection.CreateCommand();
@@ -46,68 +48,38 @@ namespace FlyFlint
             c.CommandText = "INSERT INTO target VALUES (3,'CCCCC','2022/01/23 12:34:58.789')";
             await c.ExecuteNonQueryAsync();
 
-            var query = QueryExtension.Query<Target>(connection, "SELECT * FROM target");
-            var targets = await QueryFacadeExtension.ExecuteNonParameterizedAsync(query).ToArrayAsync();
+            return connection;
+        }
+
+        /////////////////////////////////////////////////////////////////////////////
+
+        [Test]
+        public async Task Query()
+        {
+            using var connection = await CreateConnectionAsync();
+
+            var query = connection.Query<Target>("SELECT * FROM target");
+            var targets = await query.ExecuteNonParameterizedAsync().ToArrayAsync();
 
             await Verify(targets.Select(record => $"{record.Id},{record.Name},{record.Birth.ToString(CultureInfo.InvariantCulture)}"));
         }
 
-#pragma warning disable CS8618
-        private sealed class Parameter<T>
+        /////////////////////////////////////////////////////////////////////////////
+
+        public sealed class Parameter
         {
-            public T idparam { get; set; }
+            public int idparam { get; set; }
         }
 
         [Test]
         public async Task QueryWithParameter()
         {
-            using var connection = new SQLiteConnection("Data Source=:memory:");
-            await connection.OpenAsync();
+            using var connection = await CreateConnectionAsync();
 
-            var c = connection.CreateCommand();
-            c.CommandType = CommandType.Text;
-            c.CommandText = "CREATE TABLE target (Id INTEGER PRIMARY KEY,Name TEXT,Birth TEXT)";
-            await c.ExecuteNonQueryAsync();
-
-            c.CommandText = "INSERT INTO target VALUES (1,'AAAAA','2022/01/23 12:34:56.789')";
-            await c.ExecuteNonQueryAsync();
-            c.CommandText = "INSERT INTO target VALUES (2,'BBBBB','2022/01/23 12:34:57.789')";
-            await c.ExecuteNonQueryAsync();
-            c.CommandText = "INSERT INTO target VALUES (3,'CCCCC','2022/01/23 12:34:58.789')";
-            await c.ExecuteNonQueryAsync();
-
-            var query = QueryFacadeExtension.Parameter(
-                QueryExtension.Query<Target>(
-                    connection, "SELECT * FROM target WHERE Id = @idparam"),
-                    new Parameter<int> { idparam = 2 });
-            var targets = await QueryFacadeExtension.ExecuteAsync(query).ToArrayAsync();
-
-            await Verify(targets.Select(record => $"{record.Id},{record.Name},{record.Birth.ToString(CultureInfo.InvariantCulture)}"));
-        }
-
-        [Test]
-        public async Task QueryWithAnonymousParameter()
-        {
-            using var connection = new SQLiteConnection("Data Source=:memory:");
-            await connection.OpenAsync();
-
-            var c = connection.CreateCommand();
-            c.CommandType = CommandType.Text;
-            c.CommandText = "CREATE TABLE target (Id INTEGER PRIMARY KEY,Name TEXT,Birth TEXT)";
-            await c.ExecuteNonQueryAsync();
-
-            c.CommandText = "INSERT INTO target VALUES (1,'AAAAA','2022/01/23 12:34:56.789')";
-            await c.ExecuteNonQueryAsync();
-            c.CommandText = "INSERT INTO target VALUES (2,'BBBBB','2022/01/23 12:34:57.789')";
-            await c.ExecuteNonQueryAsync();
-            c.CommandText = "INSERT INTO target VALUES (3,'CCCCC','2022/01/23 12:34:58.789')";
-            await c.ExecuteNonQueryAsync();
-
-            var query = QueryFacadeExtension.Parameter(
-                QueryExtension.Query<Target>(
-                    connection, "SELECT * FROM target WHERE Id = @idparam"),
-                    new { idparam = 2 });
-            var targets = await QueryFacadeExtension.ExecuteAsync(query).ToArrayAsync();
+            var query = connection.Query<Target>(
+                    "SELECT * FROM target WHERE Id = @idparam").
+                    Parameter(new Parameter { idparam = 2 });
+            var targets = await query.ExecuteAsync().ToArrayAsync();
 
             await Verify(targets.Select(record => $"{record.Id},{record.Name},{record.Birth.ToString(CultureInfo.InvariantCulture)}"));
         }
@@ -115,25 +87,51 @@ namespace FlyFlint
         [Test]
         public async Task QueryWithInlinedParameter()
         {
-            using var connection = new SQLiteConnection("Data Source=:memory:");
-            await connection.OpenAsync();
-
-            var c = connection.CreateCommand();
-            c.CommandType = CommandType.Text;
-            c.CommandText = "CREATE TABLE target (Id INTEGER PRIMARY KEY,Name TEXT,Birth TEXT)";
-            await c.ExecuteNonQueryAsync();
-
-            c.CommandText = "INSERT INTO target VALUES (1,'AAAAA','2022/01/23 12:34:56.789')";
-            await c.ExecuteNonQueryAsync();
-            c.CommandText = "INSERT INTO target VALUES (2,'BBBBB','2022/01/23 12:34:57.789')";
-            await c.ExecuteNonQueryAsync();
-            c.CommandText = "INSERT INTO target VALUES (3,'CCCCC','2022/01/23 12:34:58.789')";
-            await c.ExecuteNonQueryAsync();
+            using var connection = await CreateConnectionAsync();
 
             var idparam = 2;
-            var query = QueryExtension.Query<Target>(
-                connection, $"SELECT * FROM target WHERE Id = {idparam}");
-            var targets = await QueryFacadeExtension.ExecuteAsync(query).ToArrayAsync();
+            var query = connection.Query<Target>(
+                $"SELECT * FROM target WHERE Id = {idparam}");
+            var targets = await query.ExecuteAsync().ToArrayAsync();
+
+            await Verify(targets.Select(record => $"{record.Id},{record.Name},{record.Birth.ToString(CultureInfo.InvariantCulture)}"));
+        }
+
+        /////////////////////////////////////////////////////////////////////////////
+
+        [Test]
+        public async Task QueryImmediately()
+        {
+            using var connection = await CreateConnectionAsync();
+
+            var query = connection.Query<Target>("SELECT * FROM target");
+            var targets = await query.ExecuteImmediatelyNonParameterizedAsync();
+
+            await Verify(targets.Select(record => $"{record.Id},{record.Name},{record.Birth.ToString(CultureInfo.InvariantCulture)}"));
+        }
+
+        [Test]
+        public async Task QueryImmediatelyWithParameter()
+        {
+            using var connection = await CreateConnectionAsync();
+
+            var query = connection.Query<Target>(
+                    "SELECT * FROM target WHERE Id = @idparam").
+                    Parameter(new Parameter { idparam = 2 });
+            var targets = await query.ExecuteImmediatelyAsync();
+
+            await Verify(targets.Select(record => $"{record.Id},{record.Name},{record.Birth.ToString(CultureInfo.InvariantCulture)}"));
+        }
+
+        [Test]
+        public async Task QueryImmediatelyWithInlinedParameter()
+        {
+            using var connection = await CreateConnectionAsync();
+
+            var idparam = 2;
+            var query = connection.Query<Target>(
+                $"SELECT * FROM target WHERE Id = {idparam}");
+            var targets = await query.ExecuteImmediatelyAsync();
 
             await Verify(targets.Select(record => $"{record.Id},{record.Name},{record.Birth.ToString(CultureInfo.InvariantCulture)}"));
         }

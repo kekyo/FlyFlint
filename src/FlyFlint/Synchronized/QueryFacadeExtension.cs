@@ -7,6 +7,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
+using FlyFlint.Collections;
 using FlyFlint.Context;
 using FlyFlint.Internal;
 using System.Collections.Generic;
@@ -16,6 +17,56 @@ namespace FlyFlint.Synchronized
 {
     public static class QueryFacadeExtension
     {
+        private static ReadOnlyCollection<TRecord> InternalExecuteImmediately<TRecord>(
+            QueryContext<TRecord> query)
+            where TRecord : notnull, new()
+        {
+            using (var command = QueryHelper.CreateCommand(
+                query.connection, query.transaction, query.sql, query.parameters))
+            {
+                using (var reader = command.ExecuteReader())
+                {
+                    var results = new List<TRecord>();
+
+                    if (reader.Read())
+                    {
+                        var record = new TRecord();
+
+                        var injector = QueryExecutor.GetRecordInjector(
+                            query.trait.cc, query.trait.fieldComparer, reader, ref record);
+
+                        injector(ref record);
+                        results.Add(record);
+
+                        while (reader.Read())
+                        {
+                            record = new TRecord();
+                            injector(ref record);
+                            results.Add(record);
+                        }
+                    }
+
+                    return new ReadOnlyCollection<TRecord>(results);
+                }
+            }
+        }
+
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public static ReadOnlyCollection<TRecord> ExecuteImmediately<TRecord>(
+            this ParameterizedQueryContext<TRecord> query)
+            where TRecord : notnull, new() =>
+            InternalExecuteImmediately(query);
+
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public static ReadOnlyCollection<TRecord> ExecuteImmediatelyNonParameterized<TRecord>(
+            this PartialQueryContext<TRecord> query)
+            where TRecord : notnull, new() =>
+            InternalExecuteImmediately(query);
+
         private static IEnumerable<TRecord> InternalExecute<TRecord>(
             QueryContext<TRecord> query)
             where TRecord : notnull, new()

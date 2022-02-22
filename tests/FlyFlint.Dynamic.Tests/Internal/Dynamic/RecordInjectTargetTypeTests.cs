@@ -17,7 +17,7 @@ using static VerifyNUnit.Verifier;
 
 namespace FlyFlint.Internal.Dynamic
 {
-    public sealed class InjectTargetTypeTests
+    public sealed class RecordInjectTargetTypeTests
     {
         public enum EnumValue
         {

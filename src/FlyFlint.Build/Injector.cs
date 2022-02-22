@@ -79,10 +79,11 @@ namespace FlyFlint
         private readonly TypeDefinition staticRecordInjectorObjRefDelegateType;
         private readonly MethodDefinition staticRecordInjectorObjRefDelegateConstructor;
         private readonly TypeDefinition staticRecordInjectionContextType;
+        private readonly FieldDefinition staticRecordInjectionContextIsAvailableField;
         private readonly MethodDefinition registerMetadataMethod;
         private readonly TypeDefinition staticParameterExtractionContextType;
-        private readonly MethodDefinition setParameterByRefMethod;
-        private readonly MethodDefinition setParameterMethod;
+        private readonly MethodDefinition setByRefParameterMethod;
+        private readonly MethodDefinition setByValParameterMethod;
         private readonly TypeDefinition parameterExtractableType;
         private readonly TypeDefinition recordInjectableType;
         private readonly MethodDefinition extractMethod;
@@ -214,15 +215,17 @@ namespace FlyFlint
 
             this.staticRecordInjectionContextType = flyFlintCoreAssembly.MainModule.GetType(
                 "FlyFlint.Internal.Static.StaticRecordInjectionContext")!;
-            this.registerMetadataMethod = staticRecordInjectionContextType.Methods.
+            this.staticRecordInjectionContextIsAvailableField = this.staticRecordInjectionContextType.Fields.
+                First(f => f.Name == "IsAvailable");
+            this.registerMetadataMethod = this.staticRecordInjectionContextType.Methods.
                 First(m => m.IsPublic && m.IsVirtual && m.Name.StartsWith("RegisterMetadata"));
 
             this.staticParameterExtractionContextType = flyFlintCoreAssembly.MainModule.GetType(
                 "FlyFlint.Internal.Static.StaticParameterExtractionContext")!;
-            this.setParameterByRefMethod = staticParameterExtractionContextType.Methods.
-                First(m => m.IsPublic && m.Name.StartsWith("SetParameter") && m.Parameters[1].ParameterType.IsByReference);
-            this.setParameterMethod = staticParameterExtractionContextType.Methods.
-                First(m => m.IsPublic && m.Name.StartsWith("SetParameter") && !m.Parameters[1].ParameterType.IsByReference);
+            this.setByRefParameterMethod = staticParameterExtractionContextType.Methods.
+                First(m => m.IsPublic && m.Name.StartsWith("SetByRefParameter") && m.Parameters[1].ParameterType.IsByReference);
+            this.setByValParameterMethod = staticParameterExtractionContextType.Methods.
+                First(m => m.IsPublic && m.Name.StartsWith("SetByValParameter") && !m.Parameters[1].ParameterType.IsByReference);
 
             this.parameterExtractableType = flyFlintCoreAssembly.MainModule.GetType(
                 "FlyFlint.Internal.Static.IParameterExtractable")!;
@@ -379,6 +382,18 @@ namespace FlyFlint
 
             var injectMethodInsts = injectMethod.Body.Instructions;
 
+            ////////////////////////////////////////////////////////////////
+            // var isAvailable = context.IsAvailable;
+
+            injectMethodInsts.Add(
+                Instruction.Create(OpCodes.Ldarg_0));
+            injectMethodInsts.Add(
+                Instruction.Create(
+                    OpCodes.Ldfld,
+                    module.ImportReference(this.staticRecordInjectionContextIsAvailableField)));
+
+            ////////////////////////////////////////////////////////////////
+
             MethodReference GetValueMethod(
                 MemberReference targetMember, TypeReference memberType)
             {
@@ -408,8 +423,43 @@ namespace FlyFlint
                 }
             }
 
+            var dummy = Instruction.Create(OpCodes.Nop);
+            var branchTargetInstructions = new Instruction[targetMembers.Length + 1];
+            var fixupBranchTargets = new Action[targetMembers.Length];
+
             for (var metadataIndex = 0; metadataIndex < targetMembers.Length; metadataIndex++)
             {
+                // if (isAvailable[metadataIndex])
+
+                var topOfIfExpression =
+                    Instruction.Create(OpCodes.Dup);
+                injectMethodInsts.Add(topOfIfExpression);
+
+                branchTargetInstructions[metadataIndex] = topOfIfExpression;
+
+                injectMethodInsts.Add(
+                    Instruction.Create(OpCodes.Ldc_I4_S, (sbyte)metadataIndex));
+                injectMethodInsts.Add(
+                    Instruction.Create(OpCodes.Ldelem_U1));
+
+                ////////////////////////
+
+                // Captured current indices.
+                var pi = injectMethodInsts.Count;
+                var mi = metadataIndex + 1;
+                fixupBranchTargets[metadataIndex] = () =>
+                {
+                    // Fixup branch target with next top of block expression.
+                    injectMethodInsts[pi] =
+                        Instruction.Create(OpCodes.Brfalse_S, branchTargetInstructions[mi]);
+                };
+
+                // Set dummy branch target, because it's forwarded declaration.
+                injectMethodInsts.Add(
+                    Instruction.Create(OpCodes.Brfalse_S, dummy));
+
+                ////////////////////////
+
                 var targetMember = targetMembers[metadataIndex];
 
                 var memberType = Utilities.GetMemberType(module, targetMember);
@@ -443,8 +493,23 @@ namespace FlyFlint
                 }
             }
 
+            // Remove isAvailable.
+            var lastTargetInstruction = Instruction.Create(OpCodes.Pop);
+            injectMethodInsts.Add(lastTargetInstruction);
+
+            // Set last instrunction
+            branchTargetInstructions[targetMembers.Length] = lastTargetInstruction;
+
             injectMethodInsts.Add(
                 Instruction.Create(OpCodes.Ret));
+
+            // Fixup branch target.
+            foreach (var fixupLabel in fixupBranchTargets)
+            {
+                fixupLabel();
+            }
+
+            ////////////////////////////////////////////////////////////////
 
             var cctorInsts = cctor.Body.Instructions;
 
@@ -527,7 +592,7 @@ namespace FlyFlint
 
             //////////////////////////////////////////////
 
-            // Define Prepare method.
+            // Define `Prepare` method.
             var prepareMethod = new MethodDefinition(
                 // The CLR and CoreCLR, will cause TypeLoadException when uses different name in inferface member method...
                 "Prepare",
@@ -549,7 +614,7 @@ namespace FlyFlint
 
             //////////////////////////////////////////////
 
-            // Inject Prepare method body.
+            // Inject `Prepare` method body.
             var prepareMethodInsts = prepareMethod.Body.Instructions;
 
             if (requiredOverrideMethod != null)
@@ -640,7 +705,7 @@ namespace FlyFlint
 
             //////////////////////////////////////////////
 
-            // Define Extract method.
+            // Define `Extract` method.
             var extractMethod = new MethodDefinition(
                 // The CLR and CoreCLR, will cause TypeLoadException when uses different name in inferface member method...
                 "Extract",
@@ -662,7 +727,7 @@ namespace FlyFlint
 
             //////////////////////////////////////////////
             
-            // Inject Extract method body.
+            // Inject `Extract` method body.
             var extractMethodInsts = extractMethod.Body.Instructions;
 
             if (requiredOverrideMethod != null)
@@ -702,7 +767,7 @@ namespace FlyFlint
                             Instruction.Create(
                                 OpCodes.Ldflda,
                                 module.ImportReference(fr)));
-                        setParameterMethod = this.setParameterByRefMethod;
+                        setParameterMethod = this.setByRefParameterMethod;
                     }
                     else
                     {
@@ -710,7 +775,7 @@ namespace FlyFlint
                             Instruction.Create(
                                 OpCodes.Ldfld,
                                 module.ImportReference(fr)));
-                        setParameterMethod = this.setParameterMethod;
+                        setParameterMethod = this.setByValParameterMethod;
                     }
                 }
                 else
@@ -744,7 +809,7 @@ namespace FlyFlint
                         Instruction.Create(
                             getMethod.IsVirtual ? OpCodes.Callvirt : OpCodes.Call,
                             getter));
-                    setParameterMethod = this.setParameterMethod;
+                    setParameterMethod = this.setByValParameterMethod;
                 }
 
                 var setParameterGenericInstanceMethod =
@@ -786,15 +851,32 @@ namespace FlyFlint
         private (TypeDefinition[] parametersTypes, TypeDefinition[] recordTypes) GetTargetTypes(
             AssemblyDefinition targetAssembly)
         {
-            var queryRecordTypes =
+            var module = targetAssembly.MainModule;
+
+            /////////////////////////////////////////////////////////
+            // Step 1. Extract types by the target attributes.
+
+            var targetTypes = Utilities.ParallelSelect(
                 targetAssembly.Modules.
-                SelectMany(Utilities.GetAllTypes).
-                Where(type => type.CustomAttributes.Any(ca =>
-                    ca.AttributeType.FullName == "FlyFlint.QueryRecordAttribute")).
+                    SelectMany(Utilities.GetAllTypes),
+                type =>
+                    (queryParameterType: type.CustomAttributes.Any(ca =>
+                        ca.AttributeType.FullName == "FlyFlint.QueryParameterAttribute") ? type : null,
+                     queryRecordType: type.CustomAttributes.Any(ca =>
+                        ca.AttributeType.FullName == "FlyFlint.QueryRecordAttribute") ? type : null));
+
+            var queryParameterTypes = targetTypes.
+                Select(entry => entry.queryParameterType).
+                OfType<TypeDefinition>().
                 ToArray();
 
-            //static MethodReference GetGenericMethodDefinitionIfApplicable(MethodReference method) =>
-            //    method.IsGenericInstance ? method.GetElementMethod() : method;
+            var queryRecordTypes = targetTypes.
+                Select(entry => entry.queryRecordType).
+                OfType<TypeDefinition>().
+                ToArray();
+
+            /////////////////////////////////////////////////////////
+            // Step 2. Extract types by type usages from method body opcodes.
 
             var aggregatedTypes = Utilities.ParallelSelect(
                 targetAssembly.Modules.
@@ -803,84 +885,72 @@ namespace FlyFlint
                     Where(method => method.HasBody),
                 method =>
                 {
+                    // Extract target instructions.
                     var facadeMethodCallers = method.Body.Instructions.
-                        Select((i, index) => (i, index, mr: i.Operand as GenericInstanceMethod)).
+                        Select((i, index) => (i, index, mr: i.Operand as MethodReference)).
                         Where(entry =>
                             (entry.i.OpCode == OpCodes.Call || entry.i.OpCode == OpCodes.Callvirt) &&
                             entry.mr != null &&
                             this.queryFacadeMapping.ContainsKey(entry.mr)).
                         ToArray();
-#if false
-                    foreach (var (i, index, mr) in facadeMethodCallers)
+
+                    // Step 2-1-1. Declare replacer for method call ops.
+                    void Replacer()
                     {
-                        static MethodReference MakeGenericMethod(
-                            MethodReference mr, IEnumerable<TypeReference> types)
+                        foreach (var (i, index, mr) in facadeMethodCallers!)
                         {
-                            var gim = new GenericInstanceMethod(mr.Resolve());
-                            foreach (var t in types)
+                            static MethodReference MakeGenericMethod(
+                                ModuleDefinition module, MethodReference mr, IEnumerable<TypeReference> types)
                             {
-                                gim.GenericArguments.Add(t.Resolve());
+                                var gim = new GenericInstanceMethod(
+                                    module.ImportReference(mr));
+                                foreach (var t in types)
+                                {
+                                    gim.GenericArguments.Add(
+                                        module.ImportReference(t));
+                                }
+                                return gim;
                             }
-                            return gim;
+
+                            var staticMethod = module!.ImportReference(this.queryFacadeMapping[mr]);
+
+                            var replaced = mr is GenericInstanceMethod gim ?
+                                MakeGenericMethod(module, staticMethod, gim.GenericArguments) :
+                                staticMethod;
+
+                            method.Body.Instructions[index] =
+                                Instruction.Create(i.OpCode, replaced);
                         }
-
-                        static MethodReference ResolveMethod(
-                            MethodReference mr)
-                        {
-                            var declaringType = mr.DeclaringType.Resolve();
-                            var returnType = mr.ReturnType.Resolve();
-                            var nmr = new MethodReference(mr.Name, returnType, declaringType);
-                            for (var index = 0; index < mr.Parameters.Count; index++)
-                            {
-                                nmr.Parameters.Add(new ParameterDefinition(mr.Parameters[index].ParameterType.Resolve()));
-                            }
-                            nmr = nmr.Resolve();
-                            nmr.ReturnType = returnType;
-                            return nmr;
-                        }
-
-                        var replaced = ResolveMethod(this.queryFacadeMapping[mr]);
-
-                        var instantiated = mr is GenericInstanceMethod gim ?
-                            MakeGenericMethod(replaced, gim.GenericArguments) :   // TODO: apply each generic arguments
-                            replaced;
-
-                        method.Body.Instructions[index] =
-                            Instruction.Create(i.OpCode, instantiated);
                     }
-                    var returnTypes = facadeMethodCallers.
-                        Select(entry => entry.mr as GenericInstanceMethod).
-                        Where(gim => gim != null).
-                        SelectMany(gim =>
-                            gim!.GenericArguments.
-                            Select((ga, index) => (gim: gim!, ga, index))).
-                        Where(entry => entry.gim.ReturnType == entry.ga).
-                        ToArray();
-#endif
+
+                    // Step 2-2. Aggregate parameters/record types.
                     var parameterTypes = facadeMethodCallers.
                         Where(inst =>
                             inst.mr!.Name.StartsWith("Parameter") &&
-                            inst.mr!.GenericArguments.Count == 1).
+                            inst.mr is GenericInstanceMethod gim &&
+                            gim.GenericArguments.Count == 1).
                         Select(inst =>
-                            inst.mr!.GenericArguments[0]).
+                            ((GenericInstanceMethod)inst.mr!).GenericArguments[0]).
                         Cast<TypeReference>().
                         ToArray();
                     var recordOnParameterTypes = facadeMethodCallers.
                         Where(inst =>
                             inst.mr!.Name.StartsWith("Parameter") &&
-                            inst.mr!.GenericArguments.Count == 2).
-                        Select(inst => inst.mr!.GenericArguments[0]).
+                            inst.mr is GenericInstanceMethod gim &&
+                            gim.GenericArguments.Count == 2).
+                        Select(inst => ((GenericInstanceMethod)inst.mr!).GenericArguments[0]).
                         Cast<TypeReference>();
                     var parametersOnParameterTypes = facadeMethodCallers.
                         Where(inst =>
                             inst.mr!.Name.StartsWith("Parameter") &&
-                            inst.mr!.GenericArguments.Count == 2).
-                        Select(inst => inst.mr!.GenericArguments[1]).
+                            inst.mr is GenericInstanceMethod gim &&
+                            gim.GenericArguments.Count == 2).
+                        Select(inst => ((GenericInstanceMethod)inst.mr!).GenericArguments[1]).
                         Cast<TypeReference>();
                     var executeTypes = facadeMethodCallers.
                         Where(inst =>
                             inst.mr!.Name.StartsWith("Execute")).
-                        Select(inst => inst.mr!.GenericArguments[0]).
+                        Select(inst => ((GenericInstanceMethod)inst.mr!).GenericArguments[0]).
                         Cast<TypeReference>();
                     var parametersTypes =
                         parameterTypes.
@@ -891,11 +961,19 @@ namespace FlyFlint
                         Concat(executeTypes).
                         ToArray();
 
-                    return (parametersTypes, recordTypes);
+                    return (replacer: new Action(Replacer), parametersTypes, recordTypes);
                 });
+
+            // Step 2-1-2. Do replace at outside of parallelism.
+            //   (Maybe cecil is not safe multithreading.)
+            foreach (var entry in aggregatedTypes)
+            {
+                entry.replacer();
+            }
 
             var parametersTypes = aggregatedTypes.
                 SelectMany(entry => entry.parametersTypes).
+                Concat(queryParameterTypes).
                 Distinct().
                 Select(t => t.Resolve()).
                 ToArray();

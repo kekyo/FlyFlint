@@ -7,6 +7,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
+using FlyFlint.Collections;
 using FlyFlint.Context;
 using FlyFlint.Internal;
 using System;
@@ -15,6 +16,7 @@ using System.Data.Common;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace FlyFlint
 {
@@ -31,11 +33,11 @@ namespace FlyFlint
             new ParameterizedQueryContext(
                 connection,
                 null,
-                FlyFlint.Query.DefaultTrait,
+                QueryHelper.CurrentDefaultTrait,
                 sql.Sql,
                 QueryExecutor.GetParameters(
-                    FlyFlint.Query.DefaultTrait.cc,
-                    FlyFlint.Query.DefaultTrait.parameterPrefix,
+                    QueryHelper.CurrentDefaultTrait.cc,
+                    QueryHelper.CurrentDefaultTrait.parameterPrefix,
                     ref parameters));
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
@@ -50,11 +52,11 @@ namespace FlyFlint
             new ParameterizedQueryContext(
                 connection,
                 transaction,
-                FlyFlint.Query.DefaultTrait,
+                QueryHelper.CurrentDefaultTrait,
                 sql.Sql,
                 QueryExecutor.GetParameters(
-                    FlyFlint.Query.DefaultTrait.cc,
-                    FlyFlint.Query.DefaultTrait.parameterPrefix,
+                    QueryHelper.CurrentDefaultTrait.cc,
+                    QueryHelper.CurrentDefaultTrait.parameterPrefix,
                     ref parameters));
 
         /////////////////////////////////////////////////////////////////////////////
@@ -271,6 +273,107 @@ namespace FlyFlint
                     query.trait.cc,
                     query.trait.parameterPrefix,
                     ref parameters));
+
+        /////////////////////////////////////////////////////////////////////////////
+
+#if NET461_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+        private static async Task<ReadOnlyCollection<TRecord>> InternalExecuteImmediatelyAsync<TRecord>(
+            QueryContext<TRecord> query,
+            CancellationToken ct)
+            where TRecord : notnull, new()
+        {
+            using (var command = QueryHelper.CreateCommand(
+                query.connection, query.transaction, query.sql, query.parameters))
+            {
+                using (var reader = await command.ExecuteReaderAsync().ConfigureAwait(false))
+                {
+                    var results = new List<TRecord>();
+
+                    if (await reader.ReadAsync(ct).ConfigureAwait(false))
+                    {
+                        var record = new TRecord();
+
+                        var injector = QueryExecutor.GetRecordInjector(
+                            query.trait.cc, query.trait.fieldComparer, reader, ref record);
+
+                        injector(ref record);
+                        var prefetchAwaitable = reader.ReadAsync(ct).ConfigureAwait(false);
+                        results.Add(record);
+
+                        while (await prefetchAwaitable)
+                        {
+                            record = new TRecord();
+                            injector(ref record);
+                            prefetchAwaitable = reader.ReadAsync(ct).ConfigureAwait(false);
+                            results.Add(record);
+                        }
+                    }
+
+                    return new ReadOnlyCollection<TRecord>(results);
+                }
+            }
+        }
+#else
+        private static Task<ReadOnlyCollection<TRecord>> InternalExecuteImmediatelyAsync<TRecord>(
+            QueryContext<TRecord> query,
+            CancellationToken ct)
+            where TRecord : notnull, new() =>
+            Task.Factory.StartNew(() =>
+            {
+                using (var command = QueryHelper.CreateCommand(
+                    query.connection, query.transaction, query.sql, query.parameters))
+                {
+                    using (var reader = command.ExecuteReader())
+                    {
+                        ct.ThrowIfCancellationRequested();
+
+                        var results = new List<TRecord>();
+
+                        if (reader.Read())
+                        {
+                            ct.ThrowIfCancellationRequested();
+
+                            var record = new TRecord();
+
+                            var injector = QueryExecutor.GetRecordInjector(
+                                query.trait.cc, query.trait.fieldComparer, reader, ref record);
+
+                            injector(ref record);
+                            results.Add(record);
+
+                            while (reader.Read())
+                            {
+                                ct.ThrowIfCancellationRequested();
+
+                                record = new TRecord();
+                                injector(ref record);
+                                results.Add(record);
+                            }
+                        }
+
+                        return new ReadOnlyCollection<TRecord>(results);
+                    }
+                }
+            });
+#endif
+
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public static Task<ReadOnlyCollection<TRecord>> ExecuteImmediatelyAsync<TRecord>(
+            this ParameterizedQueryContext<TRecord> query,
+            CancellationToken ct = default)
+            where TRecord : notnull, new() =>
+            InternalExecuteImmediatelyAsync(query, ct);
+
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public static Task<ReadOnlyCollection<TRecord>> ExecuteImmediatelyNonParameterizedAsync<TRecord>(
+            this PartialQueryContext<TRecord> query,
+            CancellationToken ct = default)
+            where TRecord : notnull, new() =>
+            InternalExecuteImmediatelyAsync(query, ct);
 
         /////////////////////////////////////////////////////////////////////////////
 

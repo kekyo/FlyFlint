@@ -15,124 +15,124 @@ using System.Runtime.CompilerServices;
 
 namespace FlyFlint.Internal.Converter
 {
-    internal abstract class InternalValueConverter<T>
+    internal abstract class InternalValueConverter<TValue>
     {
-        public static readonly InternalValueConverter<T> converter;
+        public static readonly InternalValueConverter<TValue> converter;
 
         static InternalValueConverter()
         {
-            if (typeof(T) == typeof(bool))
+            if (typeof(TValue) == typeof(bool))
             {
-                converter = new BooleanValueConverter<T>();
+                converter = new BooleanValueConverter<TValue>();
             }
-            else if (typeof(T) == typeof(byte))
+            else if (typeof(TValue) == typeof(byte))
             {
-                converter = new ByteValueConverter<T>();
+                converter = new ByteValueConverter<TValue>();
             }
-            else if (typeof(T) == typeof(short))
+            else if (typeof(TValue) == typeof(short))
             {
-                converter = new Int16ValueConverter<T>();
+                converter = new Int16ValueConverter<TValue>();
             }
-            else if (typeof(T) == typeof(int))
+            else if (typeof(TValue) == typeof(int))
             {
-                converter = new Int32ValueConverter<T>();
+                converter = new Int32ValueConverter<TValue>();
             }
-            else if (typeof(T) == typeof(long))
+            else if (typeof(TValue) == typeof(long))
             {
-                converter = new Int64ValueConverter<T>();
+                converter = new Int64ValueConverter<TValue>();
             }
-            else if (typeof(T) == typeof(float))
+            else if (typeof(TValue) == typeof(float))
             {
-                converter = new SingleValueConverter<T>();
+                converter = new SingleValueConverter<TValue>();
             }
-            else if (typeof(T) == typeof(double))
+            else if (typeof(TValue) == typeof(double))
             {
-                converter = new DoubleValueConverter<T>();
+                converter = new DoubleValueConverter<TValue>();
             }
-            else if (typeof(T) == typeof(decimal))
+            else if (typeof(TValue) == typeof(decimal))
             {
-                converter = new DecimalValueConverter<T>();
+                converter = new DecimalValueConverter<TValue>();
             }
-            else if (typeof(T) == typeof(Guid))
+            else if (typeof(TValue) == typeof(Guid))
             {
-                converter = new GuidValueConverter<T>();
+                converter = new GuidValueConverter<TValue>();
             }
-            else if (typeof(T) == typeof(DateTime))
+            else if (typeof(TValue) == typeof(DateTime))
             {
-                converter = new DateTimeValueConverter<T>();
+                converter = new DateTimeValueConverter<TValue>();
             }
-            else if (typeof(T) == typeof(char))
+            else if (typeof(TValue) == typeof(char))
             {
-                converter = new CharValueConverter<T>();
+                converter = new CharValueConverter<TValue>();
             }
-            else if (typeof(T) == typeof(string))
+            else if (typeof(TValue) == typeof(string))
             {
-                converter = new NullableStringValueConverter<T>();
+                converter = new NullableStringValueConverter<TValue>();
             }
-            else if (typeof(T).IsEnum)
+            else if (typeof(TValue).IsEnum)
             {
-                converter = new EnumValueConverter<T>();
+                converter = new EnumValueConverter<TValue>();
             }
-            else if (typeof(T) == typeof(byte[]))
+            else if (typeof(TValue) == typeof(byte[]))
             {
-                converter = new NullableByteArrayValueConverter<T>();
+                converter = new NullableByteArrayValueConverter<TValue>();
             }
-            else if (typeof(T) == typeof(bool?))
+            else if (typeof(TValue) == typeof(bool?))
             {
-                converter = new NullableBooleanValueConverter<T>();
+                converter = new NullableBooleanValueConverter<TValue>();
             }
-            else if (typeof(T) == typeof(byte?))
+            else if (typeof(TValue) == typeof(byte?))
             {
-                converter = new NullableByteValueConverter<T>();
+                converter = new NullableByteValueConverter<TValue>();
             }
-            else if (typeof(T) == typeof(short?))
+            else if (typeof(TValue) == typeof(short?))
             {
-                converter = new NullableInt16ValueConverter<T>();
+                converter = new NullableInt16ValueConverter<TValue>();
             }
-            else if (typeof(T) == typeof(int?))
+            else if (typeof(TValue) == typeof(int?))
             {
-                converter = new NullableInt32ValueConverter<T>();
+                converter = new NullableInt32ValueConverter<TValue>();
             }
-            else if (typeof(T) == typeof(long?))
+            else if (typeof(TValue) == typeof(long?))
             {
-                converter = new NullableInt64ValueConverter<T>();
+                converter = new NullableInt64ValueConverter<TValue>();
             }
-            else if (typeof(T) == typeof(float?))
+            else if (typeof(TValue) == typeof(float?))
             {
-                converter = new NullableSingleValueConverter<T>();
+                converter = new NullableSingleValueConverter<TValue>();
             }
-            else if (typeof(T) == typeof(double?))
+            else if (typeof(TValue) == typeof(double?))
             {
-                converter = new NullableDoubleValueConverter<T>();
+                converter = new NullableDoubleValueConverter<TValue>();
             }
-            else if (typeof(T) == typeof(decimal?))
+            else if (typeof(TValue) == typeof(decimal?))
             {
-                converter = new NullableDecimalValueConverter<T>();
+                converter = new NullableDecimalValueConverter<TValue>();
             }
-            else if (typeof(T) == typeof(Guid?))
+            else if (typeof(TValue) == typeof(Guid?))
             {
-                converter = new NullableGuidValueConverter<T>();
+                converter = new NullableGuidValueConverter<TValue>();
             }
-            else if (typeof(T) == typeof(DateTime?))
+            else if (typeof(TValue) == typeof(DateTime?))
             {
-                converter = new NullableDateTimeValueConverter<T>();
+                converter = new NullableDateTimeValueConverter<TValue>();
             }
-            else if (typeof(T) == typeof(char?))
+            else if (typeof(TValue) == typeof(char?))
             {
-                converter = new NullableCharValueConverter<T>();
+                converter = new NullableCharValueConverter<TValue>();
             }
-            else if (Nullable.GetUnderlyingType(typeof(T))?.IsEnum ?? false)
+            else if (Nullable.GetUnderlyingType(typeof(TValue))?.IsEnum ?? false)
             {
-                converter = new NullableEnumValueConverter<T>();
+                converter = new NullableEnumValueConverter<TValue>();
             }
             else
             {
-                converter = new InvalidOperationExceptionConverter<T>();
+                converter = new InvalidOperationExceptionConverter<TValue>();
             }
         }
 
-        public abstract T ConvertTo(ConversionContext context, object? value);
-        public abstract T UnsafeConvertTo(ConversionContext context, object value);
+        public abstract TValue ConvertTo(ConversionContext context, object? value);
+        public abstract TValue UnsafeConvertTo(ConversionContext context, object value);
     }
 
     internal sealed class InvalidOperationExceptionConverter<T> : InternalValueConverter<T>
@@ -151,29 +151,29 @@ namespace FlyFlint.Internal.Converter
 
     /////////////////////////////////////////////////////////////////////////////
 
-    internal abstract class InternalValueConverterBase<T, TR> : InternalValueConverter<T>
+    internal abstract class InternalValueConverterBase<TValue, TR> : InternalValueConverter<TValue>
     {
         static InternalValueConverterBase() =>
-            Debug.Assert(typeof(T) == typeof(TR));
+            Debug.Assert(typeof(TValue) == typeof(TR));
 
-        protected readonly Func<object, IFormatProvider, T> convert;
+        protected readonly Func<object, IFormatProvider, TValue> convert;
 
         protected InternalValueConverterBase(Func<object, IFormatProvider, TR> convert) =>
-            this.convert = (Func<object, IFormatProvider, T>)(Delegate)convert;
+            this.convert = (Func<object, IFormatProvider, TValue>)(Delegate)convert;
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public override sealed T ConvertTo(ConversionContext context, object? value) =>
-            value is null ? throw new NullReferenceException($"Could not convert from null to {typeof(T).FullName}.") :
-            value is T v ? v :
+        public override sealed TValue ConvertTo(ConversionContext context, object? value) =>
+            value is null ? throw new NullReferenceException($"Could not convert from null to {typeof(TValue).FullName}.") :
+            value is TValue v ? v :
             convert(value, context.FormatProvider);
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public override sealed T UnsafeConvertTo(ConversionContext context, object value) =>
-            value is T v ? v :
+        public override sealed TValue UnsafeConvertTo(ConversionContext context, object value) =>
+            value is TValue v ? v :
             convert(value, context.FormatProvider);
     }
 
@@ -268,37 +268,37 @@ namespace FlyFlint.Internal.Converter
             Debug.Assert(typeof(T).IsEnum);
 
         public EnumValueConverter() :
-            base(EnumConverter<T>.convert)
+            base(EnumConverter<T>.convertTo)
         { }
     }
 
     /////////////////////////////////////////////////////////////////////////////
 
-    internal abstract class InternalNullableValueConverterBase<T, TNullable, TUnderlying> : InternalValueConverter<T>
+    internal abstract class InternalNullableValueConverterBase<TValue, TNullable, TUnderlying> : InternalValueConverter<TValue>
     {
         static InternalNullableValueConverterBase()
         {
-            Debug.Assert(typeof(T) == typeof(TNullable));
+            Debug.Assert(typeof(TValue) == typeof(TNullable));
             var ut = typeof(Nullable<>).MakeGenericType(typeof(TUnderlying));
             var nt = typeof(TNullable);
             Debug.Assert(ut == nt);
         }
 
-        protected readonly Func<TUnderlying, T> cast;
-        protected readonly Func<object, IFormatProvider, T> convert;
+        protected readonly Func<TUnderlying, TValue> cast;
+        protected readonly Func<object, IFormatProvider, TValue> convert;
 
         protected InternalNullableValueConverterBase(
             Func<TUnderlying, TNullable> cast,
             Func<object, IFormatProvider, TNullable> convert)
         {
-            this.cast = (Func<TUnderlying, T>)(Delegate)cast;
-            this.convert = (Func<object, IFormatProvider, T>)(Delegate)convert;
+            this.cast = (Func<TUnderlying, TValue>)(Delegate)cast;
+            this.convert = (Func<object, IFormatProvider, TValue>)(Delegate)convert;
         }
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public override sealed T ConvertTo(ConversionContext context, object? value) =>
+        public override sealed TValue ConvertTo(ConversionContext context, object? value) =>
             value is null ? default! :
             value is TUnderlying v ? cast(v) :
             convert(value, context.FormatProvider);
@@ -306,7 +306,7 @@ namespace FlyFlint.Internal.Converter
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public override sealed T UnsafeConvertTo(ConversionContext context, object value) =>
+        public override sealed TValue UnsafeConvertTo(ConversionContext context, object value) =>
             value is TUnderlying v ? cast(v) :
             convert(value, context.FormatProvider);
     }
@@ -499,14 +499,14 @@ namespace FlyFlint.Internal.Converter
         public override T ConvertTo(ConversionContext context, object? value) =>
             value is null ? default! :
             value is T v ? v :
-            EnumConverter<T>.convert(value!, context.FormatProvider);
+            EnumConverter<T>.convertTo(value!, context.FormatProvider);
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public override T UnsafeConvertTo(ConversionContext context, object value) =>
             value is T v ? v :
-            EnumConverter<T>.convert(value, context.FormatProvider);
+            EnumConverter<T>.convertTo(value, context.FormatProvider);
     }
 
     internal sealed class NullableByteArrayValueConverter<T> :

@@ -17,15 +17,15 @@ using static VerifyNUnit.Verifier;
 
 namespace FlyFlint.Internal.Dynamic
 {
-    public sealed class DynamicInjectorTests
+    public sealed class DynamicRecordInjectorTests
     {
         public struct FieldValueType
         {
             public DateTime Birth;
             public string? Name;
             public int Id;
-            public double Weight;
             public int Age;
+            public double Weight;
         }
 
         [Test]
@@ -57,8 +57,8 @@ namespace FlyFlint.Internal.Dynamic
             public DateTime Birth;
             public string? Name;
             public int Id;
-            public double Weight;
             public int Age;
+            public double Weight;
         }
 
         [Test]
@@ -90,8 +90,8 @@ namespace FlyFlint.Internal.Dynamic
             public DateTime Birth { get; set; }
             public string? Name { get; set; }
             public int Id { get; set; }
-            public double Weight { get; set; }
             public int Age { get; set; }
+            public double Weight { get; set; }
         }
 
         [Test]
@@ -123,8 +123,8 @@ namespace FlyFlint.Internal.Dynamic
             public DateTime Birth { get; set; }
             public string? Name { get; set; }
             public int Id { get; set; }
-            public double Weight { get; set; }
             public int Age { get; set; }
+            public double Weight { get; set; }
         }
 
         [Test]
