@@ -31,7 +31,12 @@ namespace FlyFlint.Internal.Static
     public abstract class StaticRecordInjectionContext :
         RecordInjectionContext
     {
+        // HACK: Will contains null RecordInjectionMetadata.
         private protected RecordInjectionMetadata[] metadataList = null!;
+
+        // Don't set outside of context.
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public bool[] IsAvailable = null!;
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -52,7 +57,8 @@ namespace FlyFlint.Internal.Static
             var metadataMap =
                 QueryHelper.CreateSortedMetadataMap(this.reader, this.fieldComparer);
 
-            var candidates = new List<RecordInjectionMetadata>(members.Length);
+            this.metadataList = new RecordInjectionMetadata[members.Length];
+            this.IsAvailable = new bool[members.Length];
             for (var index = 0; index < members.Length; index++)
             {
                 var member = members[index];
@@ -65,11 +71,10 @@ namespace FlyFlint.Internal.Static
                     var ut = Nullable.GetUnderlyingType(member.Type) ?? member.Type;
                     dbFieldMetadata.StoreDirect = ut == dbFieldMetadata.DbType;
 
-                    candidates.Add(dbFieldMetadata);
+                    this.metadataList[index] = dbFieldMetadata;
+                    this.IsAvailable[index] = true;
                 }
             }
-
-            this.metadataList = candidates.ToArray();
         }
 
         public abstract void RegisterMetadata(

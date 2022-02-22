@@ -8,11 +8,9 @@
 ////////////////////////////////////////////////////////////////////////////
 
 using FlyFlint.Collections;
-using FlyFlint.Internal;
 using FlyFlint.Internal.Static;
 using NUnit.Framework;
 using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
 using System.Globalization;
@@ -37,7 +35,8 @@ namespace FlyFlint
                  new StaticMemberMetadata(nameof(Birth), typeof(DateTime)),
             };
 
-            private static readonly StaticRecordInjectorObjRefDelegate<Target> injector = Inject;
+            private static readonly Delegate injector =
+                (StaticRecordInjectorObjRefDelegate<Target>)Inject;
 
             public void Prepare(StaticRecordInjectionContext context) =>
                 context.RegisterMetadata(members, injector);
@@ -45,9 +44,10 @@ namespace FlyFlint
             private static void Inject(
                 StaticRecordInjectionContext context, Target record)
             {
-                record.Id = context.GetInt32(0);
-                record.Name = context.GetString(1);
-                record.Birth = context.GetDateTime(2);
+                var isAvailable = context.IsAvailable;
+                if (isAvailable[0]) record.Id = context.GetInt32(0);
+                if (isAvailable[1]) record.Name = context.GetString(1);
+                if (isAvailable[2]) record.Birth = context.GetDateTime(2);
             }
         }
 
@@ -105,10 +105,6 @@ namespace FlyFlint
             c.CommandText = "INSERT INTO target VALUES (3,'CCCCC','2022/01/23 12:34:58.789')";
             await c.ExecuteNonQueryAsync();
 
-            //var query = QueryFacadeExtension.Parameter(
-            //    QueryExtension.Query<Target>(
-            //        connection, "SELECT * FROM target WHERE Id = @idparam"),
-            //        new Parameter { idparam = 2 });
             var query = QueryFacadeExtension.Parameter(
                 QueryExtension.Query<Target>(
                     connection, "SELECT * FROM target WHERE Id = @idparam"),

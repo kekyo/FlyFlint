@@ -64,7 +64,8 @@ namespace FlyFlint.Internal.Static
                 new StaticMemberMetadata(nameof(Value15), typeof(string)),
             };
 
-            private static readonly StaticRecordInjectorByRefDelegate<TargetValueTypes> injector = Inject;
+            private static readonly Delegate injector =
+                (StaticRecordInjectorByRefDelegate<TargetValueTypes>)Inject;
 
             public void Prepare(StaticRecordInjectionContext context) =>
                 context.RegisterMetadata(members, injector);
@@ -72,21 +73,22 @@ namespace FlyFlint.Internal.Static
             private static void Inject(
                 StaticRecordInjectionContext context, ref TargetValueTypes record)
             {
-                record.Value1 = context.GetBoolean(0);
-                record.Value2 = context.GetByte(1);
-                record.Value3 = context.GetInt16(2);
-                record.Value4 = context.GetInt32(3);
-                record.Value5 = context.GetInt64(4);
-                record.Value6 = context.GetSingle(5);
-                record.Value7 = context.GetDouble(6);
-                record.Value8 = context.GetDecimal(7);
-                record.Value9 = context.GetGuid(8);
-                record.Value10 = context.GetDateTime(9);
-                record.Value11 = context.GetValue<EnumValue>(10);
-                record.Value12 = context.GetValue<EnumValue>(11);
-                record.Value13 = context.GetValue<EnumValue>(12);
-                record.Value14 = context.GetValue<EnumValue>(13);
-                record.Value15 = context.GetString(14);
+                var isAvailable = context.IsAvailable;
+                if (isAvailable[0]) record.Value1 = context.GetBoolean(0);
+                if (isAvailable[1]) record.Value2 = context.GetByte(1);
+                if (isAvailable[2]) record.Value3 = context.GetInt16(2);
+                if (isAvailable[3]) record.Value4 = context.GetInt32(3);
+                if (isAvailable[4]) record.Value5 = context.GetInt64(4);
+                if (isAvailable[5]) record.Value6 = context.GetSingle(5);
+                if (isAvailable[6]) record.Value7 = context.GetDouble(6);
+                if (isAvailable[7]) record.Value8 = context.GetDecimal(7);
+                if (isAvailable[8]) record.Value9 = context.GetGuid(8);
+                if (isAvailable[9]) record.Value10 = context.GetDateTime(9);
+                if (isAvailable[10]) record.Value11 = context.GetValue<EnumValue>(10);
+                if (isAvailable[11]) record.Value12 = context.GetValue<EnumValue>(11);
+                if (isAvailable[12]) record.Value13 = context.GetValue<EnumValue>(12);
+                if (isAvailable[13]) record.Value14 = context.GetValue<EnumValue>(13);
+                if (isAvailable[14]) record.Value15 = context.GetString(14);
             }
         }
 
@@ -165,7 +167,8 @@ namespace FlyFlint.Internal.Static
                 new StaticMemberMetadata(nameof(Value15), typeof(string)),
             };
 
-            private static readonly StaticRecordInjectorByRefDelegate<TargetNullableValueTypes> injector = Inject;
+            private static readonly Delegate injector =
+                (StaticRecordInjectorByRefDelegate<TargetNullableValueTypes>)Inject;
 
             public void Prepare(StaticRecordInjectionContext context) =>
                 context.RegisterMetadata(members, injector);
@@ -173,21 +176,22 @@ namespace FlyFlint.Internal.Static
             private static void Inject(
                 StaticRecordInjectionContext context, ref TargetNullableValueTypes record)
             {
-                record.Value1 = context.GetNullableBoolean(0);
-                record.Value2 = context.GetNullableByte(1);
-                record.Value3 = context.GetNullableInt16(2);
-                record.Value4 = context.GetNullableInt32(3);
-                record.Value5 = context.GetNullableInt64(4);
-                record.Value6 = context.GetNullableSingle(5);
-                record.Value7 = context.GetNullableDouble(6);
-                record.Value8 = context.GetNullableDecimal(7);
-                record.Value9 = context.GetNullableGuid(8);
-                record.Value10 = context.GetNullableDateTime(9);
-                record.Value11 = context.GetNullableValue<EnumValue>(10);
-                record.Value12 = context.GetNullableValue<EnumValue>(11);
-                record.Value13 = context.GetNullableValue<EnumValue>(12);
-                record.Value14 = context.GetNullableValue<EnumValue>(13);
-                record.Value15 = context.GetNullableString(14);
+                var isAvailable = context.IsAvailable;
+                if (isAvailable[0]) record.Value1 = context.GetNullableBoolean(0);
+                if (isAvailable[1]) record.Value2 = context.GetNullableByte(1);
+                if (isAvailable[2]) record.Value3 = context.GetNullableInt16(2);
+                if (isAvailable[3]) record.Value4 = context.GetNullableInt32(3);
+                if (isAvailable[4]) record.Value5 = context.GetNullableInt64(4);
+                if (isAvailable[5]) record.Value6 = context.GetNullableSingle(5);
+                if (isAvailable[6]) record.Value7 = context.GetNullableDouble(6);
+                if (isAvailable[7]) record.Value8 = context.GetNullableDecimal(7);
+                if (isAvailable[8]) record.Value9 = context.GetNullableGuid(8);
+                if (isAvailable[9]) record.Value10 = context.GetNullableDateTime(9);
+                if (isAvailable[10]) record.Value11 = context.GetNullableValue<EnumValue>(10);
+                if (isAvailable[11]) record.Value12 = context.GetNullableValue<EnumValue>(11);
+                if (isAvailable[12]) record.Value13 = context.GetNullableValue<EnumValue>(12);
+                if (isAvailable[13]) record.Value14 = context.GetNullableValue<EnumValue>(13);
+                if (isAvailable[14]) record.Value15 = context.GetNullableString(14);
             }
         }
 

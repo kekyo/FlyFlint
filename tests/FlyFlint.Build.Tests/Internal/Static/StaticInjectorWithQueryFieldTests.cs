@@ -17,18 +17,30 @@ using static VerifyNUnit.Verifier;
 
 namespace FlyFlint.Internal.Static
 {
-    public sealed class StaticInjectorTests
+    public sealed class StaticInjectorWithQueryFieldTests
     {
         /////////////////////////////////////////////////////////////
 
-        [QueryRecord]
         public struct FieldValueType
         {
+            [QueryField]
             public DateTime Birth;
+            [QueryIgnore]
             public string? Name;
-            public int Id;
-            public int Age;
-            public double Weight;
+            [QueryField]
+            private int Id;
+            private string Address;
+            [QueryField("Data1")]
+            public int Foo1;
+            [QueryField("Data2")]
+            private int Foo2;
+
+            public int GetId() =>
+                this.Id;
+            public string GetAddress() =>
+                this.Address;
+            public int GetFoo2() =>
+                this.Foo2;
         }
 
         [Test]
@@ -38,9 +50,10 @@ namespace FlyFlint.Internal.Static
             data.Columns.Add("Id", typeof(int));
             data.Columns.Add("Name", typeof(string));
             data.Columns.Add("Birth", typeof(DateTime));
-            data.Columns.Add("Height", typeof(double));
-            data.Columns.Add("Weight", typeof(double));
-            data.Rows.Add(1, "AAAA", new DateTime(2022, 1, 23, 12, 34, 56, 789), 123.4, 234.5);
+            data.Columns.Add("Address", typeof(string));
+            data.Columns.Add("Data1", typeof(int));
+            data.Columns.Add("Data2", typeof(int));
+            data.Rows.Add(1, "AAAA", new DateTime(2022, 1, 23, 12, 34, 56, 789), "ABC", 111, 222);
 
             using var reader = data.CreateDataReader();
             Assert.IsTrue(reader.Read());
@@ -54,19 +67,31 @@ namespace FlyFlint.Internal.Static
 
             context.Inject(ref record);
 
-            return Verify($"{record.Id},{record.Name},{record.Birth.ToString(CultureInfo.InvariantCulture)},{record.Weight},{record.Age}");
+            return Verify($"{record.GetId()},{record.Name},{record.Birth.ToString(CultureInfo.InvariantCulture)},{record.GetAddress()},{record.Foo1},{record.GetFoo2()}");
         }
 
         /////////////////////////////////////////////////////////////
 
-        [QueryRecord]
         public sealed class FieldReferenceType
         {
+            [QueryField]
             public DateTime Birth;
+            [QueryIgnore]
             public string? Name;
-            public int Id;
-            public int Age;
-            public double Weight;
+            [QueryField]
+            private int Id;
+            private string? Address;
+            [QueryField("Data1")]
+            public int Foo1;
+            [QueryField("Data2")]
+            private int Foo2;
+
+            public int GetId() =>
+                this.Id;
+            public string? GetAddress() =>
+                this.Address;
+            public int GetFoo2() =>
+                this.Foo2;
         }
 
         [Test]
@@ -76,9 +101,10 @@ namespace FlyFlint.Internal.Static
             data.Columns.Add("Id", typeof(int));
             data.Columns.Add("Name", typeof(string));
             data.Columns.Add("Birth", typeof(DateTime));
-            data.Columns.Add("Height", typeof(double)).AllowDBNull = true;
-            data.Columns.Add("Weight", typeof(double)).AllowDBNull = true;
-            data.Rows.Add(1, "AAAA", new DateTime(2022, 1, 23, 12, 34, 56, 789), 123.4, 234.5);
+            data.Columns.Add("Address", typeof(string));
+            data.Columns.Add("Data1", typeof(int));
+            data.Columns.Add("Data2", typeof(int));
+            data.Rows.Add(1, "AAAA", new DateTime(2022, 1, 23, 12, 34, 56, 789), "ABC", 111, 222);
 
             using var reader = data.CreateDataReader();
             Assert.IsTrue(reader.Read());
@@ -92,19 +118,31 @@ namespace FlyFlint.Internal.Static
 
             context.Inject(ref record);
 
-            return Verify($"{record.Id},{record.Name},{record.Birth.ToString(CultureInfo.InvariantCulture)},{record.Weight},{record.Age}");
+            return Verify($"{record.GetId()},{record.Name},{record.Birth.ToString(CultureInfo.InvariantCulture)},{record.GetAddress()},{record.Foo1},{record.GetFoo2()}");
         }
 
         /////////////////////////////////////////////////////////////
 
-        [QueryRecord]
         public struct PropertyValueType
         {
+            [QueryField]
             public DateTime Birth { get; set; }
+            [QueryIgnore]
             public string? Name { get; set; }
-            public int Id { get; set; }
-            public int Age { get; set; }
-            public double Weight { get; set; }
+            [QueryField]
+            private int Id { get; set; }
+            private string? Address { get; set; }
+            [QueryField("Data1")]
+            public int Foo1 { get; set; }
+            [QueryField("Data2")]
+            private int Foo2 { get; set; }
+
+            public int GetId() =>
+                this.Id;
+            public string? GetAddress() =>
+                this.Address;
+            public int GetFoo2() =>
+                this.Foo2;
         }
 
         [Test]
@@ -114,9 +152,10 @@ namespace FlyFlint.Internal.Static
             data.Columns.Add("Id", typeof(int));
             data.Columns.Add("Name", typeof(string));
             data.Columns.Add("Birth", typeof(DateTime));
-            data.Columns.Add("Height", typeof(double)).AllowDBNull = true;
-            data.Columns.Add("Weight", typeof(double)).AllowDBNull = true;
-            data.Rows.Add(1, "AAAA", new DateTime(2022, 1, 23, 12, 34, 56, 789), 123.4, 234.5);
+            data.Columns.Add("Address", typeof(string));
+            data.Columns.Add("Data1", typeof(int));
+            data.Columns.Add("Data2", typeof(int));
+            data.Rows.Add(1, "AAAA", new DateTime(2022, 1, 23, 12, 34, 56, 789), "ABC", 111, 222);
 
             using var reader = data.CreateDataReader();
             Assert.IsTrue(reader.Read());
@@ -130,19 +169,31 @@ namespace FlyFlint.Internal.Static
 
             context.Inject(ref record);
 
-            return Verify($"{record.Id},{record.Name},{record.Birth.ToString(CultureInfo.InvariantCulture)},{record.Weight},{record.Age}");
+            return Verify($"{record.GetId()},{record.Name},{record.Birth.ToString(CultureInfo.InvariantCulture)},{record.GetAddress()},{record.Foo1},{record.GetFoo2()}");
         }
 
         /////////////////////////////////////////////////////////////
 
-        [QueryRecord]
         public sealed class PropertyReferenceType
         {
+            [QueryField]
             public DateTime Birth { get; set; }
+            [QueryIgnore]
             public string? Name { get; set; }
-            public int Id { get; set; }
-            public int Age { get; set; }
-            public double Weight { get; set; }
+            [QueryField]
+            private int Id { get; set; }
+            private string? Address { get; set; }
+            [QueryField("Data1")]
+            public int Foo1 { get; set; }
+            [QueryField("Data2")]
+            private int Foo2 { get; set; }
+
+            public int GetId() =>
+                this.Id;
+            public string? GetAddress() =>
+                this.Address;
+            public int GetFoo2() =>
+                this.Foo2;
         }
 
         [Test]
@@ -152,9 +203,10 @@ namespace FlyFlint.Internal.Static
             data.Columns.Add("Id", typeof(int));
             data.Columns.Add("Name", typeof(string));
             data.Columns.Add("Birth", typeof(DateTime));
-            data.Columns.Add("Height", typeof(double)).AllowDBNull = true;
-            data.Columns.Add("Weight", typeof(double)).AllowDBNull = true;
-            data.Rows.Add(1, "AAAA", new DateTime(2022, 1, 23, 12, 34, 56, 789), 123.4, 234.5);
+            data.Columns.Add("Address", typeof(string));
+            data.Columns.Add("Data1", typeof(int));
+            data.Columns.Add("Data2", typeof(int));
+            data.Rows.Add(1, "AAAA", new DateTime(2022, 1, 23, 12, 34, 56, 789), "ABC", 111, 222);
 
             using var reader = data.CreateDataReader();
             Assert.IsTrue(reader.Read());
@@ -168,7 +220,7 @@ namespace FlyFlint.Internal.Static
 
             context.Inject(ref record);
 
-            return Verify($"{record.Id},{record.Name},{record.Birth.ToString(CultureInfo.InvariantCulture)},{record.Weight},{record.Age}");
+            return Verify($"{record.GetId()},{record.Name},{record.Birth.ToString(CultureInfo.InvariantCulture)},{record.GetAddress()},{record.Foo1},{record.GetFoo2()}");
         }
     }
 }

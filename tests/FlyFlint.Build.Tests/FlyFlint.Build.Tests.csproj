@@ -24,6 +24,41 @@
     <ProjectReference Include="..\..\src\FlyFlint\FlyFlint.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Internal\Static\StaticInjectorTests.InjectToFieldReferenceType.verified.txt">
+      <ParentFile>$([System.String]::Copy('%(FileName)').Split('.')[0])</ParentFile>
+      <DependentUpon>StaticInjectorTests.cs</DependentUpon>
+    </None>
+    <None Update="Internal\Static\StaticInjectorTests.InjectToFieldValueType.verified.txt">
+      <ParentFile>$([System.String]::Copy('%(FileName)').Split('.')[0])</ParentFile>
+      <DependentUpon>StaticInjectorTests.cs</DependentUpon>
+    </None>
+    <None Update="Internal\Static\StaticInjectorTests.InjectToPropertyReferenceType.verified.txt">
+      <ParentFile>$([System.String]::Copy('%(FileName)').Split('.')[0])</ParentFile>
+      <DependentUpon>StaticInjectorTests.cs</DependentUpon>
+    </None>
+    <None Update="Internal\Static\StaticInjectorTests.InjectToPropertyValueType.verified.txt">
+      <ParentFile>$([System.String]::Copy('%(FileName)').Split('.')[0])</ParentFile>
+      <DependentUpon>StaticInjectorTests.cs</DependentUpon>
+    </None>
+    <None Update="Internal\Static\StaticInjectorWithQueryFieldTests.InjectToFieldReferenceType.verified.txt">
+      <ParentFile>$([System.String]::Copy('%(FileName)').Split('.')[0])</ParentFile>
+      <DependentUpon>StaticInjectorWithQueryFieldTests.cs</DependentUpon>
+    </None>
+    <None Update="Internal\Static\StaticInjectorWithQueryFieldTests.InjectToFieldValueType.verified.txt">
+      <ParentFile>$([System.String]::Copy('%(FileName)').Split('.')[0])</ParentFile>
+      <DependentUpon>StaticInjectorWithQueryFieldTests.cs</DependentUpon>
+    </None>
+    <None Update="Internal\Static\StaticInjectorWithQueryFieldTests.InjectToPropertyReferenceType.verified.txt">
+      <ParentFile>$([System.String]::Copy('%(FileName)').Split('.')[0])</ParentFile>
+      <DependentUpon>StaticInjectorWithQueryFieldTests.cs</DependentUpon>
+    </None>
+    <None Update="Internal\Static\StaticInjectorWithQueryFieldTests.InjectToPropertyValueType.verified.txt">
+      <ParentFile>$([System.String]::Copy('%(FileName)').Split('.')[0])</ParentFile>
+      <DependentUpon>StaticInjectorWithQueryFieldTests.cs</DependentUpon>
+    </None>
+  </ItemGroup>
+
   <!-- https://stackoverflow.com/questions/21293105/system-dllnotfoundexception-on-mono-sqlite -->
   <Target Name="FixSQLiteInteropFilesOnLinuxAndOSX" BeforeTargets="CopySQLiteInteropFiles">
     <ItemGroup>
