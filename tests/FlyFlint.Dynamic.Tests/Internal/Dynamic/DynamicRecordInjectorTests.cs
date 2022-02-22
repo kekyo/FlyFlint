@@ -17,7 +17,7 @@ using static VerifyNUnit.Verifier;
 
 namespace FlyFlint.Internal.Dynamic
 {
-    public sealed class DynamicInjectorTests
+    public sealed class DynamicRecordInjectorTests
     {
         public struct FieldValueType
         {
