@@ -786,6 +786,8 @@ namespace FlyFlint
         private (TypeDefinition[] parametersTypes, TypeDefinition[] recordTypes) GetTargetTypes(
             AssemblyDefinition targetAssembly)
         {
+            var module = targetAssembly.MainModule;
+
             /////////////////////////////////////////////////////////
             // Step 1. Extract types by the target attributes.
 
@@ -819,83 +821,67 @@ namespace FlyFlint
                 method =>
                 {
                     var facadeMethodCallers = method.Body.Instructions.
-                        Select((i, index) => (i, index, mr: i.Operand as GenericInstanceMethod)).
+                        Select((i, index) => (i, index, mr: i.Operand as MethodReference)).
                         Where(entry =>
                             (entry.i.OpCode == OpCodes.Call || entry.i.OpCode == OpCodes.Callvirt) &&
                             entry.mr != null &&
                             this.queryFacadeMapping.ContainsKey(entry.mr)).
                         ToArray();
-#if false
+#if true
+                    // Step 1. Replace method call ops.
                     foreach (var (i, index, mr) in facadeMethodCallers)
                     {
                         static MethodReference MakeGenericMethod(
-                            MethodReference mr, IEnumerable<TypeReference> types)
+                            ModuleDefinition module, MethodReference mr, IEnumerable<TypeReference> types)
                         {
-                            var gim = new GenericInstanceMethod(mr.Resolve());
+                            var gim = new GenericInstanceMethod(
+                                module.ImportReference(mr));
                             foreach (var t in types)
                             {
-                                gim.GenericArguments.Add(t.Resolve());
+                                gim.GenericArguments.Add(
+                                    module.ImportReference(t));
                             }
                             return gim;
                         }
 
-                        static MethodReference ResolveMethod(
-                            MethodReference mr)
-                        {
-                            var declaringType = mr.DeclaringType.Resolve();
-                            var returnType = mr.ReturnType.Resolve();
-                            var nmr = new MethodReference(mr.Name, returnType, declaringType);
-                            for (var index = 0; index < mr.Parameters.Count; index++)
-                            {
-                                nmr.Parameters.Add(new ParameterDefinition(mr.Parameters[index].ParameterType.Resolve()));
-                            }
-                            nmr = nmr.Resolve();
-                            nmr.ReturnType = returnType;
-                            return nmr;
-                        }
+                        var staticMethod = module.ImportReference(this.queryFacadeMapping[mr]);
 
-                        var replaced = ResolveMethod(this.queryFacadeMapping[mr]);
-
-                        var instantiated = mr is GenericInstanceMethod gim ?
-                            MakeGenericMethod(replaced, gim.GenericArguments) :   // TODO: apply each generic arguments
-                            replaced;
+                        var replaced = mr is GenericInstanceMethod gim ?
+                            MakeGenericMethod(module, staticMethod, gim.GenericArguments) :
+                            staticMethod;
 
                         method.Body.Instructions[index] =
-                            Instruction.Create(i.OpCode, instantiated);
+                            Instruction.Create(i.OpCode, replaced);
                     }
-                    var returnTypes = facadeMethodCallers.
-                        Select(entry => entry.mr as GenericInstanceMethod).
-                        Where(gim => gim != null).
-                        SelectMany(gim =>
-                            gim!.GenericArguments.
-                            Select((ga, index) => (gim: gim!, ga, index))).
-                        Where(entry => entry.gim.ReturnType == entry.ga).
-                        ToArray();
 #endif
+                    // Step 2. Aggregate parameters/record types.
                     var parameterTypes = facadeMethodCallers.
                         Where(inst =>
                             inst.mr!.Name.StartsWith("Parameter") &&
-                            inst.mr!.GenericArguments.Count == 1).
+                            inst.mr is GenericInstanceMethod gim &&
+                            gim.GenericArguments.Count == 1).
                         Select(inst =>
-                            inst.mr!.GenericArguments[0]).
+                            ((GenericInstanceMethod)inst.mr!).GenericArguments[0]).
                         Cast<TypeReference>().
                         ToArray();
                     var recordOnParameterTypes = facadeMethodCallers.
                         Where(inst =>
                             inst.mr!.Name.StartsWith("Parameter") &&
-                            inst.mr!.GenericArguments.Count == 2).
-                        Select(inst => inst.mr!.GenericArguments[0]).
+                            inst.mr is GenericInstanceMethod gim &&
+                            gim.GenericArguments.Count == 2).
+                        Select(inst => ((GenericInstanceMethod)inst.mr!).GenericArguments[0]).
                         Cast<TypeReference>();
                     var parametersOnParameterTypes = facadeMethodCallers.
                         Where(inst =>
                             inst.mr!.Name.StartsWith("Parameter") &&
-                            inst.mr!.GenericArguments.Count == 2).
-                        Select(inst => inst.mr!.GenericArguments[1]).
+                            inst.mr is GenericInstanceMethod gim &&
+                            gim.GenericArguments.Count == 2).
+                        Select(inst => ((GenericInstanceMethod)inst.mr!).GenericArguments[1]).
                         Cast<TypeReference>();
                     var executeTypes = facadeMethodCallers.
                         Where(inst =>
                             inst.mr!.Name.StartsWith("Execute")).
-                        Select(inst => inst.mr!.GenericArguments[0]).
+                        Select(inst => ((GenericInstanceMethod)inst.mr!).GenericArguments[0]).
                         Cast<TypeReference>();
                     var parametersTypes =
                         parameterTypes.
