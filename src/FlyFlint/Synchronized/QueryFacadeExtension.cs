@@ -7,6 +7,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
+using FlyFlint.Collections;
 using FlyFlint.Context;
 using FlyFlint.Internal;
 using System.Collections.Generic;
@@ -16,7 +17,7 @@ namespace FlyFlint.Synchronized
 {
     public static class QueryFacadeExtension
     {
-        private static TRecord[] InternalExecuteImmediately<TRecord>(
+        private static ReadOnlyCollection<TRecord> InternalExecuteImmediately<TRecord>(
             QueryContext<TRecord> query)
             where TRecord : notnull, new()
         {
@@ -45,7 +46,7 @@ namespace FlyFlint.Synchronized
                         }
                     }
 
-                    return results.ToArray();
+                    return new ReadOnlyCollection<TRecord>(results);
                 }
             }
         }
@@ -53,7 +54,7 @@ namespace FlyFlint.Synchronized
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static TRecord[] ExecuteImmediately<TRecord>(
+        public static ReadOnlyCollection<TRecord> ExecuteImmediately<TRecord>(
             this ParameterizedQueryContext<TRecord> query)
             where TRecord : notnull, new() =>
             InternalExecuteImmediately(query);
@@ -61,7 +62,7 @@ namespace FlyFlint.Synchronized
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static TRecord[] ExecuteImmediatelyNonParameterized<TRecord>(
+        public static ReadOnlyCollection<TRecord> ExecuteImmediatelyNonParameterized<TRecord>(
             this PartialQueryContext<TRecord> query)
             where TRecord : notnull, new() =>
             InternalExecuteImmediately(query);
