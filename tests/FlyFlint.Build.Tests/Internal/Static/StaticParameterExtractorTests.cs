@@ -17,20 +17,14 @@ using static VerifyNUnit.Verifier;
 
 namespace FlyFlint.Internal.Static
 {
-    public sealed class StaticExtractorTests
+    public sealed class StaticParameterExtractorTests
     {
-        private struct ParameterValueType : IParameterExtractable
+        [QueryParameter]
+        private struct ParameterValueType
         {
             public int Id;
             public string? Name;
             public DateTime Birth;
-
-            public void Extract(StaticParameterExtractionContext context)
-            {
-                context.SetByRefParameter(nameof(Id), ref this.Id);
-                context.SetByValParameter(nameof(Name), this.Name);
-                context.SetByRefParameter(nameof(Birth), ref this.Birth);
-            }
         }
 
         [Test]
@@ -46,7 +40,7 @@ namespace FlyFlint.Internal.Static
             var context = new StaticParameterExtractionContext(
                 ConversionContext.Default);
 
-            parameter.Extract(context);
+            ((IParameterExtractable)(object)parameter).Extract(context);
 
             var extracted = context.ExtractParameters("A");
 
@@ -56,18 +50,11 @@ namespace FlyFlint.Internal.Static
         }
 
         [QueryParameter]
-        private sealed class ParametertReferenceType : IParameterExtractable
+        private sealed class ParametertReferenceType
         {
             public int Id;
             public string? Name;
             public DateTime Birth;
-
-            public void Extract(StaticParameterExtractionContext context)
-            {
-                context.SetByRefParameter(nameof(Id), ref this.Id);
-                context.SetByValParameter(nameof(Name), this.Name);
-                context.SetByRefParameter(nameof(Birth), ref this.Birth);
-            }
         }
 
         [Test]
@@ -83,7 +70,7 @@ namespace FlyFlint.Internal.Static
             var context = new StaticParameterExtractionContext(
                 ConversionContext.Default);
 
-            parameter.Extract(context);
+            ((IParameterExtractable)(object)parameter).Extract(context);
 
             var extracted = context.ExtractParameters("A");
 

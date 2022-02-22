@@ -15,9 +15,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using static VerifyNUnit.Verifier;
 
-namespace FlyFlint.Internal.Static
+namespace FlyFlint.Internal.Dynamic
 {
-    public sealed class ExtractParameterTypeTests
+    public sealed class ParameterExtractTypeTests
     {
         public enum EnumValue
         {
@@ -27,7 +27,6 @@ namespace FlyFlint.Internal.Static
             ValueD = 13,
         }
 
-        [QueryParameter]
         public struct ParameterValueTypes
         {
             public bool Value1;
@@ -65,19 +64,15 @@ namespace FlyFlint.Internal.Static
                 Value12 = "ABCD",
             };
 
-            var context = new StaticParameterExtractionContext(
-                ConversionContext.Default);
-
-            ((IParameterExtractable)(object)parameter).Extract(context);
-
-            var extracted = context.ExtractParameters("A");
+            var executor = new DynamicQueryExecutor();
+            var extracted = executor.GetParameters(
+                ConversionContext.Default, "A", ref parameter);
 
             return Verify(string.Join(
                 Environment.NewLine,
                 extracted.Select(pair => $"{pair.Name}={Convert.ToString(pair.Value, CultureInfo.InvariantCulture)}")));
         }
 
-        [QueryParameter]
         public struct ParameterNullableValueTypes
         {
             public bool? Value1;
@@ -115,12 +110,9 @@ namespace FlyFlint.Internal.Static
                 Value12 = "ABCD",
             };
 
-            var context = new StaticParameterExtractionContext(
-                ConversionContext.Default);
-
-            ((IParameterExtractable)(object)parameter).Extract(context);
-
-            var extracted = context.ExtractParameters("A");
+            var executor = new DynamicQueryExecutor();
+            var extracted = executor.GetParameters(
+                ConversionContext.Default, "A", ref parameter);
 
             return Verify(string.Join(
                 Environment.NewLine,
@@ -132,12 +124,9 @@ namespace FlyFlint.Internal.Static
         {
             var parameter = new ParameterNullableValueTypes();
 
-            var context = new StaticParameterExtractionContext(
-                ConversionContext.Default);
-
-            ((IParameterExtractable)(object)parameter).Extract(context);
-
-            var extracted = context.ExtractParameters("A");
+            var executor = new DynamicQueryExecutor();
+            var extracted = executor.GetParameters(
+                ConversionContext.Default, "A", ref parameter);
 
             return Verify(string.Join(
                 Environment.NewLine,

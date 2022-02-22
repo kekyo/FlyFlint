@@ -17,7 +17,7 @@ using static VerifyNUnit.Verifier;
 
 namespace FlyFlint.Internal.Static
 {
-    public sealed class StaticInjectorWithQueryFieldTests
+    public sealed class StaticRecordInjectorWithQueryFieldTests
     {
         /////////////////////////////////////////////////////////////
 

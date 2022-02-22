@@ -17,7 +17,7 @@ using static VerifyNUnit.Verifier;
 
 namespace FlyFlint.Internal.Static
 {
-    public sealed class ExtractParameterTypeTests
+    public sealed class ParameterExtractTypeTests
     {
         public enum EnumValue
         {
