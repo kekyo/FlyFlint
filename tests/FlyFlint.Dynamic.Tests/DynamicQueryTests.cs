@@ -26,11 +26,18 @@ namespace FlyFlint
         public void OneTimeSetUp() =>
             DynamicQuery.Enable();
 
+        /////////////////////////////////////////////////////////////////////////////
+
         private sealed class Target
         {
             public int Id;
             public string? Name;
             public DateTime Birth;
+        }
+
+        public sealed class Parameter
+        {
+            public int idparam { get; set; }
         }
 
         /////////////////////////////////////////////////////////////////////////////
@@ -66,13 +73,6 @@ namespace FlyFlint
             var targets = await query.ExecuteNonParameterizedAsync().ToArrayAsync();
 
             await Verify(targets.Select(record => $"{record.Id},{record.Name},{record.Birth.ToString(CultureInfo.InvariantCulture)}"));
-        }
-
-        /////////////////////////////////////////////////////////////////////////////
-
-        public sealed class Parameter
-        {
-            public int idparam { get; set; }
         }
 
         [Test]

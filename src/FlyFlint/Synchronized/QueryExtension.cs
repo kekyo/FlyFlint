@@ -51,14 +51,14 @@ namespace FlyFlint.Synchronized
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        private static TValue ExecuteScalar<TValue>(
+        public static TValue ExecuteScalar<TValue>(
             this ParameterizedQueryContext query) =>
             InternalExecuteScalar<TValue>(query);
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        private static TValue ExecuteScalarNonParameterized<TValue>(
+        public static TValue ExecuteScalarNonParameterized<TValue>(
             this PartialQueryContext query) =>
             InternalExecuteScalar<TValue>(query);
     }
