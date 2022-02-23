@@ -182,8 +182,8 @@ namespace FlyFlint
             using var connection = await CreateConnectionAsync();
 
             var query = connection.Query(
-                    "SELECT Name FROM target WHERE Id = @idparam").
-                    Parameter(new Parameter { idparam = 2 });
+                "SELECT Name FROM target WHERE Id = @idparam").
+                Parameter(new Parameter { idparam = 2 });
             var name = await query.ExecuteScalarAsync<string>();
 
             await Verify(name);
@@ -219,8 +219,8 @@ namespace FlyFlint
             using var connection = await CreateConnectionAsync();
 
             var query = connection.Query(
-                    "SELECT Birth FROM target WHERE Id = @idparam").
-                    Parameter(new Parameter { idparam = 1 });
+                "SELECT Birth FROM target WHERE Id = @idparam").
+                Parameter(new Parameter { idparam = 1 });
             var birth = await query.ExecuteScalarAsync<DateTime>();
 
             await Verify(birth.ToString(CultureInfo.InvariantCulture));

@@ -83,6 +83,19 @@ namespace FlyFlint.Synchronized
         }
 
         [Test]
+        public async Task QueryWithAnonymousParameter()
+        {
+            using var connection = CreateConnection();
+
+            var query = connection.Query<Target>(
+                    "SELECT * FROM target WHERE Id = @idparam").
+                    Parameter(new { idparam = 2 });
+            var targets = query.Execute().ToArray();
+
+            await Verify(targets.Select(record => $"{record.Id},{record.Name},{record.Birth.ToString(CultureInfo.InvariantCulture)}"));
+        }
+
+        [Test]
         public async Task QueryWithInlinedParameter()
         {
             using var connection = CreateConnection();
@@ -116,6 +129,19 @@ namespace FlyFlint.Synchronized
             var query = connection.Query<Target>(
                     "SELECT * FROM target WHERE Id = @idparam").
                     Parameter(new Parameter { idparam = 2 });
+            var targets = query.ExecuteImmediately();
+
+            await Verify(targets.Select(record => $"{record.Id},{record.Name},{record.Birth.ToString(CultureInfo.InvariantCulture)}"));
+        }
+
+        [Test]
+        public async Task QueryImmediatelyWithAnonymousParameter()
+        {
+            using var connection = CreateConnection();
+
+            var query = connection.Query<Target>(
+                    "SELECT * FROM target WHERE Id = @idparam").
+                    Parameter(new { idparam = 2 });
             var targets = query.ExecuteImmediately();
 
             await Verify(targets.Select(record => $"{record.Id},{record.Name},{record.Birth.ToString(CultureInfo.InvariantCulture)}"));
@@ -161,6 +187,19 @@ namespace FlyFlint.Synchronized
         }
 
         [Test]
+        public async Task ScalarQueryWithAnonymousParameter()
+        {
+            using var connection = CreateConnection();
+
+            var query = connection.Query(
+                    "SELECT Name FROM target WHERE Id = @idparam").
+                    Parameter(new { idparam = 2 });
+            var name = query.ExecuteScalar<string>();
+
+            await Verify(name);
+        }
+
+        [Test]
         public async Task ScalarQueryWithInlinedParameter()
         {
             using var connection = CreateConnection();
@@ -192,6 +231,19 @@ namespace FlyFlint.Synchronized
             var query = connection.Query(
                     "SELECT Birth FROM target WHERE Id = @idparam").
                     Parameter(new Parameter { idparam = 1 });
+            var birth = query.ExecuteScalar<DateTime>();
+
+            await Verify(birth.ToString(CultureInfo.InvariantCulture));
+        }
+
+        [Test]
+        public async Task ScalarQueryWithAnonymousParameter2()
+        {
+            using var connection = CreateConnection();
+
+            var query = connection.Query(
+                    "SELECT Birth FROM target WHERE Id = @idparam").
+                    Parameter(new { idparam = 1 });
             var birth = query.ExecuteScalar<DateTime>();
 
             await Verify(birth.ToString(CultureInfo.InvariantCulture));
@@ -232,6 +284,19 @@ namespace FlyFlint.Synchronized
             var query = connection.Query(
                 "UPDATE target SET Name='ZZZZZ' WHERE Id = @idparam").
                 Parameter(new Parameter { idparam = 2 });
+            var count = query.ExecuteNonQuery();
+
+            await Verify(count);
+        }
+
+        [Test]
+        public async Task NonQueryWithAnonymousParameter()
+        {
+            using var connection = CreateConnection();
+
+            var query = connection.Query(
+                "UPDATE target SET Name='ZZZZZ' WHERE Id = @idparam").
+                Parameter(new { idparam = 2 });
             var count = query.ExecuteNonQuery();
 
             await Verify(count);
