@@ -139,5 +139,81 @@ namespace FlyFlint
 
             await Verify(targets.Select(record => $"{record.Id},{record.Name},{record.Birth.ToString(CultureInfo.InvariantCulture)}"));
         }
+
+        /////////////////////////////////////////////////////////////////////////////
+
+        [Test]
+        public async Task ScalarQuery()
+        {
+            using var connection = await CreateConnectionAsync();
+
+            var query = connection.Query("SELECT Name FROM target WHERE Id = 2");
+            var name = await query.ExecuteScalarNonParameterizedAsync<string>();
+
+            await Verify(name);
+        }
+
+        [Test]
+        public async Task ScalarQueryWithParameter()
+        {
+            using var connection = await CreateConnectionAsync();
+
+            var query = connection.Query(
+                    "SELECT Name FROM target WHERE Id = @idparam").
+                    Parameter(new Parameter { idparam = 2 });
+            var name = await query.ExecuteScalarAsync<string>();
+
+            await Verify(name);
+        }
+
+        [Test]
+        public async Task ScalarQueryWithInlinedParameter()
+        {
+            using var connection = await CreateConnectionAsync();
+
+            var idparam = 2;
+            var query = connection.Query(
+                $"SELECT Name FROM target WHERE Id = {idparam}");
+            var name = await query.ExecuteScalarAsync<string>();
+
+            await Verify(name);
+        }
+
+        [Test]
+        public async Task ScalarQuery2()
+        {
+            using var connection = await CreateConnectionAsync();
+
+            var query = connection.Query("SELECT Birth FROM target WHERE Id = 1");
+            var birth = await query.ExecuteScalarNonParameterizedAsync<DateTime>();
+
+            await Verify(birth.ToString(CultureInfo.InvariantCulture));
+        }
+
+        [Test]
+        public async Task ScalarQueryWithParameter2()
+        {
+            using var connection = await CreateConnectionAsync();
+
+            var query = connection.Query(
+                    "SELECT Birth FROM target WHERE Id = @idparam").
+                    Parameter(new Parameter { idparam = 1 });
+            var birth = await query.ExecuteScalarAsync<DateTime>();
+
+            await Verify(birth.ToString(CultureInfo.InvariantCulture));
+        }
+
+        [Test]
+        public async Task ScalarQueryWithInlinedParameter2()
+        {
+            using var connection = await CreateConnectionAsync();
+
+            var idparam = 1;
+            var query = connection.Query(
+                $"SELECT Birth FROM target WHERE Id = {idparam}");
+            var birth = await query.ExecuteScalarAsync<DateTime>();
+
+            await Verify(birth.ToString(CultureInfo.InvariantCulture));
+        }
     }
 }

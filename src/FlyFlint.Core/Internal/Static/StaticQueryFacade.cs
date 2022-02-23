@@ -323,7 +323,7 @@ namespace FlyFlint.Internal.Static
 
         /////////////////////////////////////////////////////////////////////////////
 
-        private static ReadOnlyCollection<TRecord> InternalExecuteImmediately<TRecord>(
+        private static ReadOnlyList<TRecord> InternalExecuteImmediately<TRecord>(
             QueryContext<TRecord> query)
             where TRecord : notnull, IRecordInjectable, new()
         {
@@ -352,7 +352,7 @@ namespace FlyFlint.Internal.Static
                         }
                     }
 
-                    return new ReadOnlyCollection<TRecord>(results);
+                    return new ReadOnlyList<TRecord>(results);
                 }
             }
         }
@@ -360,7 +360,7 @@ namespace FlyFlint.Internal.Static
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static ReadOnlyCollection<TRecord> ExecuteImmediately<TRecord>(
+        public static ReadOnlyList<TRecord> ExecuteImmediately<TRecord>(
             ParameterizedQueryContext<TRecord> query)
             where TRecord : notnull, IRecordInjectable, new() =>
             InternalExecuteImmediately(query);
@@ -368,7 +368,7 @@ namespace FlyFlint.Internal.Static
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static ReadOnlyCollection<TRecord> ExecuteImmediatelyNonParameterized<TRecord>(
+        public static ReadOnlyList<TRecord> ExecuteImmediatelyNonParameterized<TRecord>(
             PartialQueryContext<TRecord> query)
             where TRecord : notnull, IRecordInjectable, new() =>
             InternalExecuteImmediately(query);
@@ -376,7 +376,7 @@ namespace FlyFlint.Internal.Static
         /////////////////////////////////////////////////////////////////////////////
 
 #if NET461_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
-        private static async Task<ReadOnlyCollection<TRecord>> InternalExecuteImmediatelyAsync<TRecord>(
+        private static async Task<ReadOnlyList<TRecord>> InternalExecuteImmediatelyAsync<TRecord>(
             QueryContext<TRecord> query,
             CancellationToken ct)
             where TRecord : notnull, IRecordInjectable, new()
@@ -408,12 +408,12 @@ namespace FlyFlint.Internal.Static
                         }
                     }
 
-                    return new ReadOnlyCollection<TRecord>(results);
+                    return new ReadOnlyList<TRecord>(results);
                 }
             }
         }
 #else
-        private static Task<ReadOnlyCollection<TRecord>> InternalExecuteImmediatelyAsync<TRecord>(
+        private static Task<ReadOnlyList<TRecord>> InternalExecuteImmediatelyAsync<TRecord>(
             QueryContext<TRecord> query,
             CancellationToken ct)
             where TRecord : notnull, IRecordInjectable, new() =>
@@ -450,7 +450,7 @@ namespace FlyFlint.Internal.Static
                             }
                         }
 
-                        return new ReadOnlyCollection<TRecord>(results);
+                        return new ReadOnlyList<TRecord>(results);
                     }
                 }
             });
@@ -459,7 +459,7 @@ namespace FlyFlint.Internal.Static
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static Task<ReadOnlyCollection<TRecord>> ExecuteImmediatelyAsync<TRecord>(
+        public static Task<ReadOnlyList<TRecord>> ExecuteImmediatelyAsync<TRecord>(
             ParameterizedQueryContext<TRecord> query,
             CancellationToken ct)
             where TRecord : notnull, IRecordInjectable, new() =>
@@ -468,7 +468,7 @@ namespace FlyFlint.Internal.Static
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static Task<ReadOnlyCollection<TRecord>> ExecuteImmediatelyNonParameterizedAsync<TRecord>(
+        public static Task<ReadOnlyList<TRecord>> ExecuteImmediatelyNonParameterizedAsync<TRecord>(
             PartialQueryContext<TRecord> query,
             CancellationToken ct)
             where TRecord : notnull, IRecordInjectable, new() =>

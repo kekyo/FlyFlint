@@ -277,7 +277,7 @@ namespace FlyFlint
         /////////////////////////////////////////////////////////////////////////////
 
 #if NET461_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
-        private static async Task<ReadOnlyCollection<TRecord>> InternalExecuteImmediatelyAsync<TRecord>(
+        private static async Task<ReadOnlyList<TRecord>> InternalExecuteImmediatelyAsync<TRecord>(
             QueryContext<TRecord> query,
             CancellationToken ct)
             where TRecord : notnull, new()
@@ -309,12 +309,12 @@ namespace FlyFlint
                         }
                     }
 
-                    return new ReadOnlyCollection<TRecord>(results);
+                    return new ReadOnlyList<TRecord>(results);
                 }
             }
         }
 #else
-        private static Task<ReadOnlyCollection<TRecord>> InternalExecuteImmediatelyAsync<TRecord>(
+        private static Task<ReadOnlyList<TRecord>> InternalExecuteImmediatelyAsync<TRecord>(
             QueryContext<TRecord> query,
             CancellationToken ct)
             where TRecord : notnull, new() =>
@@ -351,7 +351,7 @@ namespace FlyFlint
                             }
                         }
 
-                        return new ReadOnlyCollection<TRecord>(results);
+                        return new ReadOnlyList<TRecord>(results);
                     }
                 }
             });
@@ -360,7 +360,7 @@ namespace FlyFlint
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static Task<ReadOnlyCollection<TRecord>> ExecuteImmediatelyAsync<TRecord>(
+        public static Task<ReadOnlyList<TRecord>> ExecuteImmediatelyAsync<TRecord>(
             this ParameterizedQueryContext<TRecord> query,
             CancellationToken ct = default)
             where TRecord : notnull, new() =>
@@ -369,7 +369,7 @@ namespace FlyFlint
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static Task<ReadOnlyCollection<TRecord>> ExecuteImmediatelyNonParameterizedAsync<TRecord>(
+        public static Task<ReadOnlyList<TRecord>> ExecuteImmediatelyNonParameterizedAsync<TRecord>(
             this PartialQueryContext<TRecord> query,
             CancellationToken ct = default)
             where TRecord : notnull, new() =>

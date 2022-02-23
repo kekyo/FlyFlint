@@ -10,11 +10,12 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
 namespace FlyFlint.Collections
 {
-    public struct ReadOnlyCollection<TValue> :
+    public struct ReadOnlyList<TValue> :
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         IReadOnlyList<TValue>,
 #endif
@@ -25,7 +26,7 @@ namespace FlyFlint.Collections
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public ReadOnlyCollection(List<TValue> list) =>
+        public ReadOnlyList(List<TValue> list) =>
             this.list = list;
 
         public int Count
@@ -47,8 +48,9 @@ namespace FlyFlint.Collections
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+        [EditorBrowsable(EditorBrowsableState.Advanced)]
         public List<TValue>.Enumerator GetEnumerator() =>
-            list.GetEnumerator();
+            this.list.GetEnumerator();
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -62,12 +64,72 @@ namespace FlyFlint.Collections
         public int IndexOf(TValue item) =>
             this.list.IndexOf(item);
 
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public int IndexOf(TValue item, int index) =>
+            this.list.IndexOf(item, index);
+
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public int IndexOf(TValue item, int index, int count) =>
+            this.list.IndexOf(item, index, count);
+
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public int LastIndexOf(TValue item) =>
+            this.list.LastIndexOf(item);
+
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public int LastIndexOf(TValue item, int index) =>
+            this.list.LastIndexOf(item, index);
+
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public int LastIndexOf(TValue item, int index, int count) =>
+            this.list.LastIndexOf(item, index, count);
+
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public int BinarySearch(TValue item) =>
+            this.list.BinarySearch(item);
+
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public int BinarySearch(TValue item, IComparer<TValue> comparer) =>
+            this.list.BinarySearch(item, comparer);
+
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public int BinarySearch(int index, int count, TValue item, IComparer<TValue> comparer) =>
+            this.list.BinarySearch(index, count, item, comparer);
+
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public void CopyTo(TValue[] array, int arrayIndex) =>
+            this.list.CopyTo(array, arrayIndex);
+
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public void CopyTo(int index, TValue[] array, int arrayIndex, int count) =>
+            this.list.CopyTo(index, array, arrayIndex, count);
+
         ///////////////////////////////////////////
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static explicit operator TValue[](ReadOnlyCollection<TValue> collection) =>
+        public static explicit operator TValue[](ReadOnlyList<TValue> collection) =>
             collection.list.ToArray();
 
         ///////////////////////////////////////////
@@ -145,16 +207,22 @@ namespace FlyFlint.Collections
         bool ICollection<TValue>.Contains(TValue item) =>
             this.list.Contains(item);
 
-        public void Add(TValue item) =>
+        void ICollection<TValue>.Add(TValue item) =>
             throw new InvalidOperationException();
 
-        public void Clear() =>
+        void ICollection<TValue>.Clear() =>
             throw new InvalidOperationException();
 
-        public void CopyTo(TValue[] array, int arrayIndex) =>
+        void IList.Clear() =>
+            throw new InvalidOperationException();
+
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        void ICollection<TValue>.CopyTo(TValue[] array, int arrayIndex) =>
             this.list.CopyTo(array, arrayIndex);
 
-        public bool Remove(TValue item) =>
+        bool ICollection<TValue>.Remove(TValue item) =>
             throw new InvalidOperationException();
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
@@ -193,6 +261,9 @@ namespace FlyFlint.Collections
         void IList.RemoveAt(int index) =>
             throw new InvalidOperationException();
 
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
         void ICollection.CopyTo(Array array, int index) =>
             ((ICollection)this.list).CopyTo(array, index);
     }
