@@ -209,5 +209,45 @@ namespace FlyFlint.Synchronized
 
             await Verify(birth.ToString(CultureInfo.InvariantCulture));
         }
+
+        /////////////////////////////////////////////////////////////////////////////
+
+        [Test]
+        public async Task NonQuery()
+        {
+            using var connection = CreateConnection();
+
+            var query = connection.Query(
+                "UPDATE target SET Name='ZZZZZ'");
+            var count = query.ExecuteNonQueryNonParameterized();
+
+            await Verify(count);
+        }
+
+        [Test]
+        public async Task NonQueryWithParameter()
+        {
+            using var connection = CreateConnection();
+
+            var query = connection.Query(
+                "UPDATE target SET Name='ZZZZZ' WHERE Id = @idparam").
+                Parameter(new Parameter { idparam = 2 });
+            var count = query.ExecuteNonQuery();
+
+            await Verify(count);
+        }
+
+        [Test]
+        public async Task NonQueryWithInlinedParameter()
+        {
+            using var connection = CreateConnection();
+
+            var idparam = 2;
+            var query = connection.Query(
+                $"UPDATE target SET Name='ZZZZZ' WHERE Id = {idparam}");
+            var count = query.ExecuteNonQuery();
+
+            await Verify(count);
+        }
     }
 }
