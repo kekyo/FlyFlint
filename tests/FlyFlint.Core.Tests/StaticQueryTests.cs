@@ -52,6 +52,17 @@ namespace FlyFlint
             }
         }
 
+        public sealed class Parameter : IParameterExtractable
+        {
+            public int idparam { get; set; }
+
+            public void Extract(
+                StaticParameterExtractionContext context)
+            {
+                context.SetByValParameter<int>(nameof(idparam), this.idparam);
+            }
+        }
+
         /////////////////////////////////////////////////////////////////////////////
 
         private async Task<DbConnection> CreateConnectionAsync()
@@ -85,19 +96,6 @@ namespace FlyFlint
             var targets = await query.ExecuteNonParameterizedAsync().ToArrayAsync();
 
             await Verify(targets.Select(record => $"{record.Id},{record.Name},{record.Birth.ToString(CultureInfo.InvariantCulture)}"));
-        }
-
-        /////////////////////////////////////////////////////////////////////////////
-
-        public sealed class Parameter : IParameterExtractable
-        {
-            public int idparam { get; set; }
-
-            public void Extract(
-                StaticParameterExtractionContext context)
-            {
-                context.SetByValParameter<int>(nameof(idparam), this.idparam);
-            }
         }
 
         [Test]
@@ -163,6 +161,122 @@ namespace FlyFlint
             var targets = await query.ExecuteImmediatelyAsync();
 
             await Verify(targets.Select(record => $"{record.Id},{record.Name},{record.Birth.ToString(CultureInfo.InvariantCulture)}"));
+        }
+
+        /////////////////////////////////////////////////////////////////////////////
+
+        [Test]
+        public async Task ScalarQuery()
+        {
+            using var connection = await CreateConnectionAsync();
+
+            var query = connection.Query("SELECT Name FROM target WHERE Id = 2");
+            var name = await query.ExecuteScalarNonParameterizedAsync<string>();
+
+            await Verify(name);
+        }
+
+        [Test]
+        public async Task ScalarQueryWithParameter()
+        {
+            using var connection = await CreateConnectionAsync();
+
+            var query = connection.Query(
+                "SELECT Name FROM target WHERE Id = @idparam").
+                Parameter(new Parameter { idparam = 2 });
+            var name = await query.ExecuteScalarAsync<string>();
+
+            await Verify(name);
+        }
+
+        [Test]
+        public async Task ScalarQueryWithInlinedParameter()
+        {
+            using var connection = await CreateConnectionAsync();
+
+            var idparam = 2;
+            var query = connection.Query(
+                $"SELECT Name FROM target WHERE Id = {idparam}");
+            var name = await query.ExecuteScalarAsync<string>();
+
+            await Verify(name);
+        }
+
+        [Test]
+        public async Task ScalarQuery2()
+        {
+            using var connection = await CreateConnectionAsync();
+
+            var query = connection.Query("SELECT Birth FROM target WHERE Id = 1");
+            var birth = await query.ExecuteScalarNonParameterizedAsync<DateTime>();
+
+            await Verify(birth.ToString(CultureInfo.InvariantCulture));
+        }
+
+        [Test]
+        public async Task ScalarQueryWithParameter2()
+        {
+            using var connection = await CreateConnectionAsync();
+
+            var query = connection.Query(
+                "SELECT Birth FROM target WHERE Id = @idparam").
+                Parameter(new Parameter { idparam = 1 });
+            var birth = await query.ExecuteScalarAsync<DateTime>();
+
+            await Verify(birth.ToString(CultureInfo.InvariantCulture));
+        }
+
+        [Test]
+        public async Task ScalarQueryWithInlinedParameter2()
+        {
+            using var connection = await CreateConnectionAsync();
+
+            var idparam = 1;
+            var query = connection.Query(
+                $"SELECT Birth FROM target WHERE Id = {idparam}");
+            var birth = await query.ExecuteScalarAsync<DateTime>();
+
+            await Verify(birth.ToString(CultureInfo.InvariantCulture));
+        }
+
+        /////////////////////////////////////////////////////////////////////////////
+
+        [Test]
+        public async Task NonQuery()
+        {
+            using var connection = await CreateConnectionAsync();
+
+            var query = connection.Query(
+                "UPDATE target SET Name='ZZZZZ'");
+            var count = await query.ExecuteNonQueryNonParameterizedAsync();
+
+            await Verify(count);
+        }
+
+        [Test]
+        public async Task NonQueryWithParameter()
+        {
+            using var connection = await CreateConnectionAsync();
+
+            var query = connection.Query(
+                "UPDATE target SET Name='ZZZZZ' WHERE Id = @idparam").
+                Parameter(new Parameter { idparam = 2 });
+            var count = await query.ExecuteNonQueryAsync();
+
+            await Verify(count);
+        }
+
+        [Test]
+        public async Task NonQueryWithInlinedParameter()
+        {
+            using var connection = await CreateConnectionAsync();
+
+            var idparam = 2;
+            var query = connection.Query(
+                $"UPDATE target SET Name='ZZZZZ' WHERE Id = {idparam}");
+            var count = await query.ExecuteNonQueryAsync();
+
+            await Verify(count);
         }
     }
 }
