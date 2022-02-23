@@ -2,15 +2,26 @@
 
 ![FlyFlint](Images/FlyFlint.100.png)
 
+FlyFlint - Lightweight static O/R mapping builder at compile time.
+
 [![Project Status: WIP – Initial development is in progress, but there has not yet been a stable, usable release suitable for the public.](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip)
 
-|FlyFlint|FlyFlint.Dynamic|
-|--|--|
-|[![NuGet FlyFlint](https://img.shields.io/nuget/v/FlyFlint.svg?style=flat)](https://www.nuget.org/packages/FlyFlint)|[![NuGet FlyFlint.Dynamic](https://img.shields.io/nuget/v/FlyFlint.Dynamic.svg?style=flat)](https://www.nuget.org/packages/FlyFlint.Dynamic)|
+## NuGet
 
-[![Japanese is here](Images/Japanese.256.png)](https://github.com/kekyo/FlyFlint/blob/main/README_ja.md)
+|Package|NuGet|
+|:--|:--|
+|FlyFlint|[![NuGet FlyFlint](https://img.shields.io/nuget/v/FlyFlint.svg?style=flat)](https://www.nuget.org/packages/FlyFlint)|
+|FlyFlint.Dynamic|[![NuGet FlyFlint.Dynamic](https://img.shields.io/nuget/v/FlyFlint.Dynamic.svg?style=flat)](https://www.nuget.org/packages/FlyFlint.Dynamic)|
+
+## CI
+
+|main|develop|
+|:--|:--|
+|[![FlyFlint CI build (main)](https://github.com/kekyo/FlyFlint/workflows/.NET/badge.svg?branch=main)](https://github.com/kekyo/FlyFlint/actions?query=branch%3Amain)|[![FlyFlint CI build (develop)](https://github.com/kekyo/FlyFlint/workflows/.NET/badge.svg?branch=develop)](https://github.com/kekyo/FlyFlint/actions?query=branch%3Adevelop)|
 
 ---
+
+[![Japanese is here](Images/Japanese.256.png)](https://github.com/kekyo/FlyFlint/blob/main/README_ja.md)
 
 ## What is this?
 
