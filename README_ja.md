@@ -621,7 +621,7 @@ FlyFlintは完全スタティック動作が特徴ですが、動的クエリ（
   * 別のアセンブリに定義されている既存の型を流用していて、しかもその型を含むアセンブリを同時にビルド出来ない。
   * .NETの標準的な型の流用や、NuGetパッケージに定義されている型を流用する場合。
   * 発生するメッセージ:
-    * コンパイル時警告: TODO:
+    * コンパイル時警告: `Could not inject parameter type, because it is declared in another assembly`
     * 実行時例外: `InvalidOperationException("Dynamic query feature is not enabled")`
 * 複雑な理由で、コンパイル時コード生成を使用したくない場合。
 

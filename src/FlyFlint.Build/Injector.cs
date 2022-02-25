@@ -528,7 +528,14 @@ namespace FlyFlint
 
         ////////////////////////////////////////////////////////////////////////////
 
-        private bool InjectPrepareMethod(
+        private enum InjectResults
+        {
+            Success,
+            Ignored,
+            CouldNot,
+        }
+
+        private InjectResults InjectPrepareMethod(
             ModuleDefinition module,
             TypeDefinition targetType)
         {
@@ -536,7 +543,7 @@ namespace FlyFlint
             if (targetType.CustomAttributes.Any(ca =>
                 ca.AttributeType.FullName == "FlyFlint.Internal.Static.RecordInjectableInjectedAttribute"))
             {
-                return false;
+                return InjectResults.Ignored;
             }
 
             var targetFields = targetType.Fields.
@@ -549,7 +556,7 @@ namespace FlyFlint
             var targetMembers = targetFields.Concat(targetProperties).ToArray();
             if (targetMembers.Length == 0)
             {
-                return false;
+                return InjectResults.Ignored;
             }
 
             var requiredOverrideMethod = targetType.
@@ -562,7 +569,13 @@ namespace FlyFlint
             if (requiredOverrideMethod != null &&
                 requiredOverrideMethod.DeclaringType == targetType)
             {
-                return false;
+                return InjectResults.Ignored;
+            }
+
+            // Check injection target where modules.
+            if (targetType.Module.Assembly.FullName != module.Assembly.FullName)
+            {
+                return InjectResults.CouldNot;
             }
 
             //////////////////////////////////////////////
@@ -661,12 +674,12 @@ namespace FlyFlint
                 new CustomAttribute(
                     module.ImportReference(this.recordInjectableInjectedAttributeConstructor)));
 
-            return true;
+            return InjectResults.Success;
         }
 
         ////////////////////////////////////////////////////////////////////////////
 
-        private bool InjectExtractMethod(
+        private InjectResults InjectExtractMethod(
             ModuleDefinition module,
             TypeDefinition targetType)
         {
@@ -674,7 +687,7 @@ namespace FlyFlint
             if (targetType.CustomAttributes.Any(ca =>
                 ca.AttributeType.FullName == "FlyFlint.Internal.Static.ParameterExtractableInjectedAttribute"))
             {
-                return false;
+                return InjectResults.Ignored;
             }
 
             var targetFields = targetType.Fields.
@@ -687,7 +700,7 @@ namespace FlyFlint
             var targetMembers = targetFields.Concat(targetProperties).ToArray();
             if (targetMembers.Length == 0)
             {
-                return false;
+                return InjectResults.Ignored;
             }
 
             var requiredOverrideMethod = targetType.
@@ -700,7 +713,13 @@ namespace FlyFlint
             if (requiredOverrideMethod != null &&
                 requiredOverrideMethod.DeclaringType == targetType)
             {
-                return false;
+                return InjectResults.Ignored;
+            }
+
+            // Check injection target where modules.
+            if (targetType.Module.Assembly.FullName != module.Assembly.FullName)
+            {
+                return InjectResults.CouldNot;
             }
 
             //////////////////////////////////////////////
@@ -843,7 +862,7 @@ namespace FlyFlint
                 new CustomAttribute(
                     module.ImportReference(this.parameterExtractableInjectedAttributeConstructor)));
 
-            return true;
+            return InjectResults.Success;
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -899,27 +918,37 @@ namespace FlyFlint
                     {
                         foreach (var (i, index, mr) in facadeMethodCallers!)
                         {
-                            static MethodReference MakeGenericMethod(
-                                ModuleDefinition module, MethodReference mr, IEnumerable<TypeReference> types)
+                            if (mr is GenericInstanceMethod gim)
                             {
-                                var gim = new GenericInstanceMethod(
-                                    module.ImportReference(mr));
-                                foreach (var t in types)
+                                var staticMethod = module!.ImportReference(
+                                    this.queryFacadeMapping[mr]);
+                                var replaced = new GenericInstanceMethod(staticMethod);
+                                var foundAnotherModule = false;
+                                foreach (var t in gim.GenericArguments)
                                 {
-                                    gim.GenericArguments.Add(
-                                        module.ImportReference(t));
+                                    var it = module.ImportReference(t);
+
+                                    // Check injection target where modules.
+                                    if (it.Resolve().Module.Assembly.FullName != module!.Assembly.FullName)
+                                    {
+                                        // Force ignored.
+                                        foundAnotherModule = true;
+                                        break;
+                                    }
+                                    replaced.GenericArguments.Add(it);
                                 }
-                                return gim;
+                                if (!foundAnotherModule)
+                                {
+                                    method.Body.Instructions[index] =
+                                        Instruction.Create(i.OpCode, replaced);
+                                }
                             }
-
-                            var staticMethod = module!.ImportReference(this.queryFacadeMapping[mr]);
-
-                            var replaced = mr is GenericInstanceMethod gim ?
-                                MakeGenericMethod(module, staticMethod, gim.GenericArguments) :
-                                staticMethod;
-
-                            method.Body.Instructions[index] =
-                                Instruction.Create(i.OpCode, replaced);
+                            else
+                            {
+                                var staticMethod = module!.ImportReference(this.queryFacadeMapping[mr]);
+                                method.Body.Instructions[index] =
+                                    Instruction.Create(i.OpCode, staticMethod);
+                            }
                         }
                     }
 
@@ -1039,18 +1068,24 @@ namespace FlyFlint
                     OrderBy(t => t, TypeInheritanceDepthComparer.Instance))
                 {
                     // By IParameterExtractable interface.
-                    if (this.InjectExtractMethod(targetAssembly.MainModule, parametersType))
+                    switch (this.InjectExtractMethod(targetAssembly.MainModule, parametersType))
                     {
-                        parametersInjected++;
-                        this.message(
-                            LogLevels.Trace,
-                            $"Injected an parameter type: Assembly={targetAssemblyName}, Type={parametersType.FullName}");
-                    }
-                    else
-                    {
-                        this.message(
-                            LogLevels.Trace,
-                            $"Ignored an parameter type: Assembly={targetAssemblyName}, Type={parametersType.FullName}");
+                        case InjectResults.Success:
+                            parametersInjected++;
+                            this.message(
+                                LogLevels.Trace,
+                                $"Injected an parameter type: TargetAssembly={targetAssemblyName}, Type={parametersType.FullName}");
+                            break;
+                        case InjectResults.CouldNot:
+                            this.message(
+                                LogLevels.Warning,
+                                $"Could not inject parameter type, because it is declared in another assembly: TargetAssembly={targetAssemblyName}, Type={parametersType.FullName}");
+                            break;
+                        default:
+                            this.message(
+                                LogLevels.Trace,
+                                $"Ignored an parameter type: TargetAssembly={targetAssemblyName}, Type={parametersType.FullName}");
+                            break;
                     }
                 }
 
@@ -1058,18 +1093,24 @@ namespace FlyFlint
                     OrderBy(t => t, TypeInheritanceDepthComparer.Instance))
                 {
                     // By IRecordInjectable interface.
-                    if (this.InjectPrepareMethod(targetAssembly.MainModule, recordType))
+                    switch (this.InjectPrepareMethod(targetAssembly.MainModule, recordType))
                     {
-                        recordInjected++;
-                        this.message(
-                            LogLevels.Trace,
-                            $"Injected an data type: Assembly={targetAssemblyName}, Type={recordType.FullName}");
-                    }
-                    else
-                    {
-                        this.message(
-                            LogLevels.Trace,
-                            $"Ignored an data type: Assembly={targetAssemblyName}, Type={recordType.FullName}");
+                        case InjectResults.Success:
+                            recordInjected++;
+                            this.message(
+                                LogLevels.Trace,
+                                $"Injected an record type: TargetAssembly={targetAssemblyName}, Type={recordType.FullName}");
+                            break;
+                        case InjectResults.CouldNot:
+                            this.message(
+                                LogLevels.Warning,
+                                $"Could not inject record type, because it is declared in another assembly: TargetAssembly={targetAssemblyName}, Type={recordType.FullName}");
+                            break;
+                        default:
+                            this.message(
+                                LogLevels.Trace,
+                                $"Ignored an record type: TargetAssembly={targetAssemblyName}, Type={recordType.FullName}");
+                            break;
                     }
                 }
 

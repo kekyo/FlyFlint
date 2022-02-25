@@ -10,6 +10,7 @@
 using FlyFlint.Collections;
 using NUnit.Framework;
 using System;
+using System.Collections;
 using System.Data;
 using System.Data.Common;
 using System.Data.SQLite;

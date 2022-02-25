@@ -11,6 +11,7 @@ using FlyFlint.Collections;
 using FlyFlint.Internal.Static;
 using NUnit.Framework;
 using System;
+using System.Collections;
 using System.Data;
 using System.Data.Common;
 using System.Data.SQLite;
@@ -277,6 +278,49 @@ namespace FlyFlint
             var count = await query.ExecuteNonQueryAsync();
 
             await Verify(count);
+        }
+
+        /////////////////////////////////////////////////////////////////////////////
+
+        private sealed class TargetNonInjected
+        {
+            public int Id;
+            public string? Name;
+            public DateTime Birth;
+        }
+
+        [Test]
+        public async Task QueryWithNoInjected()
+        {
+            using var connection = await CreateConnectionAsync();
+
+            var query = connection.Query<TargetNonInjected>("SELECT * FROM target");
+
+            try
+            {
+                await query.ExecuteNonParameterizedAsync().ToArrayAsync();
+                Assert.Fail();
+            }
+            catch (InvalidOperationException)
+            {
+            }
+        }
+
+        [Test]
+        public async Task QueryWithAnotherAssembly()
+        {
+            using var connection = await CreateConnectionAsync();
+
+            var query = connection.Query<DictionaryEntry>("SELECT * FROM target");
+
+            try
+            {
+                await query.ExecuteNonParameterizedAsync().ToArrayAsync();
+                Assert.Fail();
+            }
+            catch (InvalidOperationException)
+            {
+            }
         }
     }
 }
