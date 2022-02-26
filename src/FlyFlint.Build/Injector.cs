@@ -79,6 +79,7 @@ namespace FlyFlint
         private readonly TypeDefinition staticRecordInjectorObjRefDelegateType;
         private readonly MethodDefinition staticRecordInjectorObjRefDelegateConstructor;
         private readonly TypeDefinition staticRecordInjectionContextType;
+        private readonly FieldDefinition staticRecordInjectionContextCurrentOffsetField;
         private readonly FieldDefinition staticRecordInjectionContextIsAvailableField;
         private readonly MethodDefinition registerMetadataMethod;
         private readonly TypeDefinition staticParameterExtractionContextType;
@@ -215,6 +216,8 @@ namespace FlyFlint
 
             this.staticRecordInjectionContextType = flyFlintCoreAssembly.MainModule.GetType(
                 "FlyFlint.Internal.Static.StaticRecordInjectionContext")!;
+            this.staticRecordInjectionContextCurrentOffsetField = this.staticRecordInjectionContextType.Fields.
+                First(f => f.Name == "CurrentOffset");
             this.staticRecordInjectionContextIsAvailableField = this.staticRecordInjectionContextType.Fields.
                 First(f => f.Name == "IsAvailable");
             this.registerMetadataMethod = this.staticRecordInjectionContextType.Methods.
@@ -383,6 +386,24 @@ namespace FlyFlint
             var injectMethodInsts = injectMethod.Body.Instructions;
 
             ////////////////////////////////////////////////////////////////
+            // var offset = context.CurrentOffset;
+
+            if (!targetType.IsValueType)
+            {
+                injectMethod.Body.Variables.Add(
+                    new VariableDefinition(this.typeSystem.Int32));
+
+                injectMethodInsts.Add(
+                    Instruction.Create(OpCodes.Ldarg_0));
+                injectMethodInsts.Add(
+                    Instruction.Create(
+                        OpCodes.Ldfld,
+                        module.ImportReference(this.staticRecordInjectionContextCurrentOffsetField)));
+                injectMethodInsts.Add(
+                    Instruction.Create(OpCodes.Stloc_0));
+            }
+
+            ////////////////////////////////////////////////////////////////
             // var isAvailable = context.IsAvailable;
 
             injectMethodInsts.Add(
@@ -429,7 +450,7 @@ namespace FlyFlint
 
             for (var metadataIndex = 0; metadataIndex < targetMembers.Length; metadataIndex++)
             {
-                // if (isAvailable[metadataIndex])
+                // if (isAvailable[metadataIndex + offset])
 
                 var topOfIfExpression =
                     Instruction.Create(OpCodes.Dup);
@@ -439,6 +460,15 @@ namespace FlyFlint
 
                 injectMethodInsts.Add(
                     Instruction.Create(OpCodes.Ldc_I4_S, (sbyte)metadataIndex));
+
+                if (!targetType.IsValueType)
+                {
+                    injectMethodInsts.Add(
+                        Instruction.Create(OpCodes.Ldloc_0));
+                    injectMethodInsts.Add(
+                        Instruction.Create(OpCodes.Add));
+                }
+
                 injectMethodInsts.Add(
                     Instruction.Create(OpCodes.Ldelem_U1));
 
@@ -471,6 +501,15 @@ namespace FlyFlint
                     Instruction.Create(OpCodes.Ldarg_0));
                 injectMethodInsts.Add(
                     Instruction.Create(OpCodes.Ldc_I4_S, (sbyte)metadataIndex));
+
+                if (!targetType.IsValueType)
+                {
+                    injectMethodInsts.Add(
+                        Instruction.Create(OpCodes.Ldloc_0));
+                    injectMethodInsts.Add(
+                        Instruction.Create(OpCodes.Add));
+                }
+
                 injectMethodInsts.Add(
                     Instruction.Create(OpCodes.Call, getValueMethod));
 
