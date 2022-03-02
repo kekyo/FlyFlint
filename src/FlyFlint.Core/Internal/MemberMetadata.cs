@@ -33,14 +33,15 @@ namespace FlyFlint.Internal
     }
 
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public sealed class RecordInjectionMetadata
+    public sealed class RecordInjectionMetadata : IEquatable<RecordInjectionMetadata>
     {
         [EditorBrowsable(EditorBrowsableState.Never)]
         public readonly int DbFieldIndex;
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public bool StoreDirect;
-        [EditorBrowsable(EditorBrowsableState.Never)]
         public readonly Type DbType;
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public bool StoreDirect;
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -52,5 +53,25 @@ namespace FlyFlint.Internal
             this.StoreDirect = false;
             this.DbType = dbType;
         }
+
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public override int GetHashCode() =>
+            this.DbFieldIndex.GetHashCode() ^ this.DbType.GetHashCode();
+
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public bool Equals(RecordInjectionMetadata? other) =>
+            other is { } o &&
+            this.DbFieldIndex == o.DbFieldIndex &&
+            this.DbType == o.DbType;
+
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public override bool Equals(object? obj) =>
+            this.Equals(obj as RecordInjectionMetadata);
     }
 }

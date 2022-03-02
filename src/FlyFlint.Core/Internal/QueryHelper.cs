@@ -82,6 +82,47 @@ namespace FlyFlint.Internal
 
         /////////////////////////////////////////////////////////////////////
 
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        internal static IEnumerable<T> Traverse<T>(
+            this T value, Func<T, T?> selector)
+        {
+            T? current = value;
+            while (current != null)
+            {
+                yield return current;
+                current = selector(current);
+            }
+        }
+
+        internal static IEnumerable<T> DistinctBy<T, U>(
+            this IEnumerable<T> enumerable, Func<T, U> keySelector)
+        {
+            var memoized = new HashSet<U>();
+            foreach (var value in enumerable)
+            {
+                if (memoized.Add(keySelector(value)))
+                {
+                    yield return value;
+                }
+            }
+        }
+
+        internal static IEnumerable<U> Collect<T, U>(
+            this IEnumerable<T> enumerable, Func<T, U?> selector)
+        {
+            foreach (var value in enumerable)
+            {
+                if (selector(value) is U sv)
+                {
+                    yield return sv;
+                }
+            }
+        }
+
+        /////////////////////////////////////////////////////////////////////
+
         public static KeyValuePair<string, string?[]> GetFormattedSqlString(
             FormattableString fs,
             string parameterPrefix)
@@ -149,7 +190,7 @@ namespace FlyFlint.Internal
 
         /////////////////////////////////////////////////////////////////////
 
-        public struct MetadataMap
+        public struct MetadataMap : IEquatable<MetadataMap>
         {
             public readonly string[] FieldNames;
             public readonly RecordInjectionMetadata[] MetadataList;
@@ -162,6 +203,53 @@ namespace FlyFlint.Internal
                 this.FieldNames = fieldNames;
                 this.MetadataList = metadataList;
             }
+
+            public override int GetHashCode()
+            {
+                var agg = 0;
+                for (var index = 0; index < this.FieldNames.Length; index++)
+                {
+                    agg ^= this.FieldNames[index].GetHashCode();
+                }
+                for (var index = 0; index < this.MetadataList.Length; index++)
+                {
+                    agg ^= this.MetadataList[index].GetHashCode();
+                }
+                return agg;
+            }
+
+            public bool Equals(MetadataMap other)
+            {
+                if (this.FieldNames.Length != other.FieldNames.Length)
+                {
+                    return false;
+                }
+                if (this.MetadataList.Length != other.MetadataList.Length)
+                {
+                    return false;
+                }
+                for (var index = 0; index < this.FieldNames.Length; index++)
+                {
+                    if (!this.FieldNames[index].Equals(other.FieldNames[index]))
+                    {
+                        return false;
+                    }
+                }
+                for (var index = 0; index < this.MetadataList.Length; index++)
+                {
+                    if (!this.MetadataList[index].Equals(other.MetadataList[index]))
+                    {
+                        return false;
+                    }
+                }
+                return true;
+            }
+
+#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+            public override bool Equals(object? obj) =>
+                obj is MetadataMap mm && this.Equals(mm);
         }
 
         public static MetadataMap CreateSortedMetadataMap(

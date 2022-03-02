@@ -8,123 +8,54 @@
 ////////////////////////////////////////////////////////////////////////////
 
 using FlyFlint.Context;
+using FlyFlint.Internal.Static;
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.Linq;
 using System.Runtime.CompilerServices;
 
 namespace FlyFlint.Internal.Dynamic
 {
-    internal abstract class DynamicRecordInjectionContext :
-        RecordInjectionContext
-    {
-        private static readonly Dictionary<Type, Func<ConversionContext, object, object?>> converts = new();
-
-        private abstract class Converter
-        {
-            public abstract object? Convert(ConversionContext cc, object value);
-        }
-
-        private sealed class Converter<T> : Converter
-        {
-            public override object? Convert(ConversionContext cc, object value) =>
-                cc.ConvertTo<T>(value);
-        }
-
-        private static object? Convert(
-            ConversionContext cc,
-            object value,
-            Type targetType)
-        {
-            Func<ConversionContext, object, object?>? convert;
-            lock (converts)
-            {
-                if (!converts.TryGetValue(targetType, out convert))
-                {
-                    var converter = (Converter)Activator.CreateInstance(
-                        typeof(Converter<>).MakeGenericType(targetType))!;
-                    convert = converter.Convert;
-                    converts.Add(targetType, convert);
-                }
-            }
-            return convert(cc, value);
-        }
-
-        private protected RecordInjectionMetadata[] metadataList = null!;
-
-#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-        private protected DynamicRecordInjectionContext(
-            ConversionContext cc,
-            IComparer<string> fieldComparer,
-            DbDataReader reader) :
-            base(cc, fieldComparer, reader)
-        {
-        }
-
-#if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-        public object? GetValue(int metadataIndex, Type targetType)
-        {
-            var metadata = this.metadataList[metadataIndex];
-            return this.reader.IsDBNull(metadata.DbFieldIndex) ? null :
-                metadata.StoreDirect ? this.reader.GetValue(metadata.DbFieldIndex) :
-                    Convert(this.cc, this.reader.GetValue(metadata.DbFieldIndex), targetType);
-        }
-    }
-
-    internal sealed class DynamicRecordInjectionContext<TRecord> :
-        DynamicRecordInjectionContext
+    internal sealed class DynamicRecordInjectionContext<TRecord>
         where TRecord : notnull
     {
-        private delegate void Setter(ref TRecord record);
-        private readonly Setter[] setters;
+        private static readonly bool isValueType =
+            typeof(TRecord).IsValueType;
+        private static readonly StaticMemberMetadata[] members =
+            Utilities.GetTargetMembers<TRecord>().
+            Select(member => new StaticMemberMetadata(
+                member.Name,
+                Utilities.DereferenceWhenNullableType(member.Type))).
+            ToArray();
+        //private static readonly Delegate setter =
+        //    isValueType ?
+        //        Utilities.CreateSetter<StaticRecordInjectorObjRefDelegate<TRecord>, TRecord>() :
+        //        Utilities.CreateSetter<StaticRecordInjectorByRefDelegate<TRecord>, TRecord>();
+
+        private readonly StaticRecordInjectionContext<TRecord> context;
 
         internal DynamicRecordInjectionContext(
             ConversionContext cc,
             IComparer<string> fieldComparer,
-            DbDataReader reader) :
-            base(cc, fieldComparer, reader)
+            DbDataReader reader)
         {
-            // TODO: improve with bulk setter
+            Delegate setter =
+                isValueType ?
+                    Utilities.CreateSetter<StaticRecordInjectorByRefDelegate<TRecord>, TRecord>() :
+                    Utilities.CreateSetter<StaticRecordInjectorObjRefDelegate<TRecord>, TRecord>();
 
-            var metadataMap =
-                QueryHelper.CreateSortedMetadataMap(this.reader, this.fieldComparer);
-            this.metadataList = metadataMap.MetadataList;
-            var members =
-                DynamicHelper.GetSetterMetadataList<TRecord>();
-
-            var candidates = new List<Setter>(members.Length);
-            for (var index = 0; index < members.Length; index++)
-            {
-                var member = members[index];
-                var dbFieldNameIndiciesIndex = Array.BinarySearch(metadataMap.FieldNames, member.FieldName);
-                if (dbFieldNameIndiciesIndex >= 0)
-                {
-                    var dbFieldMetadata = this.metadataList[dbFieldNameIndiciesIndex];
-
-                    var ut = Nullable.GetUnderlyingType(member.FieldType) ?? member.FieldType;
-                    dbFieldMetadata.StoreDirect = ut == dbFieldMetadata.DbType;
-
-                    candidates.Add((ref TRecord record) =>
-                        member.Accessor(ref record, this.GetValue(dbFieldNameIndiciesIndex, member.FieldType)));
-                }
-            }
-
-            this.setters = candidates.ToArray();
+            this.context = isValueType ?
+                new StaticRecordInjectionByRefContext<TRecord>(cc, fieldComparer, reader) :
+                new StaticRecordInjectionObjRefContext<TRecord>(cc, fieldComparer, reader);
+            context.RegisterMetadata(members, setter);
+            context.MakeInjectable();
         }
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public void Inject(ref TRecord record)
-        {
-            for (var index = 0; index < this.setters.Length; index++)
-            {
-                this.setters[index](ref record);
-            }
-        }
+        public void Inject(ref TRecord record) =>
+            this.context.Inject(ref record);
     }
 }

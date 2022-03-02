@@ -19,16 +19,16 @@ namespace FlyFlint.Internal.Static
         [EditorBrowsable(EditorBrowsableState.Never)]
         public readonly string Name;
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public readonly Type Type;
+        public readonly Type NullableUnwrappedType;
 
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public StaticMemberMetadata(string name, Type type)
+        public StaticMemberMetadata(string name, Type nullableUnwrappedType)
         {
             this.Name = name;
-            this.Type = type;
+            this.NullableUnwrappedType = nullableUnwrappedType;
         }
     }
 

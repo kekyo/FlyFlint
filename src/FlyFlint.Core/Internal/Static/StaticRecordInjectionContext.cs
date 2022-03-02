@@ -97,7 +97,7 @@ namespace FlyFlint.Internal.Static
                 {
                     var dbFieldMetadata = metadataMap.MetadataList[dbFieldNameIndiciesIndex];
 
-                    var ut = Nullable.GetUnderlyingType(member.Type) ?? member.Type;
+                    var ut = Nullable.GetUnderlyingType(member.NullableUnwrappedType) ?? member.NullableUnwrappedType;
                     dbFieldMetadata.StoreDirect = ut == dbFieldMetadata.DbType;
 
                     this.metadataList[index] = dbFieldMetadata;
