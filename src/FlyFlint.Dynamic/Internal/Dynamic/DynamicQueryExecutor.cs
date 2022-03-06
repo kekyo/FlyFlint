@@ -20,41 +20,32 @@ namespace FlyFlint.Internal.Dynamic
         public override object? Convert(ConversionContext context, object? value, Type targetType) =>
             DynamicValueConverter.GetConverter(targetType).Convert(context, value);
 
+        private static DynamicParameterExtractionContext<TParameters> CreateParameterExtractionContext<TParameters>(
+            ConversionContext cc)
+            where TParameters : notnull =>
+            typeof(TParameters).IsValueType ?
+                new DynamicParameterExtractionByRefContext<TParameters>(cc) :
+                new DynamicParameterExtractionObjRefContext<TParameters>(cc);
+
         public override Func<ExtractedParameter[]> GetConstructParameters<TParameters>(
             ConversionContext cc,
             string parameterPrefix,
             Func<TParameters> getter)
         {
-            var members = DynamicHelper.GetGetterMetadataList<TParameters>();
+            var context = CreateParameterExtractionContext<TParameters>(cc);
             return () =>
             {
                 var parameters = getter();
-                var ps = new ExtractedParameter[members.Length];
-                for (var index = 0; index < ps.Length; index++)
-                {
-                    var m = members[index];
-                    ps[index] = new ExtractedParameter(
-                        parameterPrefix + m.FieldName, m.Accessor(ref parameters, cc));
-                }
-                return ps;
+                return context.ExtractParameters(ref parameters, parameterPrefix);
             };
         }
 
         public override ExtractedParameter[] GetParameters<TParameters>(
             ConversionContext cc,
             string parameterPrefix,
-            ref TParameters parameters)
-        {
-            var members = DynamicHelper.GetGetterMetadataList<TParameters>();
-            var ps = new ExtractedParameter[members.Length];
-            for (var index = 0; index < ps.Length; index++)
-            {
-                var m = members[index];
-                ps[index] = new ExtractedParameter(
-                    parameterPrefix + m.FieldName, m.Accessor(ref parameters, cc));
-            }
-            return ps;
-        }
+            ref TParameters parameters) =>
+            CreateParameterExtractionContext<TParameters>(cc).
+                ExtractParameters(ref parameters, parameterPrefix);
 
         public override RecordInjectorDelegate<TRecord> GetRecordInjector<TRecord>(
             ConversionContext cc,

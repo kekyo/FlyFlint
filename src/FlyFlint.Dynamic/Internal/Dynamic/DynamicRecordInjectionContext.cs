@@ -23,15 +23,15 @@ namespace FlyFlint.Internal.Dynamic
         private static readonly bool isValueType =
             typeof(TRecord).IsValueType;
         private static readonly StaticMemberMetadata[] members =
-            Utilities.GetTargetMembers<TRecord>().
+            DynamicRecordInjectionHelper.GetTargetSettingMembers<TRecord>().
             Select(member => new StaticMemberMetadata(
                 member.Name,
-                Utilities.DereferenceWhenNullableType(member.Type))).
+                DynamicRecordInjectionHelper.DereferenceWhenNullableType(member.Type))).
             ToArray();
-        //private static readonly Delegate setter =
-        //    isValueType ?
-        //        Utilities.CreateSetter<StaticRecordInjectorObjRefDelegate<TRecord>, TRecord>() :
-        //        Utilities.CreateSetter<StaticRecordInjectorByRefDelegate<TRecord>, TRecord>();
+        private static readonly Delegate injector =
+            isValueType ?
+                DynamicRecordInjectionHelper.CreateRecordInjector<StaticRecordInjectorByRefDelegate<TRecord>, TRecord>() :
+                DynamicRecordInjectionHelper.CreateRecordInjector<StaticRecordInjectorObjRefDelegate<TRecord>, TRecord>();
 
         private readonly StaticRecordInjectionContext<TRecord> context;
 
@@ -40,15 +40,10 @@ namespace FlyFlint.Internal.Dynamic
             IComparer<string> fieldComparer,
             DbDataReader reader)
         {
-            Delegate setter =
-                isValueType ?
-                    Utilities.CreateSetter<StaticRecordInjectorByRefDelegate<TRecord>, TRecord>() :
-                    Utilities.CreateSetter<StaticRecordInjectorObjRefDelegate<TRecord>, TRecord>();
-
             this.context = isValueType ?
                 new StaticRecordInjectionByRefContext<TRecord>(cc, fieldComparer, reader) :
                 new StaticRecordInjectionObjRefContext<TRecord>(cc, fieldComparer, reader);
-            context.RegisterMetadata(members, setter);
+            context.RegisterMetadata(members, injector);
             context.MakeInjectable();
         }
 

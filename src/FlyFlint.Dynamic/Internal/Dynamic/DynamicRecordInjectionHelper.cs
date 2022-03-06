@@ -32,7 +32,7 @@ namespace FlyFlint.Internal.Dynamic
         }
     }
 
-    internal static class Utilities
+    internal static class DynamicRecordInjectionHelper
     {
         private sealed class TypeKey : IEquatable<TypeKey?>
         {
@@ -190,7 +190,7 @@ namespace FlyFlint.Internal.Dynamic
 
         ////////////////////////////////////////////////////////////////////////////
 
-        public static DynamicMemberMetadata[] GetTargetMembers<TRecord>() =>
+        public static DynamicMemberMetadata[] GetTargetSettingMembers<TRecord>() =>
             typeof(TRecord).
             Traverse(type => type.BaseType).
             SelectMany(type =>
@@ -202,13 +202,13 @@ namespace FlyFlint.Internal.Dynamic
 
         ////////////////////////////////////////////////////////////////////////////
 
-        public static TDelegate CreateSetter<TDelegate, TRecord>()
+        public static TDelegate CreateRecordInjector<TDelegate, TRecord>()
             where TDelegate : Delegate
         {
             var targetType = typeof(TRecord);
-            var targetMembers = GetTargetMembers<TRecord>();
+            var targetMembers = GetTargetSettingMembers<TRecord>();
 
-            var fullName = $"MemberAccessor.{targetType.Namespace}.{targetType.Name}.setter";
+            var fullName = $"RecordInjector.{targetType.Namespace}.{targetType.Name}";
 
             var dm = new DynamicMethod(
                 fullName,
@@ -326,8 +326,7 @@ namespace FlyFlint.Internal.Dynamic
 
             ig.Emit(OpCodes.Ret);
 
-            var dlg = typeof(TDelegate);
-            return (TDelegate)dm.CreateDelegate(dlg);
+            return (TDelegate)dm.CreateDelegate(typeof(TDelegate));
         }
     }
 }
