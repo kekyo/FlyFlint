@@ -15,7 +15,6 @@
     <PackageReference Include="System.ValueTuple" Version="4.5.0" />
     <PackageReference Include="Mono.Cecil" Version="0.11.4" />
     <PackageReference Remove="Microsoft.Bcl.AsyncInterfaces" />
-    <PackageReference Include="RelaxVersioner" Version="2.5.1" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup>
