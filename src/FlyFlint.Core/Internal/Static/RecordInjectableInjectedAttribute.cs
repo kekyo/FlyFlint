@@ -18,12 +18,13 @@ namespace FlyFlint.Internal.Static
     public sealed class RecordInjectableInjectedAttribute :
         Attribute
     {
+        public readonly string Version;
+
         [EditorBrowsable(EditorBrowsableState.Never)]
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public RecordInjectableInjectedAttribute()
-        {
-        }
+        public RecordInjectableInjectedAttribute(string version) =>
+            this.Version = version;
     }
 }

@@ -18,12 +18,13 @@ namespace FlyFlint.Internal.Static
     public sealed class ParameterExtractableInjectedAttribute :
         Attribute
     {
+        public readonly string Version;
+
         [EditorBrowsable(EditorBrowsableState.Never)]
 #if NET45_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public ParameterExtractableInjectedAttribute()
-        {
-        }
+        public ParameterExtractableInjectedAttribute(string version) =>
+            this.Version = version;
     }
 }

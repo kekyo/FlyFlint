@@ -709,9 +709,12 @@ namespace FlyFlint
             }
 
             // Mark injected.
-            targetType.CustomAttributes.Add(
-                new CustomAttribute(
-                    module.ImportReference(this.recordInjectableInjectedAttributeConstructor)));
+            var injectedAttribute = new CustomAttribute(
+                module.ImportReference(this.recordInjectableInjectedAttributeConstructor));
+            injectedAttribute.ConstructorArguments.Add(
+                new CustomAttributeArgument(
+                    this.typeSystem.String, ThisAssembly.AssemblyVersion));
+            targetType.CustomAttributes.Add(injectedAttribute);
 
             return InjectResults.Success;
         }
@@ -897,9 +900,12 @@ namespace FlyFlint
             }
 
             // Mark injected.
-            targetType.CustomAttributes.Add(
-                new CustomAttribute(
-                    module.ImportReference(this.parameterExtractableInjectedAttributeConstructor)));
+            var injectedAttribute = new CustomAttribute(
+                module.ImportReference(this.parameterExtractableInjectedAttributeConstructor));
+            injectedAttribute.ConstructorArguments.Add(
+                new CustomAttributeArgument(
+                    this.typeSystem.String, ThisAssembly.AssemblyVersion));
+            targetType.CustomAttributes.Add(injectedAttribute);
 
             return InjectResults.Success;
         }
