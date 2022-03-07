@@ -10,11 +10,35 @@
 -->
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     
+  <!-- Common -->
+    
   <PropertyGroup>
     <FlyFlintBuildEnable Condition="'$(FlyFlintBuildEnable)' == ''">True</FlyFlintBuildEnable>
     <FlyFlintBuildTrace Condition="'$(FlyFlintBuildTrace)' == ''">False</FlyFlintBuildTrace>
   </PropertyGroup>
 
+  <!-- Common (internal) -->
+    
+  <PropertyGroup Condition="('$(MSBuildRuntimeType)' == 'Core') AND ('$(MicrosoftNETBuildTasksTFM)' != '')">
+    <_FFB_PlatformName>$(MicrosoftNETBuildTasksTFM)</_FFB_PlatformName>
+  </PropertyGroup>
+  <PropertyGroup Condition="('$(MSBuildRuntimeType)' == 'Core') AND ('$(MicrosoftNETBuildTasksTFM)' == '') AND ('$(BundledNETCoreAppTargetFrameworkVersion)' != '')">
+    <_FFB_PlatformName Condition="$(BundledNETCoreAppTargetFrameworkVersion) &gt;= 5.0">net$(BundledNETCoreAppTargetFrameworkVersion)</_FFB_PlatformName>
+    <_FFB_PlatformName Condition="$(BundledNETCoreAppTargetFrameworkVersion) &lt; 5.0">netcoreapp$(BundledNETCoreAppTargetFrameworkVersion)</_FFB_PlatformName>
+  </PropertyGroup>
+  <PropertyGroup Condition="('$(MSBuildRuntimeType)' == 'Core') AND ('$(MicrosoftNETBuildTasksTFM)' == '') AND ('$(BundledNETCoreAppTargetFrameworkVersion)' == '')">
+    <_FFB_PlatformName>netcoreapp2.0</_FFB_PlatformName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(MSBuildRuntimeType)' != 'Core'">
+    <_FFB_PlatformName>net45</_FFB_PlatformName>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <_FFB_ToolingDir>$([System.IO.Path]::Combine('$(_FFB_ScriptBaseDir)','..','tools','$(_FFB_PlatformName)'))</_FFB_ToolingDir>
+  </PropertyGroup>
+
+  <!-- Custom inlined task -->
+    
   <UsingTask
     TaskName="GetCombinedReferencesBasePath"
     TaskFactory="RoslynCodeTaskFactory"
@@ -40,6 +64,8 @@
     </Task>
   </UsingTask>
     
+  <!-- Custom target at after compile process -->
+    
   <Target Name="FlyFlintBuild" AfterTargets="AfterCompile"
     Condition="'$(FlyFlintBuildEnable)' == 'True'">
       
@@ -58,4 +84,5 @@
     <Exec WorkingDirectory="$(FlyFlintBuildToolingDir)"
         Command="$(FlyFlintBuildToolingRuntimeName)&quot;$(FlyFlintBuildToolingPath)&quot; $(FlyFlintBuildTraceOption) &quot;$(CombinedReferencesBasePath)&quot; &quot;$(ProjectDir)$(IntermediateOutputPath)$(TargetFileName)&quot;" />
   </Target>
+
 </Project>

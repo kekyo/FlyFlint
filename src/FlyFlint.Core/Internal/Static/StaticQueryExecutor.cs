@@ -11,7 +11,6 @@ using FlyFlint.Context;
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
-using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
 namespace FlyFlint.Internal.Static
